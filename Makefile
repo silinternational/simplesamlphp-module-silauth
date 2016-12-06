@@ -16,7 +16,7 @@ db:
 	docker-compose up -d db
 
 migratedb: db
-	docker-compose run --rm web bash -c "whenavail db 3306 30 vendor/bin/phinx migrate -e developerment"
+	docker-compose run --rm web bash -c "whenavail db 3306 30 vendor/bin/phinx migrate -e development"
 
 migratetestdb: testdb
 	docker-compose run --rm web bash -c "whenavail testdb 3306 30 vendor/bin/phinx migrate -e testing"
