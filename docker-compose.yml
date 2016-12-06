@@ -34,6 +34,16 @@ services:
       MYSQL_USER: silauth
       MYSQL_PASSWORD: silauth
 
+  testdb:
+    image: silintl/mariadb:latest
+    ports:
+      - "3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: r00tp@ss!
+      MYSQL_DATABASE: test
+      MYSQL_USER: silauth
+      MYSQL_PASSWORD: silauth
+
   dbadmin:
     image: silintl/phpmyadmin:latest
     ports:
