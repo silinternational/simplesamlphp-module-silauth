@@ -11,6 +11,12 @@ services:
       - ./development/ssp/saml20-idp-hosted.php:/data/vendor/simplesamlphp/simplesamlphp/metadata/saml20-idp-hosted.php
       - ./development/ssp/saml.crt:/data/vendor/simplesamlphp/simplesamlphp/cert/saml.crt
       - ./development/ssp/saml.pem:/data/vendor/simplesamlphp/simplesamlphp/cert/saml.pem
+      - ./composer.json:/data/composer.json
+      - ./composer.lock:/data/composer.lock
+      - ./vendor:/data/vendor
+      - ./phinx.yml:/data/phinx.yml
+      - ./db:/data/db
+      - ./tests:/data/tests
     env_file:
       - ./common.env
       - ./local.env
@@ -25,6 +31,16 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: r00tp@ss!
       MYSQL_DATABASE: silauth
+      MYSQL_USER: silauth
+      MYSQL_PASSWORD: silauth
+
+  testdb:
+    image: silintl/mariadb:latest
+    ports:
+      - "3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: r00tp@ss!
+      MYSQL_DATABASE: test
       MYSQL_USER: silauth
       MYSQL_PASSWORD: silauth
 
