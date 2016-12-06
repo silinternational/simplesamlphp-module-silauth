@@ -1,4 +1,7 @@
 
+bash:
+	docker-compose run --rm web bash
+
 bounce:
 	docker-compose up -d web
 
