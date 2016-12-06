@@ -1,0 +1,70 @@
+version: "2"
+
+services:
+
+  web:
+    image: silintl/ssp-base:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./development/ssp/authsources.php:/data/vendor/simplesamlphp/simplesamlphp/config/authsources.php
+      - ./development/ssp/saml20-idp-hosted.php:/data/vendor/simplesamlphp/simplesamlphp/metadata/saml20-idp-hosted.php
+      - ./development/ssp/saml.crt:/data/vendor/simplesamlphp/simplesamlphp/cert/saml.crt
+      - ./development/ssp/saml.pem:/data/vendor/simplesamlphp/simplesamlphp/cert/saml.pem
+    env_file:
+      - ./common.env
+      - ./local.env
+    links:
+      - db
+      - ldap
+
+  db:
+    image: silintl/mariadb:latest
+    ports:
+      - "3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: r00tp@ss!
+      MYSQL_DATABASE: silauth
+      MYSQL_USER: silauth
+      MYSQL_PASSWORD: silauth
+
+  dbadmin:
+    image: silintl/phpmyadmin:latest
+    ports:
+      - "8080:80"
+    environment:
+      MYSQL_HOST: db
+
+  ldap:
+    build:
+      context: ./development/ldap
+      dockerfile: Dockerfile
+    ports:
+      - "389"
+    working_dir: /data
+    environment:
+      DEBUG_LEVEL: 320
+
+  ldapload:
+    build:
+      context: ./development/ldap
+      dockerfile: Dockerfile
+    working_dir: /data
+    environment:
+      DEBUG_LEVEL: 320
+    links:
+      - ldap
+    command: bash -c "sleep 10 && /data/load_ldap.sh"
+
+  ldapadmin:
+    image: silintl/phpldapadmin:latest
+    links:
+      - ldap
+    ports:
+      - "8000:80"
+    environment:
+      DISPLAY_NAME: Password Store
+      HOST: ldap
+      PORT: 389
+      BASE: dc=acme,dc=org
+
