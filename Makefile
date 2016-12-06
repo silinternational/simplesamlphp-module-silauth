@@ -45,5 +45,5 @@ test: composer rmtestdb testdb migratetestdb phpunit
 testdb:
 	docker-compose up -d testdb
 
-web: db composer dbmigrate
+web: db composer migratedb
 	docker-compose up -d web
