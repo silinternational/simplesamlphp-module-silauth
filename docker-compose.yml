@@ -14,6 +14,7 @@ services:
       - ./composer.json:/data/composer.json
       - ./composer.lock:/data/composer.lock
       - ./vendor:/data/vendor
+      - ./features:/data/features
       - ./phinx.yml:/data/phinx.yml
       - ./db:/data/db
       - ./tests:/data/tests
