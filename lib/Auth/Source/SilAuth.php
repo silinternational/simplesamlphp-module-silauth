@@ -73,7 +73,7 @@ class sspmod_silauth_Auth_Source_SilAuth extends SimpleSAML_Auth_Source
          * Redirect to the login form. We include the identifier of the saved
          * state array as a parameter to the login form.
          */
-        $url = SimpleSAML_Module::getModuleURL('material/login.php');
+        $url = SimpleSAML_Module::getModuleURL('silauth/loginuserpass.php');
         $params = array('AuthState' => $id);
         \SimpleSAML\Utils\HTTP::redirectTrustedURL($url, $params);
 
