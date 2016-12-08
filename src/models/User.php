@@ -1,5 +1,5 @@
 <?php
-namespace SilAuth\models;
+namespace Sil\SilAuth\models;
 
 use Illuminate\Database\Eloquent\Model;
 
