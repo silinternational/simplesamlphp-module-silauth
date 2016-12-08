@@ -5,6 +5,9 @@ bash:
 behat:
 	docker-compose run --rm web bash -c "MYSQL_HOST=testdb MYSQL_DATABASE=test vendor/bin/behat"
 
+behatappend:
+	docker-compose run --rm web bash -c "MYSQL_HOST=testdb MYSQL_DATABASE=test vendor/bin/behat --append-snippets"
+
 bounce:
 	docker-compose up -d web
 
