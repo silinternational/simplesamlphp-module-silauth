@@ -4,16 +4,22 @@ use Behat\Behat\Tester\Exception\PendingException;
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
-use SilAuth\db\DatabaseConfigurer;
-use SilAuth\models\User;
+use Sil\SilAuth\Authenticator;
+use Sil\SilAuth\db\DatabaseConfigurer;
+use Sil\SilAuth\models\User;
 
 /**
  * Defines application features from the specific context.
  */
 class FeatureContext implements Context
 {
-    private $user = null;
+    /** @var Authenticator|null */
+    private $authenticator = null;
+    
+    /** @var string|null */
     private $username = null;
+    
+    /** @var string|null */
     private $password = null;
     
     /**
@@ -49,10 +55,10 @@ class FeatureContext implements Context
      */
     public function iTryToLogin()
     {
-        if ($this->username === null) {
-            throw new Exception('Please provide a username.');
-        }
-        $this->user = User::where('username', $this->username)->first();
+        $this->authenticator = new Authenticator(
+            $this->username,
+            $this->password
+        );
     }
 
     /**
@@ -60,7 +66,9 @@ class FeatureContext implements Context
      */
     public function iShouldSeeAnErrorMessage()
     {
-        throw new PendingException();
+        PHPUnit_Framework_Assert::assertNotEmpty(
+            $this->authenticator->getErrors()
+        );
     }
 
     /**
@@ -68,7 +76,9 @@ class FeatureContext implements Context
      */
     public function iShouldNotBeAllowedThrough()
     {
-        throw new PendingException();
+        PHPUnit_Framework_Assert::assertFalse(
+            $this->authenticator->isAuthenticated()
+        );
     }
 
     /**
@@ -76,7 +86,7 @@ class FeatureContext implements Context
      */
     public function iProvideAUsername()
     {
-        throw new PendingException();
+        $this->username = 'a username';
     }
 
     /**
@@ -84,7 +94,7 @@ class FeatureContext implements Context
      */
     public function iDoNotProvideAPassword()
     {
-        throw new PendingException();
+        $this->password = '';
     }
 
     /**
@@ -92,7 +102,7 @@ class FeatureContext implements Context
      */
     public function iProvideTheCorrectPasswordForThatUsername()
     {
-        throw new PendingException();
+        $this->password = 'the right password';
     }
 
     /**
@@ -100,7 +110,9 @@ class FeatureContext implements Context
      */
     public function iShouldNotSeeAnErrorMessage()
     {
-        throw new PendingException();
+        PHPUnit_Framework_Assert::assertEmpty(
+            $this->authenticator->getErrors()
+        );
     }
 
     /**
@@ -108,7 +120,9 @@ class FeatureContext implements Context
      */
     public function iShouldBeAllowedThrough()
     {
-        throw new PendingException();
+        PHPUnit_Framework_Assert::assertTrue(
+            $this->authenticator->isAuthenticated()
+        );
     }
 
     /**
@@ -116,6 +130,34 @@ class FeatureContext implements Context
      */
     public function iProvideTheWrongPasswordForThatUsername()
     {
-        throw new PendingException();
+        $this->password = 'the wrong password';
+    }
+
+    /**
+     * @Given the following users exist in the database:
+     */
+    public function theFollowingUsersExistInTheDatabase(TableNode $table)
+    {
+        foreach ($table as $row) {
+            $user = User::firstOrNew(['username' => $row['username']]);
+            $user->password_hash = password_hash($row['password'], PASSWORD_DEFAULT);
+            $user->saveOrFail();
+        }
+    }
+
+    /**
+     * @Given I provide a username of :username
+     */
+    public function iProvideAUsernameOf($username)
+    {
+        $this->username = $username;
+    }
+
+    /**
+     * @Given I provide a password of :password
+     */
+    public function iProvideAPasswordOf($password)
+    {
+        $this->password = $password;
     }
 }

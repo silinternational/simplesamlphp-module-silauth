@@ -22,14 +22,21 @@ Feature: User login
     And I should not be allowed through
 
   Scenario: Providing an incorrect username-password combination
-    Given I provide a username
-    And I provide a password
-    But I provide the wrong password for that username
+    Given the following users exist in the database:
+        | username | password |
+        | Bob      | MrTomato |
+    And I provide a username of "Bob"
+    But I provide a password of "MrsAsparagus"
+    When I try to login
     Then I should see an error message
     And I should not be allowed through
 
   Scenario: Providing a correct username-password combination
-    Given I provide a username
-    And I provide the correct password for that username
+    Given the following users exist in the database:
+        | username | password |
+        | Bob      | MrTomato |
+    And I provide a username of "Bob"
+    And I provide a password of "MrTomato"
+    When I try to login
     Then I should not see an error message
     And I should be allowed through
