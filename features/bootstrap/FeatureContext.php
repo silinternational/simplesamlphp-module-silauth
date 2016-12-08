@@ -4,6 +4,7 @@ use Behat\Behat\Tester\Exception\PendingException;
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
+use SilAuth\db\DatabaseConfigurer;
 use SilAuth\models\User;
 
 /**
@@ -11,8 +12,9 @@ use SilAuth\models\User;
  */
 class FeatureContext implements Context
 {
-    private $username;
-    private $password;
+    private $user = null;
+    private $username = null;
+    private $password = null;
     
     /**
      * Initializes context.
@@ -23,6 +25,7 @@ class FeatureContext implements Context
      */
     public function __construct()
     {
+        DatabaseConfigurer::init();
     }
 
     /**
@@ -46,6 +49,9 @@ class FeatureContext implements Context
      */
     public function iTryToLogin()
     {
+        if ($this->username === null) {
+            throw new Exception('Please provide a username.');
+        }
         $this->user = User::where('username', $this->username)->first();
     }
 

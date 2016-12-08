@@ -20,6 +20,11 @@ services:
     env_file:
       - ./common.env
       - ./local.env
+    environment:
+      MYSQL_HOST: db
+      MYSQL_DATABASE: silauth
+      MYSQL_USER: silauth
+      MYSQL_PASSWORD: silauth
     links:
       - db
       - ldap

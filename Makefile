@@ -2,6 +2,9 @@
 bash:
 	docker-compose run --rm web bash
 
+behat:
+	docker-compose run --rm web bash -c "MYSQL_HOST=testdb MYSQL_DATABASE=test vendor/bin/behat"
+
 bounce:
 	docker-compose up -d web
 
@@ -24,9 +27,6 @@ migratedb: db
 migratetestdb: testdb
 	docker-compose run --rm web bash -c "whenavail testdb 3306 30 vendor/bin/phinx migrate -e testing"
 
-phpunit:
-	docker-compose run --rm web bash -c "cd tests && ../vendor/bin/phpunit ."
-
 ps:
 	docker-compose ps
 
@@ -40,7 +40,7 @@ rmtestdb:
 
 start: web
 
-test: composer rmtestdb testdb migratetestdb phpunit
+test: composer rmtestdb testdb migratetestdb behat
 
 testdb:
 	docker-compose up -d testdb
