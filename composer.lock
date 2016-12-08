@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "9ba70ba83712d714be09b0673b5e9b19",
-    "content-hash": "800d4bc4aef20f396ec8277550cb68c0",
+    "hash": "93aef82a368d1422315bdca0e199d67e",
+    "content-hash": "a76da3f26494ad6f9048a6b4471c23b1",
     "packages": [
         {
             "name": "doctrine/inflector",
@@ -744,18 +744,18 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/silinternational/ssp-utilities.git",
-                "reference": "721bbc3443aadb72a7ecae607e3735d767506573"
+                "reference": "c213e783a1be475295f2701b7777382132a8ef93"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/silinternational/ssp-utilities/zipball/721bbc3443aadb72a7ecae607e3735d767506573",
-                "reference": "721bbc3443aadb72a7ecae607e3735d767506573",
+                "url": "https://api.github.com/repos/silinternational/ssp-utilities/zipball/c213e783a1be475295f2701b7777382132a8ef93",
+                "reference": "c213e783a1be475295f2701b7777382132a8ef93",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.4",
                 "roave/security-advisories": "dev-master",
-                "simplesamlphp/simplesamlphp": "^1.14.8"
+                "simplesamlphp/simplesamlphp": "^1.14"
             },
             "require-dev": {
                 "phpunit/phpunit": "^5.6.1",
@@ -778,7 +778,7 @@
                 }
             ],
             "description": "SimpleSAMLphp related utility classes",
-            "time": "2016-11-30 18:35:36"
+            "time": "2016-12-07 18:58:41"
         },
         {
             "name": "simplesamlphp/saml2",
