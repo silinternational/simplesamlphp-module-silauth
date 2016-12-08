@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "941933f95792370aa7958e153072fd24",
-    "content-hash": "6cff7e75ab15e27bd1b3c8dbd8398cd8",
+    "hash": "1d8a89e78297778cb270b6a17bd918ca",
+    "content-hash": "f223d8426b55e527322e9dabc54990a0",
     "packages": [
         {
             "name": "doctrine/inflector",
@@ -218,6 +218,51 @@
                 "sql"
             ],
             "time": "2016-11-14 15:37:58"
+        },
+        {
+            "name": "illuminate/events",
+            "version": "v5.3.23",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/illuminate/events.git",
+                "reference": "cb29124d4eaba8a60bad40e95e3d8b199d040d77"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/illuminate/events/zipball/cb29124d4eaba8a60bad40e95e3d8b199d040d77",
+                "reference": "cb29124d4eaba8a60bad40e95e3d8b199d040d77",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/container": "5.3.*",
+                "illuminate/contracts": "5.3.*",
+                "illuminate/support": "5.3.*",
+                "php": ">=5.6.4"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "5.3-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Illuminate\\Events\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Taylor Otwell",
+                    "email": "taylor@laravel.com"
+                }
+            ],
+            "description": "The Illuminate Events package.",
+            "homepage": "https://laravel.com",
+            "time": "2016-08-12 14:24:30"
         },
         {
             "name": "illuminate/filesystem",
@@ -744,18 +789,18 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/silinternational/ssp-utilities.git",
-                "reference": "721bbc3443aadb72a7ecae607e3735d767506573"
+                "reference": "934ab927b1cc8d1b476712e92086252bd65fe616"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/silinternational/ssp-utilities/zipball/721bbc3443aadb72a7ecae607e3735d767506573",
-                "reference": "721bbc3443aadb72a7ecae607e3735d767506573",
+                "url": "https://api.github.com/repos/silinternational/ssp-utilities/zipball/934ab927b1cc8d1b476712e92086252bd65fe616",
+                "reference": "934ab927b1cc8d1b476712e92086252bd65fe616",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.4",
                 "roave/security-advisories": "dev-master",
-                "simplesamlphp/simplesamlphp": "^1.14.8"
+                "simplesamlphp/simplesamlphp": "^1.14.10"
             },
             "require-dev": {
                 "phpunit/phpunit": "^5.6.1",
@@ -778,7 +823,7 @@
                 }
             ],
             "description": "SimpleSAMLphp related utility classes",
-            "time": "2016-11-30 18:35:36"
+            "time": "2016-12-08 13:58:50"
         },
         {
             "name": "simplesamlphp/saml2",

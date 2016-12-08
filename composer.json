@@ -15,8 +15,9 @@
     "roave/security-advisories": "dev-master",
     "silinternational/php-env": "^0.2.0",
     "silinternational/ssp-utilities": "dev-develop",
-    "illuminate/database": "^5.3.23",
-    "illuminate/filesystem": "^5.3.23",
+    "illuminate/database": "^5.3",
+    "illuminate/events": "^5.3",
+    "illuminate/filesystem": "^5.3",
     "robmorgan/phinx": "^0.6.5"
   },
   "require-dev": {
