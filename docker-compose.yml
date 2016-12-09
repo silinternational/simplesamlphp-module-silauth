@@ -13,10 +13,11 @@ services:
       - ./development/ssp/saml.pem:/data/vendor/simplesamlphp/simplesamlphp/cert/saml.pem
       - ./composer.json:/data/composer.json
       - ./composer.lock:/data/composer.lock
-      - ./vendor:/data/vendor
       - ./phinx.yml:/data/phinx.yml
       - ./db:/data/db
       - ./tests:/data/tests
+      - ./vendor:/data/vendor
+      - ./:/data/vendor/simplesamlphp/simplesamlphp/modules/silauth
     env_file:
       - ./common.env
       - ./local.env
