@@ -1114,12 +1114,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/silinternational/ssp-utilities.git",
-                "reference": "934ab927b1cc8d1b476712e92086252bd65fe616"
+                "reference": "288f6dc251009a5161d8d3f41f1997e2274983e8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/silinternational/ssp-utilities/zipball/934ab927b1cc8d1b476712e92086252bd65fe616",
-                "reference": "934ab927b1cc8d1b476712e92086252bd65fe616",
+                "url": "https://api.github.com/repos/silinternational/ssp-utilities/zipball/288f6dc251009a5161d8d3f41f1997e2274983e8",
+                "reference": "288f6dc251009a5161d8d3f41f1997e2274983e8",
                 "shasum": ""
             },
             "require": {
@@ -1148,7 +1148,7 @@
                 }
             ],
             "description": "SimpleSAMLphp related utility classes",
-            "time": "2016-12-08 13:58:50"
+            "time": "2016-12-12 15:41:24"
         },
         {
             "name": "simplesamlphp/saml2",
@@ -1201,16 +1201,16 @@
         },
         {
             "name": "simplesamlphp/simplesamlphp",
-            "version": "v1.14.10",
+            "version": "v1.14.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/simplesamlphp/simplesamlphp.git",
-                "reference": "da637c53962c13905eaae5ec9f33e658a237c284"
+                "reference": "b96dcc500caae73954d4f01189e0209afc6086be"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/simplesamlphp/simplesamlphp/zipball/da637c53962c13905eaae5ec9f33e658a237c284",
-                "reference": "da637c53962c13905eaae5ec9f33e658a237c284",
+                "url": "https://api.github.com/repos/simplesamlphp/simplesamlphp/zipball/b96dcc500caae73954d4f01189e0209afc6086be",
+                "reference": "b96dcc500caae73954d4f01189e0209afc6086be",
                 "shasum": ""
             },
             "require": {
@@ -1267,7 +1267,7 @@
                 "sp",
                 "ws-federation"
             ],
-            "time": "2016-12-02 15:23:28"
+            "time": "2016-12-12 15:13:53"
         },
         {
             "name": "symfony/config",
@@ -3297,12 +3297,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/silinternational/simplesamlphp-module-material.git",
-                "reference": "991c5b011948af8e1be1a2a173bf2b7ec0257b52"
+                "reference": "7a4ad009cbf6883d64491b8492270c78d7201801"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/silinternational/simplesamlphp-module-material/zipball/991c5b011948af8e1be1a2a173bf2b7ec0257b52",
-                "reference": "991c5b011948af8e1be1a2a173bf2b7ec0257b52",
+                "url": "https://api.github.com/repos/silinternational/simplesamlphp-module-material/zipball/7a4ad009cbf6883d64491b8492270c78d7201801",
+                "reference": "7a4ad009cbf6883d64491b8492270c78d7201801",
                 "shasum": ""
             },
             "require": {
@@ -3323,7 +3323,7 @@
                 }
             ],
             "description": "Material Design theme for IdP Hub based on SimpleSAMLphp",
-            "time": "2016-12-08 14:06:07"
+            "time": "2016-12-10 00:41:11"
         },
         {
             "name": "simplesamlphp/composer-module-installer",
