@@ -24,6 +24,9 @@ composerupdate:
 db:
 	docker-compose up -d db
 
+generatemodels:
+	docker-compose run --rm web bash -c "/data/src/rebuildbasemodels.sh"
+
 migratedb: db
 	docker-compose run --rm web bash -c "whenavail db 3306 30 vendor/bin/phinx migrate -e development"
 
