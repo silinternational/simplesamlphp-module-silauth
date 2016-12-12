@@ -6,16 +6,37 @@ use PHPUnit\Framework\TestCase;
 
 class UserTest extends TestCase
 {
+    public function testChangingAnExistingUuid()
+    {
+        // Arrange:
+        $user = new User();
+        
+        // Pre-assert:
+        $this->assertTrue($user->save());
+        $this->assertTrue($user->refresh());
+        
+        // Act:
+        $user->uuid = User::generateUuid();
+        
+        // Assert:
+        $this->assertFalse($user->validate(['uuid']));
+    }
+    
+    public function testGenerateUuid()
+    {
+        // Arrange: (n/a)
+        
+        // Act:
+        $uuid = User::generateUuid();
+        
+        // Assert:
+        $this->assertNotEmpty($uuid);
+    }
+    
     public function testValidationRules()
     {
         // Arrange:
         $testCases = [
-            'no uuid' => [
-                'attributes' => [
-                    
-                ],
-                'expected' => false,
-            ]
         ];
         foreach ($testCases as $testName => $testData) {
 

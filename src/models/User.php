@@ -1,9 +1,13 @@
 <?php
 namespace Sil\SilAuth\models;
 
+use Ramsey\Uuid\Uuid;
 use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
 
+/**
+ * @property string $uuid
+ */
 class User extends ActiveRecord
 {
 //    protected $fillable = [
@@ -15,10 +19,30 @@ class User extends ActiveRecord
 //        'email',
 //    ];
     
+    public static function generateUuid()
+    {
+        return Uuid::uuid4()->toString();
+    }
+    
     public function rules()
     {
         return ArrayHelper::merge([
             [
+                'uuid',
+                'default',
+                'value' => function () {
+                    return self::generateUuid();
+                },
+                'when' => function($model) {
+                    return $model->isNewRecord;
+                },
+            ], [
+                'uuid',
+                'validateValueDidNotChange',
+                'when' => function($model) {
+                    return ! $model->isNewRecord;
+                },
+            ], [
                 [
                     'uuid',
 //                    'employee_id',
@@ -33,8 +57,10 @@ class User extends ActiveRecord
 //                    'updated_at',
                 ],
                 'required',
+            ], [
+                'email',
+                'email',
             ],
-            ['email', 'email'],
         ], parent::rules());
     }
     
@@ -54,4 +80,18 @@ class User extends ActiveRecord
 //    {
 //        return $this->hasMany(PreviousPassword::class);
 //    }
+    
+    /**
+     * @param string $attribute the attribute currently being validated
+     */
+    public function validateValueDidNotChange($attribute)
+    {
+        $previousUserRecord = User::findOne(['id' => $this->id]);
+        if ($this->$attribute !== $previousUserRecord->$attribute) {
+            $this->addError($attribute, sprintf(
+                'The %s value may not change.',
+                $attribute
+            ));
+        }
+    }
 }

@@ -20,7 +20,8 @@
     "illuminate/events": "^5.3",
     "illuminate/filesystem": "^5.3",
     "robmorgan/phinx": "^0.6.5",
-    "yiisoft/yii2": "^2.0"
+    "yiisoft/yii2": "^2.0",
+    "ramsey/uuid": "^3.5"
   },
   "require-dev": {
     "behat/behat": "^3.2",
