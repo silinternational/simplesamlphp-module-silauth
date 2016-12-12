@@ -5,7 +5,6 @@ use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
 use Sil\SilAuth\Authenticator;
-use Sil\SilAuth\db\DatabaseConfigurer;
 use Sil\SilAuth\models\User;
 
 /**
@@ -31,7 +30,12 @@ class FeatureContext implements Context
      */
     public function __construct()
     {
-        DatabaseConfigurer::init();
+        $this->initializeDependencies();
+    }
+    
+    protected function initializeDependencies()
+    {
+        require_once __DIR__ . '/../../src/bootstrap-yii2.php';
     }
 
     /**
@@ -139,9 +143,16 @@ class FeatureContext implements Context
     public function theFollowingUsersExistInTheDatabase(TableNode $table)
     {
         foreach ($table as $row) {
-            $user = User::firstOrNew(['username' => $row['username']]);
+            $user = User::findOne(['username' => $row['username']]);
+            if ($user === null) {
+                $user = new User();
+                $user->username = $row['username'];
+            }
             $user->password_hash = password_hash($row['password'], PASSWORD_DEFAULT);
-            $user->saveOrFail();
+            PHPUnit_Framework_Assert::assertTrue($user->save(), sprintf(
+                'Failed to set up user for test: %s',
+                print_r($user->getErrors(), true)
+            ));
         }
     }
 

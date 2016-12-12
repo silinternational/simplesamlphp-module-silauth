@@ -30,6 +30,9 @@ migratedb: db
 migratetestdb: testdb
 	docker-compose run --rm web bash -c "whenavail testdb 3306 30 vendor/bin/phinx migrate -e testing"
 
+phpunit:
+	docker-compose run --rm web bash -c "cd src/tests && MYSQL_HOST=testdb MYSQL_DATABASE=test ../../vendor/bin/phpunit ."
+
 ps:
 	docker-compose ps
 
@@ -43,7 +46,7 @@ rmtestdb:
 
 start: web
 
-test: composer rmtestdb testdb migratetestdb behat
+test: composer rmtestdb testdb migratetestdb behat phpunit
 
 testdb:
 	docker-compose up -d testdb

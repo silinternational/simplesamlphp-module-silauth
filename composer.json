@@ -19,7 +19,8 @@
     "illuminate/database": "^5.3",
     "illuminate/events": "^5.3",
     "illuminate/filesystem": "^5.3",
-    "robmorgan/phinx": "^0.6.5"
+    "robmorgan/phinx": "^0.6.5",
+    "yiisoft/yii2": "^2.0"
   },
   "require-dev": {
     "behat/behat": "^3.2",
