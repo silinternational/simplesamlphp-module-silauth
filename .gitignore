@@ -3,3 +3,4 @@ vendor/
 local.env
 /nbproject/
 .vagrant/
+auth.json

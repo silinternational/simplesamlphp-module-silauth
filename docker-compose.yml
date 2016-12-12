@@ -18,6 +18,7 @@ services:
       - ./src:/data/src
       - ./vendor:/data/vendor
       - ./:/data/vendor/simplesamlphp/simplesamlphp/modules/silauth
+      - ./auth.json:/root/.composer/auth.json
     env_file:
       - ./common.env
       - ./local.env
