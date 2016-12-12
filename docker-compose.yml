@@ -7,17 +7,14 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./development/ssp/authsources.php:/data/vendor/simplesamlphp/simplesamlphp/config/authsources.php
-      - ./development/ssp/saml20-idp-hosted.php:/data/vendor/simplesamlphp/simplesamlphp/metadata/saml20-idp-hosted.php
-      - ./development/ssp/saml.crt:/data/vendor/simplesamlphp/simplesamlphp/cert/saml.crt
-      - ./development/ssp/saml.pem:/data/vendor/simplesamlphp/simplesamlphp/cert/saml.pem
+      - ./development/run-dev.sh:/data/run-dev.sh
       - ./composer.json:/data/composer.json
       - ./composer.lock:/data/composer.lock
       - ./features:/data/features
       - ./phinx.yml:/data/phinx.yml
       - ./src:/data/src
       - ./vendor:/data/vendor
-      - ./:/data/vendor/simplesamlphp/simplesamlphp/modules/silauth
+      - ./:/silauth
       - ./auth.json:/root/.composer/auth.json
     env_file:
       - ./common.env
@@ -30,6 +27,7 @@ services:
     links:
       - db
       - ldap
+    command: ["/data/run-dev.sh"]
 
   db:
     image: silintl/mariadb:latest
