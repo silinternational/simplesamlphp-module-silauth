@@ -2,6 +2,12 @@
 bash:
 	docker-compose run --rm web bash
 
+behat:
+	docker-compose run --rm web bash -c "MYSQL_HOST=testdb MYSQL_DATABASE=test vendor/bin/behat"
+
+behatappend:
+	docker-compose run --rm web bash -c "MYSQL_HOST=testdb MYSQL_DATABASE=test vendor/bin/behat --append-snippets"
+
 bounce:
 	docker-compose up -d web
 
@@ -18,14 +24,20 @@ composerupdate:
 db:
 	docker-compose up -d db
 
+generatemodels: migratedb
+	docker-compose run --rm web bash -c "/data/src/rebuildbasemodels.sh"
+
 migratedb: db
-	docker-compose run --rm web bash -c "whenavail db 3306 30 vendor/bin/phinx migrate -e development"
+	docker-compose run --rm web bash -c "whenavail db 3306 60 /data/src/yii migrate --interactive=0"
 
 migratetestdb: testdb
-	docker-compose run --rm web bash -c "whenavail testdb 3306 30 vendor/bin/phinx migrate -e testing"
+	docker-compose run --rm web bash -c "MYSQL_HOST=testdb MYSQL_DATABASE=test whenavail testdb 3306 60 /data/src/yii migrate --interactive=0"
+
+migration:
+	docker-compose run --rm web bash -c "/data/src/yii migrate/create $(NAME)"
 
 phpunit:
-	docker-compose run --rm web bash -c "cd tests && ../vendor/bin/phpunit ."
+	docker-compose run --rm web bash -c "cd src/tests && MYSQL_HOST=testdb MYSQL_DATABASE=test ../../vendor/bin/phpunit ."
 
 ps:
 	docker-compose ps
@@ -40,7 +52,7 @@ rmtestdb:
 
 start: web
 
-test: composer rmtestdb testdb migratetestdb phpunit
+test: composer rmtestdb testdb migratetestdb behat phpunit
 
 testdb:
 	docker-compose up -d testdb

@@ -12,17 +12,23 @@
   "minimum-stability": "stable",
   "require": {
     "php": ">=5.6",
+    "ramsey/uuid": "^3.5",
     "roave/security-advisories": "dev-master",
-    "simplesamlphp/simplesamlphp": "^1.14.10",
     "silinternational/php-env": "^0.2.0",
     "silinternational/ssp-utilities": "dev-develop",
-    "illuminate/database": "^5.3.23",
-    "illuminate/filesystem": "^5.3.23",
-    "robmorgan/phinx": "^0.6.5"
+    "simplesamlphp/simplesamlphp": "^1.14.10",
+    "yiisoft/yii2": "^2.0",
+    "yiisoft/yii2-gii": "^2.0"
   },
   "require-dev": {
+    "behat/behat": "^3.2",
     "phpunit/phpunit": "^5.6.1",
     "silinternational/simplesamlphp-module-material": "dev-develop",
     "simplesamlphp/composer-module-installer": "^1.1.5"
+  },
+  "autoload": {
+    "psr-4": {
+      "Sil\\SilAuth\\": "src/"
+    }
   }
 }
