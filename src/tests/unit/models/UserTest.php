@@ -107,4 +107,38 @@ class UserTest extends TestCase
             $this->assertSame($testCase['expectedResult'], $actualResult);
         }
     }
+    
+    public function testRecordLoginAttemptInDatabase()
+    {
+        // Arrange:
+        $uniqId = uniqid();
+        $user = new User();
+        $user->attributes = [
+            'email' => $uniqId . '@example.com',
+            'employee_id' => $uniqId,
+            'first_name' => 'Test ' . $uniqId,
+            'last_name' => 'User',
+            'username' => 'user' . $uniqId,
+        ];
+        
+        // Pre-assert:
+        $this->assertTrue($user->save(), sprintf(
+            'Failed to save User record for test: %s',
+            print_r($user->getErrors(), true)
+        ));
+        $user->refresh();
+        $valueBefore = $user->login_attempts;
+        $this->assertNotNull($valueBefore);
+        
+        // Act:
+        $user->recordLoginAttemptInDatabase();
+        $user->refresh();
+        
+        // Assert:
+        $this->assertSame($valueBefore + 1, $user->login_attempts, sprintf(
+            'The value after (%s) was not 1 more than the value before (%s).',
+            var_export($user->login_attempts, true),
+            var_export($valueBefore, true)
+        ));
+    }
 }

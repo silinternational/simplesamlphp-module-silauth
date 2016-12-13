@@ -71,7 +71,18 @@ class User extends UserBase
     {
         return ($failedLoginAttempts > self::MAX_FAILED_LOGINS_BEFORE_BLOCK);
     }
-        
+    
+    public function recordLoginAttemptInDatabase()
+    {
+        $this->login_attempts += 1;
+        $successful = $this->save(true, ['login_attempts', 'block_until_utc']);
+        if ( ! $successful) {
+            Yii::error(sprintf(
+                'Failed to update login attempts counter in database for %s.',
+                $this->username
+            ));
+        }
+    }
     
     public function rules()
     {
@@ -98,6 +109,12 @@ class User extends UserBase
                 'last_updated_utc',
                 'default',
                 'value' => gmdate('Y-m-d H:i:s'),
+            ], [
+                'block_until_utc',
+                'default',
+                'value' => function ($user) {
+                    return User::calculateBlockUntilUtc($user->login_attempts);
+                },
             ],
         ], parent::rules());
     }
