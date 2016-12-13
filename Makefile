@@ -28,10 +28,13 @@ generatemodels:
 	docker-compose run --rm web bash -c "/data/src/rebuildbasemodels.sh"
 
 migratedb: db
-	docker-compose run --rm web bash -c "whenavail db 3306 30 vendor/bin/phinx migrate -e development"
+	docker-compose run --rm web bash -c "whenavail db 3306 60 /data/src/yii migrate --interactive=0"
 
 migratetestdb: testdb
-	docker-compose run --rm web bash -c "whenavail testdb 3306 30 vendor/bin/phinx migrate -e testing"
+	docker-compose run --rm web bash -c "MYSQL_HOST=testdb MYSQL_DATABASE=test whenavail testdb 3306 60 /data/src/yii migrate --interactive=0"
+
+migration:
+	docker-compose run --rm web bash -c "/data/src/yii migrate/create $(NAME)"
 
 phpunit:
 	docker-compose run --rm web bash -c "cd src/tests && MYSQL_HOST=testdb MYSQL_DATABASE=test ../../vendor/bin/phpunit ."

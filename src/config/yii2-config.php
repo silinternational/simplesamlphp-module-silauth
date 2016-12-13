@@ -23,6 +23,15 @@ return [
             'password' => Env::get('MYSQL_PASSWORD'),
         ],
     ],
+    'controllerMap' => [
+        'migrate' => [
+            'class' => 'yii\console\controllers\MigrateController',
+            'migrationNamespaces' => [
+                'Sil\\SilAuth\\migrations\\',
+            ],
+            'migrationPath' => null, // allows to disable not namespaced migration completely
+        ],
+    ],
     'modules' => [
         'gii' => [
             'class' => 'yii\gii\Module',
