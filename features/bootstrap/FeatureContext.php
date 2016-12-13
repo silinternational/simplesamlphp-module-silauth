@@ -148,7 +148,13 @@ class FeatureContext implements Context
                 $user = new User();
                 $user->username = $row['username'];
             }
-            $user->password_hash = password_hash($row['password'], PASSWORD_DEFAULT);
+            $user->setAttributes([
+                'password_hash' => password_hash($row['password'], PASSWORD_DEFAULT),
+                'email' => $row['email'] ?? ($row['username'] . '@example.com'),
+                'employee_id' => $row['employee_id'] ?? uniqid(),
+                'first_name' => $row['first_name'] ?? $row['username'],
+                'last_name' => $row['last_name'] ?? 'User',
+            ], false);
             PHPUnit_Framework_Assert::assertTrue($user->save(), sprintf(
                 'Failed to set up user for test: %s',
                 print_r($user->getErrors(), true)
