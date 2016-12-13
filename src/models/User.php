@@ -5,9 +5,6 @@ use Ramsey\Uuid\Uuid;
 use yii\helpers\ArrayHelper;
 use Yii;
 
-/**
- * @property string $uuid
- */
 class User extends UserBase
 {
     /**
