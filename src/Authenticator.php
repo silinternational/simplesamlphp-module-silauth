@@ -26,14 +26,23 @@ class Authenticator
             return;
         }
         
-        $user = User::findOne([
-            'username' => $username,
-        ]);
+        /* @var $user User */
+        $user = User::findByUsername($username) ?? (new User());
+        
+        if ($user->isBlockedByRateLimit()) {
+            $this->addError(
+                'There have been too many failed logins for this account. Please wait awhile, then try again.'
+            );
+            return;
+        }
         
         /* Check the given password even if we have no such user, to avoid
          * exposing the existence of certain users through a timing attack.  */
         $passwordHash = (($user === null) ? null : $user->password_hash);
         if ( ! password_verify($password, $passwordHash)) {
+            if ( ! $user->isNewRecord) {
+                $user->recordLoginAttemptInDatabase();
+            }
             $this->addError('Either the username or the password was not correct. Please try again.');
             return;
         }
