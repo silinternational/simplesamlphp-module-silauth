@@ -35,6 +35,18 @@ class User extends UserBase
         return Uuid::uuid4()->toString();
     }
     
+    public function isBlockedByRateLimit()
+    {
+        if ($this->block_until_utc === null) {
+            return false;
+        }
+        
+        $nowUtc = new \DateTime('now', new \DateTimeZone('UTC'));
+        $blockUntilUtc = new \DateTime($this->block_until_utc, new \DateTimeZone('UTC'));
+        
+        return ($blockUntilUtc > $nowUtc);
+    }
+    
     public function rules()
     {
         return ArrayHelper::merge([

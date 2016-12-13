@@ -43,4 +43,40 @@ class UserTest extends TestCase
         // Assert:
         $this->assertNotEmpty($uuid);
     }
+    
+    public function testIsBlockedByRateLimit()
+    {
+        // Arrange:
+        $utc = new \DateTimeZone('UTC');
+        $yesterday = new \DateTime('yesterday', $utc);
+        $tomorrow = new \DateTime('tomorrow', $utc);
+        $testCases = [
+            [
+                'attributes' => [
+                    'block_until_utc' => null,
+                ],
+                'expectedResult' => false,
+            ], [
+                'attributes' => [
+                    'block_until_utc' => $yesterday->format(User::TIME_FORMAT),
+                ],
+                'expectedResult' => false,
+            ], [
+                'attributes' => [
+                    'block_until_utc' => $tomorrow->format(User::TIME_FORMAT),
+                ],
+                'expectedResult' => true,
+            ],
+        ];
+        foreach ($testCases as $testCase) {
+            $user = new User();
+            $user->attributes = $testCase['attributes'];
+            
+            // Act:
+            $actualResult = $user->isBlockedByRateLimit();
+            
+            // Assert:
+            $this->assertSame($testCase['expectedResult'], $actualResult);
+        }
+    }
 }
