@@ -18,8 +18,8 @@ use Yii;
  * @property string $active
  * @property string $locked
  * @property integer $login_attempts
- * @property string $block_until
- * @property string $last_updated
+ * @property string $block_until_utc
+ * @property string $last_updated_utc
  *
  * @property PreviousPassword[] $previousPasswords
  */
@@ -39,10 +39,10 @@ class UserBase extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['uuid', 'employee_id', 'first_name', 'last_name', 'username', 'email', 'last_updated'], 'required'],
+            [['uuid', 'employee_id', 'first_name', 'last_name', 'username', 'email', 'last_updated_utc'], 'required'],
             [['active', 'locked'], 'string'],
             [['login_attempts'], 'integer'],
-            [['block_until', 'last_updated'], 'safe'],
+            [['block_until_utc', 'last_updated_utc'], 'safe'],
             [['uuid', 'employee_id', 'first_name', 'last_name', 'username', 'email', 'password_hash'], 'string', 'max' => 255],
             [['uuid'], 'unique'],
             [['employee_id'], 'unique'],
@@ -68,8 +68,8 @@ class UserBase extends \yii\db\ActiveRecord
             'active' => Yii::t('app', 'Active'),
             'locked' => Yii::t('app', 'Locked'),
             'login_attempts' => Yii::t('app', 'Login Attempts'),
-            'block_until' => Yii::t('app', 'Block Until'),
-            'last_updated' => Yii::t('app', 'Last Updated'),
+            'block_until_utc' => Yii::t('app', 'Block Until Utc'),
+            'last_updated_utc' => Yii::t('app', 'Last Updated Utc'),
         ];
     }
 

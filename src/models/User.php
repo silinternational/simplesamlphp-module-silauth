@@ -35,6 +35,10 @@ class User extends UserBase
             ], [
                 'email',
                 'email',
+            ], [
+                'last_updated_utc',
+                'default',
+                'value' => gmdate('Y-m-d H:i:s'),
             ],
         ], parent::rules());
     }
