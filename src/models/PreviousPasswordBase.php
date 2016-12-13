@@ -10,8 +10,7 @@ use Yii;
  * @property integer $id
  * @property integer $user_id
  * @property string $password_hash
- * @property string $created_at
- * @property string $updated_at
+ * @property string $created
  *
  * @property User $user
  */
@@ -31,9 +30,9 @@ class PreviousPasswordBase extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['user_id', 'password_hash'], 'required'],
+            [['user_id', 'password_hash', 'created'], 'required'],
             [['user_id'], 'integer'],
-            [['created_at', 'updated_at'], 'safe'],
+            [['created'], 'safe'],
             [['password_hash'], 'string', 'max' => 255],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['user_id' => 'id']],
         ];
@@ -48,8 +47,7 @@ class PreviousPasswordBase extends \yii\db\ActiveRecord
             'id' => Yii::t('app', 'ID'),
             'user_id' => Yii::t('app', 'User ID'),
             'password_hash' => Yii::t('app', 'Password Hash'),
-            'created_at' => Yii::t('app', 'Created At'),
-            'updated_at' => Yii::t('app', 'Updated At'),
+            'created' => Yii::t('app', 'Created'),
         ];
     }
 

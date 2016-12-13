@@ -24,7 +24,7 @@ composerupdate:
 db:
 	docker-compose up -d db
 
-generatemodels:
+generatemodels: migratedb
 	docker-compose run --rm web bash -c "/data/src/rebuildbasemodels.sh"
 
 migratedb: db
