@@ -13,7 +13,6 @@ class Authenticator
      * 
      * @param string $username
      * @param string $password
-     * @return void
      */
     public function __construct($username, $password)
     {
