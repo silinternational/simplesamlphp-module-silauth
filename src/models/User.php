@@ -7,6 +7,9 @@ use Yii;
 
 class User extends UserBase
 {
+    const MAX_FAILED_LOGINS_BEFORE_BLOCK = 2;
+    const TIME_FORMAT = 'Y-m-d H:i:s';
+    
     /**
      * @inheritdoc
      */
