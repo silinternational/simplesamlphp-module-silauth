@@ -22,6 +22,23 @@ class User extends UserBase
         ]);
     }
     
+    public static function calculateBlockUntilUtc($failedLoginAttempts)
+    {
+        if ( ! self::isEnoughFailedLoginsToBlock($failedLoginAttempts)) {
+            return null;
+        }
+        
+        $blockForInterval = new \DateInterval(sprintf(
+            'PT%sS', // = P(eriod)T(ime)#S(econds)
+            ($failedLoginAttempts * $failedLoginAttempts)
+        ));
+        
+        $nowUtc = new \DateTime('now', new \DateTimeZone('UTC'));
+        /* @var $blockUntilUtc \DateTime */
+        $blockUntilUtc = $nowUtc->add($blockForInterval);
+        return $blockUntilUtc->format(self::TIME_FORMAT);
+    }
+    
     /**
      * Find the User record with the given username (if any).
      * 
@@ -49,6 +66,12 @@ class User extends UserBase
         
         return ($blockUntilUtc > $nowUtc);
     }
+    
+    protected function isEnoughFailedLoginsToBlock($failedLoginAttempts)
+    {
+        return ($failedLoginAttempts > self::MAX_FAILED_LOGINS_BEFORE_BLOCK);
+    }
+        
     
     public function rules()
     {

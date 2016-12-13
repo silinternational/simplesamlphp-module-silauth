@@ -6,6 +6,34 @@ use PHPUnit\Framework\TestCase;
 
 class UserTest extends TestCase
 {
+    public function testCalculateBlockUntilUtc()
+    {
+        // Arrange:
+        $testCases = [
+            [
+                'failedLogins' => 0,
+                'isNull' => true,
+            ], [
+                'failedLogins' => User::MAX_FAILED_LOGINS_BEFORE_BLOCK - 1,
+                'isNull' => true,
+            ], [
+                'failedLogins' => User::MAX_FAILED_LOGINS_BEFORE_BLOCK,
+                'isNull' => true,
+            ], [
+                'failedLogins' => User::MAX_FAILED_LOGINS_BEFORE_BLOCK + 1,
+                'isNull' => false,
+            ],
+        ];
+        foreach ($testCases as $testCase) {
+            
+            // Act:
+            $actual = User::calculateBlockUntilUtc($testCase['failedLogins']);
+            
+            // Assert:
+            $this->assertSame($testCase['isNull'], is_null($actual));
+        }
+    }
+    
     public function testChangingAnExistingUuid()
     {
         // Arrange:
