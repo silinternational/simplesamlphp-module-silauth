@@ -69,7 +69,7 @@ class User extends UserBase
     
     protected function isEnoughFailedLoginsToBlock($failedLoginAttempts)
     {
-        return ($failedLoginAttempts > self::MAX_FAILED_LOGINS_BEFORE_BLOCK);
+        return ($failedLoginAttempts >= self::MAX_FAILED_LOGINS_BEFORE_BLOCK);
     }
     
     public function recordLoginAttemptInDatabase()
@@ -110,10 +110,11 @@ class User extends UserBase
                 'default',
                 'value' => gmdate('Y-m-d H:i:s'),
             ], [
-                'block_until_utc',
-                'default',
-                'value' => function ($user) {
-                    return User::calculateBlockUntilUtc($user->login_attempts);
+                'login_attempts',
+                'filter',
+                'filter' => function ($loginAttempts) {
+                    $this->block_until_utc = User::calculateBlockUntilUtc($loginAttempts);
+                    return $loginAttempts ?? 0;
                 },
             ],
         ], parent::rules());

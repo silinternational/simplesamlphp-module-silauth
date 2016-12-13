@@ -155,6 +155,9 @@ class FeatureContext implements Context
                 'first_name' => $row['first_name'] ?? $row['username'],
                 'last_name' => $row['last_name'] ?? 'User',
             ], false);
+            if (array_key_exists('login_attempts', $row)) {
+                $user->login_attempts = $row['login_attempts'];
+            }
             PHPUnit_Framework_Assert::assertTrue($user->save(), sprintf(
                 'Failed to set up user for test: %s',
                 print_r($user->getErrors(), true)
@@ -176,5 +179,51 @@ class FeatureContext implements Context
     public function iProvideAPasswordOf($password)
     {
         $this->password = $password;
+    }
+
+    /**
+     * @When I try to login using :username and :password too many times
+     */
+    public function iTryToLoginUsingAndTooManyTimes($username, $password)
+    {
+        $this->username = $username;
+        $this->password = $password;
+        
+        $maxFailedLoginsBeforeBlock = User::MAX_FAILED_LOGINS_BEFORE_BLOCK;
+        
+        PHPUnit_Framework_Assert::assertGreaterThan(
+            0,
+            $maxFailedLoginsBeforeBlock,
+            'The number of failed logins to allow before blocking an account must be positive.'
+        );
+        
+        for ($i = 0; $i <= ($maxFailedLoginsBeforeBlock + 1) ; $i++) {
+            $this->authenticator = new Authenticator(
+                $this->username,
+                $this->password
+            );
+        }
+    }
+
+    /**
+     * @Then I should see an error message with :text in it
+     */
+    public function iShouldSeeAnErrorMessageWithInIt($text)
+    {
+        PHPUnit_Framework_Assert::assertContains(
+            $text,
+            implode("\n", $this->authenticator->getErrors())
+        );
+    }
+
+    /**
+     * @Then that user account should be blocked for awhile
+     */
+    public function thatUserAccountShouldBeBlockedForAwhile()
+    {
+        $user = User::findByUsername($this->username);
+        PHPUnit_Framework_Assert::assertTrue(
+            $user->isBlockedByRateLimit()
+        );
     }
 }
