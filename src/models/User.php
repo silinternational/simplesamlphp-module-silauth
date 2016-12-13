@@ -19,6 +19,17 @@ class User extends UserBase
         ]);
     }
     
+    /**
+     * Find the User record with the given username (if any).
+     * 
+     * @param string $username The username.
+     * @return User|null The matching User record, or null if not found.
+     */
+    public static function findByUsername($username)
+    {
+        return User::findOne(['username' => $username]);
+    }
+    
     public static function generateUuid()
     {
         return Uuid::uuid4()->toString();
