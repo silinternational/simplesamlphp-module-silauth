@@ -3,12 +3,25 @@ namespace Sil\SilAuth\models;
 
 use Ramsey\Uuid\Uuid;
 use yii\helpers\ArrayHelper;
+use Yii;
 
 /**
  * @property string $uuid
  */
 class User extends UserBase
 {
+    /**
+     * @inheritdoc
+     */
+    public function attributeLabels()
+    {
+        return ArrayHelper::merge(parent::attributeLabels(), [
+            'uuid' => Yii::t('app', 'UUID'),
+            'block_until_utc' => Yii::t('app', 'Block Until (UTC)'),
+            'last_updated_utc' => Yii::t('app', 'Last Updated (UTC)'),
+        ]);
+    }
+    
     public static function generateUuid()
     {
         return Uuid::uuid4()->toString();
