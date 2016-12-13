@@ -27,7 +27,9 @@ class Authenticator
             return;
         }
         
-        $user = User::where('username', $username)->first();
+        $user = User::findOne([
+            'username' => $username,
+        ]);
         
         /* Check the given password even if we have no such user, to avoid
          * exposing the existence of certain users through a timing attack.  */
