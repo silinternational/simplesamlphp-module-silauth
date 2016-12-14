@@ -2,6 +2,7 @@
 namespace Sil\SilAuth\models;
 
 use Ramsey\Uuid\Uuid;
+use Sil\SilAuth\UtcTime;
 use yii\helpers\ArrayHelper;
 use Yii;
 
@@ -60,6 +61,25 @@ class User extends UserBase
     public static function generateUuid()
     {
         return Uuid::uuid4()->toString();
+    }
+    
+    /**
+     * Get the number of seconds remaining until the block_until_utc datetime is
+     * reached. Returns zero if the user is not blocked.
+     * 
+     * @return int
+     */
+    public function getSecondsUntilUnblocked()
+    {
+        if ($this->block_until_utc === null) {
+            return 0;
+        }
+        
+        $nowUtc = new UtcTime();
+        $blockUntilUtc = new UtcTime($this->block_until_utc);
+        $remainingSeconds = $nowUtc->getSecondsUntil($blockUntilUtc);
+        
+        return max($remainingSeconds, 0);
     }
     
     public function isActive()

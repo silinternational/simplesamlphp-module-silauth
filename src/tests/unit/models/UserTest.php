@@ -1,6 +1,7 @@
 <?php
 namespace Sil\SilAuth\tests\unit\models;
 
+use Sil\SilAuth\UtcTime;
 use Sil\SilAuth\models\User;
 use PHPUnit\Framework\TestCase;
 
@@ -70,6 +71,26 @@ class UserTest extends TestCase
         
         // Assert:
         $this->assertNotEmpty($uuid);
+    }
+    
+    public function testGetSecondsUntilUnblocked()
+    {
+        // Arrange:
+        $testCases = [
+            ['blockUntilUtc' => null, 'expected' => 0],
+            ['blockUntilUtc' => UtcTime::format('+8 seconds'), 'expected' => 8],
+            ['blockUntilUtc' => UtcTime::format('+1 minute'), 'expected' => 60],
+        ];
+        foreach ($testCases as $testCase) {
+            $user = new User();
+            $user->block_until_utc = $testCase['blockUntilUtc'];
+            
+            // Act:
+            $actual = $user->getSecondsUntilUnblocked();
+            
+            // Assert:
+            $this->assertSame($testCase['expected'], $actual);
+        }
     }
     
     public function testIsActive()
