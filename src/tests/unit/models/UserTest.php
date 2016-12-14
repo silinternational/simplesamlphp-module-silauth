@@ -73,6 +73,34 @@ class UserTest extends TestCase
         $this->assertNotEmpty($uuid);
     }
     
+    public function testGetFriendlyWaitTimeFor()
+    {
+        // Arrange:
+        $testCases = [
+            ['secondsToWait' => 0, 'expected' => null],
+            ['secondsToWait' => 1, 'expected' => 'about 5 seconds'],
+            ['secondsToWait' => 5, 'expected' => 'about 5 seconds'],
+            ['secondsToWait' => 6, 'expected' => 'about 10 seconds'],
+            ['secondsToWait' => 17, 'expected' => 'about 20 seconds'],
+            ['secondsToWait' => 22, 'expected' => 'about 30 seconds'],
+            ['secondsToWait' => 41, 'expected' => 'about 1 minute'],
+            ['secondsToWait' => 90, 'expected' => 'about 2 minutes'],
+        ];
+        foreach ($testCases as $testCase) {
+            
+            // Act:
+            $actual = User::getFriendlyWaitTimeFor($testCase['secondsToWait']);
+            
+            // Assert:
+            $this->assertSame($testCase['expected'], $actual, sprintf(
+                'Expected %s second(s) to result in %s, not %s.',
+                var_export($testCase['secondsToWait'], true),
+                var_export($testCase['expected'], true),
+                var_export($actual, true)
+            ));
+        }
+    }
+    
     public function testGetSecondsUntilUnblocked()
     {
         // Arrange:
