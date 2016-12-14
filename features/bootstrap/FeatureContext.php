@@ -143,18 +143,21 @@ class FeatureContext implements Context
     public function theFollowingUsersExistInTheDatabase(TableNode $table)
     {
         foreach ($table as $row) {
-            $user = User::findOne(['username' => $row['username']]);
-            if ($user === null) {
-                $user = new User();
-                $user->username = $row['username'];
+            $existingUser = User::findByUsername($row['username']);
+            if ($existingUser !== null) {
+                PHPUnit_Framework_Assert::assertTrue(
+                    ($existingUser->delete() !== false),
+                    'Failed to delete existing user record before test.'
+                );
             }
-            $user->setAttributes([
+            $user = new User([
+                'username' => $row['username'],
                 'password_hash' => password_hash($row['password'], PASSWORD_DEFAULT),
-                'email' => $row['email'] ?? ($row['username'] . '@example.com'),
+                'email' => $row['email'] ?? strtolower($row['username'] . '@example.com'),
                 'employee_id' => $row['employee_id'] ?? uniqid(),
                 'first_name' => $row['first_name'] ?? $row['username'],
                 'last_name' => $row['last_name'] ?? 'User',
-            ], false);
+            ]);
             if (array_key_exists('login_attempts', $row)) {
                 $user->login_attempts = $row['login_attempts'];
             }
