@@ -138,7 +138,7 @@ class FeatureContext implements Context
     }
 
     /**
-     * @Given the following users exist in the database:
+     * @Given the following user(s) exist(s) in the database:
      */
     public function theFollowingUsersExistInTheDatabase(TableNode $table)
     {
