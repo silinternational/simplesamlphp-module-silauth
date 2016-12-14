@@ -22,7 +22,7 @@ Feature: User login
     And I should not be allowed through
 
   Scenario: Providing an incorrect username-password combination
-    Given the following users exist in the database:
+    Given the following user exists in the database:
         | username | password | login_attempts |
         | Bob      | MrTomato | 0              |
     And I provide a username of "Bob"
@@ -33,7 +33,7 @@ Feature: User login
     And that user account's failed login attempts should be at 1
 
   Scenario: Providing a correct username-password combination
-    Given the following users exist in the database:
+    Given the following user exists in the database:
         | username | password | login_attempts |
         | Bob      | MrTomato | 0              |
     And I provide a username of "Bob"
@@ -43,7 +43,7 @@ Feature: User login
     And I should be allowed through
 
   Scenario: Providing too many incorrect username-password combinations
-    Given the following users exist in the database:
+    Given the following user exists in the database:
         | username | password | login_attempts |
         | Bob      | MrTomato | 0              |
     When I try to login using "Bob" and "MrsAsparagus" too many times
@@ -52,7 +52,7 @@ Feature: User login
     And I should not be allowed through
 
   Scenario: Providing correct credentials after one failed login attempt
-    Given the following users exist in the database:
+    Given the following user exists in the database:
         | username | password | login_attempts |
         | Bob      | MrTomato | 0              |
     And I provide a username of "Bob"
@@ -64,3 +64,13 @@ Feature: User login
     Then I should not see an error message
     And I should be allowed through
     And that user account's failed login attempts should be at 0
+
+  Scenario: Providing correct credentials to a locked account
+    Given the following user exists in the database:
+        | username | password | locked |
+        | Bob      | MrTomato | Yes    |
+    And I provide a username of "Bob"
+    And I provide a password of "MrTomato"
+    When I try to login
+    Then I should see an error message with "locked" in it
+    And I should not be allowed through

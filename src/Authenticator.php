@@ -36,6 +36,13 @@ class Authenticator
             return;
         }
         
+        if ($user->isLocked()) {
+            $this->addError(
+                "That account is locked. If it is your account, please contact your organization's help desk."
+            );
+            return;
+        }
+        
         /* Check the given password even if we have no such user, to avoid
          * exposing the existence of certain users through a timing attack.  */
         $passwordHash = (($user === null) ? null : $user->password_hash);
