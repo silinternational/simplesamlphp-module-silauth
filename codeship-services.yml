@@ -1,0 +1,40 @@
+db:
+    image: silintl/mariadb:latest
+    environment:
+        MYSQL_ROOT_PASSWORD: r00tp@ss!
+        MYSQL_DATABASE: test
+        MYSQL_USER: silauth
+        MYSQL_PASSWORD: silauth
+
+web:
+    image: silintl/ssp-base:latest
+    links:
+        - db
+        - ldap
+        - ldapload
+    volumes:
+        - ./:/data/vendor/simplesamlphp/simplesamlphp/modules/silauth
+        - ./development/run-tests.sh:/data/run-tests.sh
+    environment:
+        MYSQL_HOST: db
+        MYSQL_DATABASE: test
+        MYSQL_USER: silauth
+        MYSQL_PASSWORD: silauth
+        APPLICATION_ENV: testing
+    working_dir: /data
+
+ldap:
+    build:
+        path: ./development/ldap
+        dockerfile: ./Dockerfile
+    environment:
+        DEBUG_LEVEL: 320
+
+ldapload:
+    build:
+        path: ./development/ldap
+        dockerfile_path: ./Dockerfile
+    links:
+        - ldap
+    working_dir: /data
+    command: bash -c "sleep 10 && /data/load_ldap.sh"

@@ -27,7 +27,7 @@ $config = [
         'ldap.port' => '',
         'ldap.useSsl' => '',
         'ldap.useTls' => '',
-        'recaptcha.clientId' => '',
+        'recaptcha.siteKey' => '',
         'recaptcha.secret' => '',
     ],
 
