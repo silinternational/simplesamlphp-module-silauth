@@ -74,3 +74,13 @@ Feature: User login
     When I try to login
     Then I should see an error message with "locked" in it
     And I should not be allowed through
+
+  Scenario: Providing correct credentials to an inactive account
+    Given the following user exists in the database:
+        | username | password | active |
+        | Bob      | MrTomato | No     |
+    And I provide a username of "Bob"
+    And I provide a password of "MrTomato"
+    When I try to login
+    Then I should see an error message with "active" in it
+    And I should not be allowed through

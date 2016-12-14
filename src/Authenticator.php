@@ -36,6 +36,13 @@ class Authenticator
             return;
         }
         
+        if ( ! $user->isActive()) {
+            $this->addError(
+                "That account is not active. If it is your account, please contact your organization's help desk."
+            );
+            return;
+        }
+        
         if ($user->isLocked()) {
             $this->addError(
                 "That account is locked. If it is your account, please contact your organization's help desk."
