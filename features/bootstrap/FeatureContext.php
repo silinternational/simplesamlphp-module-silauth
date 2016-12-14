@@ -158,6 +158,9 @@ class FeatureContext implements Context
             if (array_key_exists('login_attempts', $row)) {
                 $user->login_attempts = $row['login_attempts'];
             }
+            if (array_key_exists('locked', $row)) {
+                $user->locked = $row['locked'];
+            }
             PHPUnit_Framework_Assert::assertTrue($user->save(), sprintf(
                 'Failed to set up user for test: %s',
                 print_r($user->getErrors(), true)

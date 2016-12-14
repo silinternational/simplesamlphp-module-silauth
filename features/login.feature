@@ -64,3 +64,13 @@ Feature: User login
     Then I should not see an error message
     And I should be allowed through
     And that user account's failed login attempts should be at 0
+
+  Scenario: Providing correct credentials to a locked account
+    Given the following user exists in the database:
+        | username | password | locked |
+        | Bob      | MrTomato | Yes    |
+    And I provide a username of "Bob"
+    And I provide a password of "MrTomato"
+    When I try to login
+    Then I should see an error message with "locked" in it
+    And I should not be allowed through
