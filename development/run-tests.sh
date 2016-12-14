@@ -7,13 +7,24 @@ composer install --prefer-dist --no-interaction --optimize-autoloader --dev
 # If that failed, exit.
 rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi
 
-whenavail ldap 389 30 sleep 10
-
 # Try to run database migrations
-./vendor/bin/yii migrate --interactive=0
+./src/yii migrate --interactive=0
 
 # If they failed, exit.
 rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi
 
-# run unit tests
-./vendor/bin/phpunit tests/
+# Run the feature tests
+./vendor/bin/behat
+
+# If they failed, exit.
+rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi
+
+# Run the unit tests
+cd src/tests
+../../vendor/bin/phpunit .
+
+# If they failed, exit.
+rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi
+
+# Switch back to the folder we were in.
+cd -
