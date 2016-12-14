@@ -8,6 +8,10 @@ use Yii;
 class User extends UserBase
 {
     const BLOCK_AFTER_NTH_FAILED_LOGIN = 2;
+    
+    const LOCKED_NO = 'No';
+    const LOCKED_YES = 'Yes';
+    
     const TIME_FORMAT = 'Y-m-d H:i:s';
     
     /**
@@ -70,6 +74,11 @@ class User extends UserBase
     protected function isEnoughFailedLoginsToBlock($failedLoginAttempts)
     {
         return ($failedLoginAttempts >= self::BLOCK_AFTER_NTH_FAILED_LOGIN);
+    }
+    
+    public function isLocked()
+    {
+        return (strcasecmp($this->locked, self::LOCKED_NO) !== 0);
     }
     
     public function recordLoginAttemptInDatabase()

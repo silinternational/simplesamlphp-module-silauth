@@ -108,6 +108,43 @@ class UserTest extends TestCase
         }
     }
     
+    public function testIsLocked()
+    {
+        // Arrange:
+        $testCases = [
+            ['value' => User::LOCKED_YES, 'expected' => true],
+            ['value' => 'YES', 'expected' => true],
+            ['value' => 'Yes', 'expected' => true],
+            ['value' => 'yes', 'expected' => true],
+            ['value' => User::LOCKED_NO, 'expected' => false],
+            ['value' => 'NO', 'expected' => false],
+            ['value' => 'No', 'expected' => false],
+            ['value' => 'no', 'expected' => false],
+            // Handle invalid types/values securely:
+            ['value' => true, 'expected' => true],
+            ['value' => 1, 'expected' => true],
+            ['value' => false, 'expected' => true],
+            ['value' => 0, 'expected' => true],
+            ['value' => 'other', 'expected' => true],
+            ['value' => '', 'expected' => true],
+            ['value' => null, 'expected' => true],
+        ];
+        foreach ($testCases as $testCase) {
+            $user = new User();
+            $user->locked = $testCase['value'];
+            
+            // Act:
+            $actual = $user->isLocked();
+            
+            // Assert:
+            $this->assertSame($testCase['expected'], $actual, sprintf(
+                'A User with a "locked" value of %s should%s be considered locked.',
+                var_export($user->locked, true),
+                ($testCase['expected'] ? '' : ' not')
+            ));
+        }
+    }
+    
     public function testRecordLoginAttemptInDatabase()
     {
         // Arrange:
