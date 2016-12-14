@@ -5,11 +5,11 @@ use Ramsey\Uuid\Uuid;
 use yii\helpers\ArrayHelper;
 use Yii;
 
-/**
- * @property string $uuid
- */
 class User extends UserBase
 {
+    const BLOCK_AFTER_NTH_FAILED_LOGIN = 2;
+    const TIME_FORMAT = 'Y-m-d H:i:s';
+    
     /**
      * @inheritdoc
      */
@@ -22,9 +22,78 @@ class User extends UserBase
         ]);
     }
     
+    public static function calculateBlockUntilUtc($failedLoginAttempts)
+    {
+        if ( ! self::isEnoughFailedLoginsToBlock($failedLoginAttempts)) {
+            return null;
+        }
+        
+        $blockForInterval = new \DateInterval(sprintf(
+            'PT%sS', // = P(eriod)T(ime)#S(econds)
+            ($failedLoginAttempts * $failedLoginAttempts)
+        ));
+        
+        $nowUtc = new \DateTime('now', new \DateTimeZone('UTC'));
+        /* @var $blockUntilUtc \DateTime */
+        $blockUntilUtc = $nowUtc->add($blockForInterval);
+        return $blockUntilUtc->format(self::TIME_FORMAT);
+    }
+    
+    /**
+     * Find the User record with the given username (if any).
+     * 
+     * @param string $username The username.
+     * @return User|null The matching User record, or null if not found.
+     */
+    public static function findByUsername($username)
+    {
+        return User::findOne(['username' => $username]);
+    }
+    
     public static function generateUuid()
     {
         return Uuid::uuid4()->toString();
+    }
+    
+    public function isBlockedByRateLimit()
+    {
+        if ($this->block_until_utc === null) {
+            return false;
+        }
+        
+        $nowUtc = new \DateTime('now', new \DateTimeZone('UTC'));
+        $blockUntilUtc = new \DateTime($this->block_until_utc, new \DateTimeZone('UTC'));
+        
+        return ($blockUntilUtc > $nowUtc);
+    }
+    
+    protected function isEnoughFailedLoginsToBlock($failedLoginAttempts)
+    {
+        return ($failedLoginAttempts >= self::BLOCK_AFTER_NTH_FAILED_LOGIN);
+    }
+    
+    public function recordLoginAttemptInDatabase()
+    {
+        $this->login_attempts += 1;
+        $successful = $this->save(true, ['login_attempts', 'block_until_utc']);
+        if ( ! $successful) {
+            Yii::error(sprintf(
+                'Failed to update login attempts counter in database for %s.',
+                $this->username
+            ));
+        }
+    }
+    
+    public function resetFailedLoginAttemptsInDatabase()
+    {
+        $this->login_attempts = 0;
+        $successful = $this->save(true, ['login_attempts', 'block_until_utc']);
+        if ( ! $successful) {
+            Yii::error(sprintf(
+                'Failed to reset login attempts counter in database for %s.',
+                $this->username
+            ));
+        }
     }
     
     public function rules()
@@ -51,7 +120,14 @@ class User extends UserBase
             ], [
                 'last_updated_utc',
                 'default',
-                'value' => gmdate('Y-m-d H:i:s'),
+                'value' => gmdate(self::TIME_FORMAT),
+            ], [
+                'login_attempts',
+                'filter',
+                'filter' => function ($loginAttempts) {
+                    $this->block_until_utc = User::calculateBlockUntilUtc($loginAttempts);
+                    return $loginAttempts ?? 0;
+                },
             ],
         ], parent::rules());
     }

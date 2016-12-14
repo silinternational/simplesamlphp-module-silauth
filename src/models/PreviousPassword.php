@@ -22,7 +22,7 @@ class PreviousPassword extends PreviousPasswordBase
             [
                 'created_utc',
                 'default',
-                'value' => gmdate('Y-m-d H:i:s'),
+                'value' => gmdate(User::TIME_FORMAT),
             ],
         ], parent::rules());
     }
