@@ -7,6 +7,9 @@ use Yii;
 
 class User extends UserBase
 {
+    const ACTIVE_NO = 'No';
+    const ACTIVE_YES = 'Yes';
+    
     const BLOCK_AFTER_NTH_FAILED_LOGIN = 2;
     
     const LOCKED_NO = 'No';
@@ -57,6 +60,11 @@ class User extends UserBase
     public static function generateUuid()
     {
         return Uuid::uuid4()->toString();
+    }
+    
+    public function isActive()
+    {
+        return (strcasecmp($this->active, self::ACTIVE_YES) === 0);
     }
     
     public function isBlockedByRateLimit()

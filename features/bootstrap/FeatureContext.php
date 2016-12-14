@@ -6,6 +6,7 @@ use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
 use Sil\SilAuth\Authenticator;
 use Sil\SilAuth\models\User;
+use yii\helpers\ArrayHelper;
 
 /**
  * Defines application features from the specific context.
@@ -114,8 +115,10 @@ class FeatureContext implements Context
      */
     public function iShouldNotSeeAnErrorMessage()
     {
+        $errors = $this->authenticator->getErrors();
         PHPUnit_Framework_Assert::assertEmpty(
-            $this->authenticator->getErrors()
+            $errors,
+            "Unexpected error(s): \n- " . implode("\n- ", $errors)
         );
     }
 
@@ -150,20 +153,19 @@ class FeatureContext implements Context
                     'Failed to delete existing user record before test.'
                 );
             }
-            $user = new User([
-                'username' => $row['username'],
-                'password_hash' => password_hash($row['password'], PASSWORD_DEFAULT),
-                'email' => $row['email'] ?? strtolower($row['username'] . '@example.com'),
-                'employee_id' => $row['employee_id'] ?? uniqid(),
-                'first_name' => $row['first_name'] ?? $row['username'],
-                'last_name' => $row['last_name'] ?? 'User',
-            ]);
-            if (array_key_exists('login_attempts', $row)) {
-                $user->login_attempts = $row['login_attempts'];
-            }
-            if (array_key_exists('locked', $row)) {
-                $user->locked = $row['locked'];
-            }
+            
+            $user = new User();
+            $user->password_hash = password_hash($row['password'], PASSWORD_DEFAULT);
+            unset($row['password']);
+            
+            $defaults = [
+                'email' => strtolower($row['username'] . '@example.com'),
+                'employee_id' => uniqid(),
+                'first_name' => $row['username'],
+                'last_name' => 'User',
+            ];
+            $user->setAttributes(ArrayHelper::merge($defaults, $row), false);
+            
             PHPUnit_Framework_Assert::assertTrue($user->save(), sprintf(
                 'Failed to set up user for test: %s',
                 print_r($user->getErrors(), true)
