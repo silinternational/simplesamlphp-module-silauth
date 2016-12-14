@@ -30,6 +30,7 @@ Feature: User login
     When I try to login
     Then I should see an error message
     And I should not be allowed through
+    And that user account's failed login attempts should be at 1
 
   Scenario: Providing a correct username-password combination
     Given the following users exist in the database:
@@ -49,3 +50,17 @@ Feature: User login
     Then I should see an error message with "wait" in it
     And that user account should be blocked for awhile
     And I should not be allowed through
+
+  Scenario: Providing correct credentials after one failed login attempt
+    Given the following users exist in the database:
+        | username | password | login_attempts |
+        | Bob      | MrTomato | 0              |
+    And I provide a username of "Bob"
+    But I provide a password of "MrsAsparagus"
+    And I try to login
+    Then I provide a username of "Bob"
+    And I provide a password of "MrTomato"
+    When I try to login
+    Then I should not see an error message
+    And I should be allowed through
+    And that user account's failed login attempts should be at 0

@@ -47,8 +47,9 @@ class Authenticator
             return;
         }
         
-        /* @todo If we reach this point, are we authenticated? */
+        $user->resetFailedLoginAttemptsInDatabase();
         
+        // NOTE: If we reach this point, the user successfully authenticated.
     }
     
     protected function addError($errorMessage)

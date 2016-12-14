@@ -84,6 +84,18 @@ class User extends UserBase
         }
     }
     
+    public function resetFailedLoginAttemptsInDatabase()
+    {
+        $this->login_attempts = 0;
+        $successful = $this->save(true, ['login_attempts', 'block_until_utc']);
+        if ( ! $successful) {
+            Yii::error(sprintf(
+                'Failed to reset login attempts counter in database for %s.',
+                $this->username
+            ));
+        }
+    }
+    
     public function rules()
     {
         return ArrayHelper::merge([

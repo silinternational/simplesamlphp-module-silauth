@@ -227,4 +227,13 @@ class FeatureContext implements Context
             $user->isBlockedByRateLimit()
         );
     }
+
+    /**
+     * @Then that user account's failed login attempts should be at :number
+     */
+    public function thatUserAccountSFailedLoginAttemptsShouldBeAt($number)
+    {
+        $user = User::findByUsername($this->username);
+        PHPUnit_Framework_Assert::assertEquals($number, $user->login_attempts);
+    }
 }
