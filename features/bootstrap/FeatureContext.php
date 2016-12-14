@@ -189,15 +189,16 @@ class FeatureContext implements Context
         $this->username = $username;
         $this->password = $password;
         
-        $maxFailedLoginsBeforeBlock = User::MAX_FAILED_LOGINS_BEFORE_BLOCK;
+        $blockAfterNthFailedLogin = User::BLOCK_AFTER_NTH_FAILED_LOGIN;
         
         PHPUnit_Framework_Assert::assertGreaterThan(
             0,
-            $maxFailedLoginsBeforeBlock,
+            $blockAfterNthFailedLogin,
             'The number of failed logins to allow before blocking an account must be positive.'
         );
         
-        for ($i = 0; $i <= ($maxFailedLoginsBeforeBlock + 1) ; $i++) {
+        // Try to log in one too many times (so that we'll see the "wait" message).
+        for ($i = 0; $i < ($blockAfterNthFailedLogin + 1) ; $i++) {
             $this->authenticator = new Authenticator(
                 $this->username,
                 $this->password

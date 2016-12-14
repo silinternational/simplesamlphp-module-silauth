@@ -7,7 +7,7 @@ use Yii;
 
 class User extends UserBase
 {
-    const MAX_FAILED_LOGINS_BEFORE_BLOCK = 2;
+    const BLOCK_AFTER_NTH_FAILED_LOGIN = 2;
     const TIME_FORMAT = 'Y-m-d H:i:s';
     
     /**
@@ -69,7 +69,7 @@ class User extends UserBase
     
     protected function isEnoughFailedLoginsToBlock($failedLoginAttempts)
     {
-        return ($failedLoginAttempts >= self::MAX_FAILED_LOGINS_BEFORE_BLOCK);
+        return ($failedLoginAttempts >= self::BLOCK_AFTER_NTH_FAILED_LOGIN);
     }
     
     public function recordLoginAttemptInDatabase()
