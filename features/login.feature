@@ -84,3 +84,14 @@ Feature: User login
     When I try to login
     Then I should see an error message with "active" in it
     And I should not be allowed through
+
+  Scenario: Being told about how long to wait (due to rate limiting bad logins)
+    Given the following user exists in the database:
+        | username | password | login_attempts |
+        | Bob      | MrTomato | 5              |
+    And I provide a username of "Bob"
+    And I provide a password of "MrTomato"
+    When I try to login
+    Then I should see an error message with "about 30 seconds" in it
+    And that user account should still be blocked for awhile
+    And I should not be allowed through

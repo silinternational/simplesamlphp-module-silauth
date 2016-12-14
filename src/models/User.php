@@ -63,6 +63,12 @@ class User extends UserBase
         return Uuid::uuid4()->toString();
     }
     
+    public function getFriendlyWaitTimeUntilUnblocked()
+    {
+        $secondsUntilUnblocked = $this->getSecondsUntilUnblocked();
+        return self::getFriendlyWaitTimeFor($secondsUntilUnblocked);
+    }
+    
     /**
      * Get a human-friendly description of approximately how long the user must
      * wait before (at least) the given number of seconds have elapsed.
@@ -126,14 +132,7 @@ class User extends UserBase
     
     public function isBlockedByRateLimit()
     {
-        if ($this->block_until_utc === null) {
-            return false;
-        }
-        
-        $nowUtc = new \DateTime('now', new \DateTimeZone('UTC'));
-        $blockUntilUtc = new \DateTime($this->block_until_utc, new \DateTimeZone('UTC'));
-        
-        return ($blockUntilUtc > $nowUtc);
+        return ($this->getSecondsUntilUnblocked() > 0);
     }
     
     protected function isEnoughFailedLoginsToBlock($failedLoginAttempts)

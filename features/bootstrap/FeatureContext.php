@@ -226,7 +226,7 @@ class FeatureContext implements Context
     }
 
     /**
-     * @Then that user account should be blocked for awhile
+     * @Then that user account should (still) be blocked for awhile
      */
     public function thatUserAccountShouldBeBlockedForAwhile()
     {
