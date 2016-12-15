@@ -30,9 +30,11 @@ class Authenticator
         $user = User::findByUsername($username) ?? (new User());
         
         if ($user->isBlockedByRateLimit()) {
-            $this->addError(
-                'There have been too many failed logins for this account. Please wait awhile, then try again.'
-            );
+            $friendlyWaitTime = $user->getFriendlyWaitTimeUntilUnblocked();
+            $this->addError(sprintf(
+                'There have been too many failed logins for this account. Please wait %s, then try again.',
+                $friendlyWaitTime
+            ));
             return;
         }
         

@@ -2,6 +2,7 @@
 namespace Sil\SilAuth\models;
 
 use Ramsey\Uuid\Uuid;
+use Sil\SilAuth\UtcTime;
 use yii\helpers\ArrayHelper;
 use Yii;
 
@@ -62,6 +63,68 @@ class User extends UserBase
         return Uuid::uuid4()->toString();
     }
     
+    public function getFriendlyWaitTimeUntilUnblocked()
+    {
+        $secondsUntilUnblocked = $this->getSecondsUntilUnblocked();
+        return self::getFriendlyWaitTimeFor($secondsUntilUnblocked);
+    }
+    
+    /**
+     * Get a human-friendly description of approximately how long the user must
+     * wait before (at least) the given number of seconds have elapsed.
+     * 
+     * NOTE: This will not be precise, as it may round up to have a more
+     *       natural-sounding result (e.g. 'about 20 seconds' rather than
+     *       '17 seconds').
+     * 
+     * @param int $secondsToWait The number of seconds the user must wait.
+     * @return string|null A string describing the remaining wait time (e.g.
+     *     '20 seconds', '3 minutes', etc.), or null if no waiting is necessary.
+     */
+    public static function getFriendlyWaitTimeFor($secondsToWait)
+    {
+        if ($secondsToWait < 1) {
+            return null;
+        }
+        
+        if ($secondsToWait <= 5) {
+            $valueToUse = 5;
+            $unitToUse = 'second';
+        } elseif ($secondsToWait <= 30) {
+            $valueToUse = (int) ceil($secondsToWait / 10) * 10;
+            $unitToUse = 'second';
+        } else {
+            $valueToUse = (int) ceil($secondsToWait / 60);
+            $unitToUse = 'minute';
+        }
+        
+        return sprintf(
+            'about %s %s%s',
+            $valueToUse,
+            $unitToUse,
+            (($valueToUse === 1) ? '' : 's')
+        );
+    }
+    
+    /**
+     * Get the number of seconds remaining until the block_until_utc datetime is
+     * reached. Returns zero if the user is not blocked.
+     * 
+     * @return int
+     */
+    public function getSecondsUntilUnblocked()
+    {
+        if ($this->block_until_utc === null) {
+            return 0;
+        }
+        
+        $nowUtc = new UtcTime();
+        $blockUntilUtc = new UtcTime($this->block_until_utc);
+        $remainingSeconds = $nowUtc->getSecondsUntil($blockUntilUtc);
+        
+        return max($remainingSeconds, 0);
+    }
+    
     public function isActive()
     {
         return (strcasecmp($this->active, self::ACTIVE_YES) === 0);
@@ -69,14 +132,7 @@ class User extends UserBase
     
     public function isBlockedByRateLimit()
     {
-        if ($this->block_until_utc === null) {
-            return false;
-        }
-        
-        $nowUtc = new \DateTime('now', new \DateTimeZone('UTC'));
-        $blockUntilUtc = new \DateTime($this->block_until_utc, new \DateTimeZone('UTC'));
-        
-        return ($blockUntilUtc > $nowUtc);
+        return ($this->getSecondsUntilUnblocked() > 0);
     }
     
     protected function isEnoughFailedLoginsToBlock($failedLoginAttempts)
