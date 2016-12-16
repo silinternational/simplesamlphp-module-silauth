@@ -34,8 +34,8 @@ Feature: User login
 
   Scenario: Providing a correct username-password combination
     Given the following user exists in the database:
-        | username | password | login_attempts |
-        | Bob      | MrTomato | 0              |
+        | username | password |
+        | Bob      | MrTomato |
     And I provide a username of "Bob"
     And I provide a password of "MrTomato"
     When I try to login
