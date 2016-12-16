@@ -5,6 +5,7 @@ use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
 use Sil\SilAuth\Authenticator;
+use Sil\SilAuth\ldap\Ldap;
 use Sil\SilAuth\models\User;
 use yii\helpers\ArrayHelper;
 
@@ -15,6 +16,9 @@ class FeatureContext implements Context
 {
     /** @var Authenticator|null */
     private $authenticator = null;
+
+    /** @var Ldap|null */
+    private $ldap = null;
     
     /** @var string|null */
     private $username = null;
@@ -32,6 +36,7 @@ class FeatureContext implements Context
     public function __construct()
     {
         $this->initializeDependencies();
+        $this->ldap = new Ldap();
     }
     
     protected function initializeDependencies()
@@ -243,5 +248,26 @@ class FeatureContext implements Context
     {
         $user = User::findByUsername($this->username);
         PHPUnit_Framework_Assert::assertEquals($number, $user->login_attempts);
+    }
+
+    /**
+     * @Given there is no user with a username of :username in the database
+     */
+    public function thereIsNoUserWithAUsernameOfInTheDatabase($username)
+    {
+        $user = User::findByUsername($username);
+        if ($user !== null) {
+            PHPUnit_Framework_Assert::assertNotFalse($user->delete());
+        }
+    }
+
+    /**
+     * @Given there is no user with a username of :username in the ldap
+     */
+    public function thereIsNoUserWithAUsernameOfInTheLdap($username)
+    {
+        if ($this->ldap->userExists($username)) {
+            PHPUnit_Framework_Assert::assertTrue($this->ldap->deleteUser($username));
+        }
     }
 }

@@ -95,3 +95,12 @@ Feature: User login
     Then I should see an error message with "about 30 seconds" in it
     And that user account should still be blocked for awhile
     And I should not be allowed through
+
+  Scenario: Providing credentials to an account not in the db or ldap
+    Given there is no user with a username of "Bob" in the database
+    And there is no user with a username of "Bob" in the ldap
+    And I provide a username of "Bob"
+    And I provide a password
+    When I try to login
+    Then I should see an error message
+    And I should not be allowed through

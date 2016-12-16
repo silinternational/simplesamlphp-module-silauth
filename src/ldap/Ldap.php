@@ -33,8 +33,6 @@ class Ldap
             // Prefer TLS over SSL.
             $this->config['use_ssl'] = false;
         }
-        
-        var_dump($this->config); // TEMP
     }
     
     protected function connect()
@@ -66,13 +64,13 @@ class Ldap
     /**
      * Delete the specified user in the LDAP.
      * 
-     * @param string $username The username of the record to delete.
+     * @param string $userCn The username of the record to delete.
      * @return bool Whether the deletion was successful. If not, check
      *     getErrors() to see why.
      */
-    public function deleteUser($username)
+    public function deleteUser($userCn)
     {
-        
+        throw new \Exception('Not yet implemented');
     }
     
     public function getErrors()
@@ -80,15 +78,48 @@ class Ldap
         return $this->errors;
     }
     
-    public function isValidUsernameAndPassword($username, $password)
+    /**
+     * Look for an LDAP User record with the given CN value. If found, return
+     * it. Otherwise return null.
+     *
+     * @param string $userCn The CN value to search for.
+     * @return \Adldap\Models\User|null The LDAP User record, or null.
+     */
+    protected function getUserByCn($userCn)
+    {
+        $this->connect();
+        $results = $this->provider->search()->select(['mail'])->where(['cn' => $userCn])->get();
+        foreach ($results as $ldapUser) {
+            /* @var $ldapUser Adldap\Models\User */
+            return $ldapUser;
+        }
+        return null;
+    }
+    
+    public function isCorrectPasswordForUser($userCn, $password)
     {
         try {
-            $this->connect();
-            return ($this->provider->auth()->attempt($username, $password));
+            $ldapUser = $this->getUserByCn($userCn);
+            if ($ldapUser === null) {
+                return false;
+            }
+            return $this->provider->auth()->attempt($ldapUser->dn, $password);
         } catch (UsernameRequiredException $e) {
             return false;
         } catch (PasswordRequiredException $e) {
             return false;
         }
+    }
+    
+    /**
+     * Determine whether the specified user exists in the LDAP.
+     * 
+     * @param string $userCn The CN attribute value to match against.
+     * @return bool Whether the user exists.
+     */
+    public function userExists($userCn)
+    {
+        $ldapUser = $this->getUserByCn($userCn);
+        return (( ! empty($ldapUser)) && $ldapUser->exists);
     }
 }
