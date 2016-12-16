@@ -270,4 +270,24 @@ class FeatureContext implements Context
             PHPUnit_Framework_Assert::assertTrue($this->ldap->deleteUser($username));
         }
     }
+
+    /**
+     * @Given there is a(n) :username user in the ldap with a password of :password
+     */
+    public function thereIsAnUserInTheLdapWithAPasswordOf($username, $password)
+    {
+        $isCorrect = $this->ldap->isCorrectPasswordForUser($username, $password);
+        PHPUnit_Framework_Assert::assertTrue($isCorrect);
+    }
+
+    /**
+     * @Then there should now be a(n) :username user in the database with a password of :password
+     */
+    public function thereShouldNowBeAnUserInTheDatabaseWithAPasswordOf($username, $password)
+    {
+        $user = User::findByUsername($username);
+        PHPUnit_Framework_Assert::assertNotNull($user);
+        $isCorrectPassword = password_verify($password, $user->password_hash);
+        PHPUnit_Framework_Assert::assertTrue($isCorrectPassword);
+    }
 }
