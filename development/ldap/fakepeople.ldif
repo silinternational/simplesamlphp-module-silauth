@@ -44,6 +44,7 @@ gisPrimaryManager: Daniel Boone
 gisOfficeLocationName: Papua New Guinea
 physicalDeliveryOfficeName: Papua New Guinea
 mail: ba_rd_png@workers.org
+userPassword: bob_adams123
 
 dn: cn=SAM_BROWN,ou=gis_affiliated_person,dc=acme,dc=org
 cn: SAM_BROWN
@@ -87,6 +88,7 @@ gisDomainName: Management, Executive
 gisCurrentPositionTitle: Assistant Manager
 gisCurrentAssignPartnerOrg: Senders Canada
 gisCurrentAssignLocation: CAS - Calgary Office
+userPassword: sam_brown123
 
 dn: cn=ROB_HOLT,ou=gis_affiliated_person,dc=acme,dc=org
 cn: ROB_HOLT
@@ -121,8 +123,8 @@ gisDomainName: Information Technology
 gisCurrentPositionTitle: IT Network Administrator
 gisCurrentAssignPartnerOrg: Cameroon Entity
 gisSpouseFullName: Kim Holt
-userPassword:: e1NTSEF9WDlCZEZvTHAyNkpiQXF6RkJkTjNaV0Z5K042aWpBRVQ=
 gisUSAEventPwdChange: no
+userPassword: rob_holt123
 
 dn: cn=JAKE_JONES,ou=gis_affiliated_person,dc=acme,dc=org
 cn: JAKE_JONES
@@ -168,6 +170,7 @@ title: LAN Instructor/Mechanic
 gisPrimaryManager: Doug Banes
 gisOfficeLocationName: United States
 physicalDeliveryOfficeName: United States
+userPassword: jake_jones123
 
 dn: cn=MANDY_SMITH,ou=gis_affiliated_person,dc=acme,dc=org
 cn: MANDY_SMITH
@@ -200,6 +203,7 @@ gisAddressLine1: Zur Habrouse 25
 gisCurrentAssignLocation: Germany
 gisRetirementDate: 20141231
 mail: noaddress_MANDY_SMITH@bounce.acme.org
+userPassword: mandy_smith123
 
 dn: cn=TESS_WHITE,ou=gis_affiliated_person,dc=acme,dc=org
 gisContainer: gis_affiliated_person
@@ -239,6 +243,7 @@ postalCode: DL8 3RT
 st: North Yorkshire
 gisStateProvinceCounty: North Yorkshire
 gisPrimaryPartnerOrg: Senders UK
+userPassword: tess_white123
 
 dn: cn=ELLE_GREEN,ou=gis_affiliated_person,dc=acme,dc=org
 gisEisPersonId: 10161
@@ -270,11 +275,11 @@ l: Portland
 postalCode: 97213
 gisCity: Portland
 gisAddressLine1: 1022 NE 54th Ave
-userPassword:: e1NTSEF9Y1psWEVPT0hnNStnSHc4MHhRVXN6RFBQZDMwVmwzcXI=
 gisUSAEventPwdChange: no
 gisCurrentAssignLocation: United States
 gisStateProvinceCounty: OR
 st: OR
+userPassword: elle_green123
 
 dn: cn=RON_HOMES,ou=gis_affiliated_person,dc=acme,dc=org
 cn: RON_HOMES
@@ -330,5 +335,5 @@ gisTelephoneNumber: + 1 (704) 243-7249
 homePhone: + 1 (704) 243-7249
 departmentNumber: Global Operations
 gisOuGroupingName: Global Operations
-userPassword:: e1NTSEF9ZzZwTGtxYzYxanNpOFN6MFBDRkY3NVRiSE00QnZRbTU=
 gisUSAEventPwdChange: no
+userPassword: ron_homes123
