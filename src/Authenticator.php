@@ -17,12 +17,12 @@ class Authenticator
     public function __construct($username, $password)
     {
         if (empty($username)) {
-            $this->addError('Please provide a username');
+            $this->addUsernameRequiredError();
             return;
         }
         
         if (empty($password)) {
-            $this->addError('Please provide a password');
+            $this->addPasswordRequiredError();
             return;
         }
         
@@ -31,24 +31,17 @@ class Authenticator
         
         if ($user->isBlockedByRateLimit()) {
             $friendlyWaitTime = $user->getFriendlyWaitTimeUntilUnblocked();
-            $this->addError(sprintf(
-                'There have been too many failed logins for this account. Please wait %s, then try again.',
-                $friendlyWaitTime
-            ));
+            $this->addBlockedByRateLimitError($friendlyWaitTime);
             return;
         }
         
         if ( ! $user->isActive()) {
-            $this->addError(
-                "That account is not active. If it is your account, please contact your organization's help desk."
-            );
+            $this->addInactiveAccountError();
             return;
         }
         
         if ($user->isLocked()) {
-            $this->addError(
-                "That account is locked. If it is your account, please contact your organization's help desk."
-            );
+            $this->addLockedAccountError();
             return;
         }
         
@@ -59,7 +52,7 @@ class Authenticator
             if ( ! $user->isNewRecord) {
                 $user->recordLoginAttemptInDatabase();
             }
-            $this->addError('Either the username or the password was not correct. Please try again.');
+            $this->addWrongUsernameOrPasswordError();
             return;
         }
         
@@ -71,6 +64,49 @@ class Authenticator
     protected function addError($errorMessage)
     {
         $this->errors[] = $errorMessage;
+    }
+    
+    protected function addBlockedByRateLimitError($friendlyWaitTime)
+    {
+        $this->addError(\Yii::t(
+            'app',
+            'There have been too many failed logins for this account. Please wait {friendlyWaitTime}, then try again.',
+            ['friendlyWaitTime' => $friendlyWaitTime]
+        ));
+    }
+    
+    protected function addInactiveAccountError()
+    {
+        $this->addError(\Yii::t(
+            'app',
+            "That account is not active. If it is your account, please contact your organization's help desk."
+        ));
+    }
+    
+    protected function addLockedAccountError()
+    {
+        $this->addError(\Yii::t(
+            'app',
+            "That account is locked. If it is your account, please contact your organization's help desk."
+        ));
+    }
+    
+    protected function addPasswordRequiredError()
+    {
+        $this->addError(\Yii::t('app', 'Please provide a password.'));
+    }
+    
+    protected function addUsernameRequiredError()
+    {
+        $this->addError(\Yii::t('app', 'Please provide a username.'));
+    }
+    
+    protected function addWrongUsernameOrPasswordError()
+    {
+        $this->addError(\Yii::t(
+            'app',
+            'Either the username or the password was not correct. Please try again.'
+        ));
     }
     
     /**
