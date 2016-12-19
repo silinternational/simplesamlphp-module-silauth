@@ -160,8 +160,10 @@ class FeatureContext implements Context
             }
             
             $user = new User();
-            $user->password_hash = password_hash($row['password'], PASSWORD_DEFAULT);
-            unset($row['password']);
+            if (array_key_exists('password', $row)) {
+                $user->setPassword($row['password']);
+                unset($row['password']);
+            }
             
             $defaults = [
                 'email' => strtolower($row['username'] . '@example.com'),
@@ -276,7 +278,7 @@ class FeatureContext implements Context
      */
     public function thereIsAnUserInTheLdapWithAPasswordOf($username, $password)
     {
-        $isCorrect = $this->ldap->isCorrectPasswordForUser($username, $password);
+        $isCorrect = $this->ldap->isPasswordCorrectForUser($username, $password);
         PHPUnit_Framework_Assert::assertTrue($isCorrect);
     }
 
@@ -287,7 +289,25 @@ class FeatureContext implements Context
     {
         $user = User::findByUsername($username);
         PHPUnit_Framework_Assert::assertNotNull($user);
-        $isCorrectPassword = password_verify($password, $user->password_hash);
-        PHPUnit_Framework_Assert::assertTrue($isCorrectPassword);
+        $isCorrect = $user->isPasswordCorrect($password);
+        PHPUnit_Framework_Assert::assertTrue($isCorrect);
+    }
+
+    /**
+     * @Given there is a(n) :username user in the ldap
+     */
+    public function thereIsAnUserInTheLdap($username)
+    {
+        $userExists = $this->ldap->userExists($username);
+        PHPUnit_Framework_Assert::assertTrue($userExists);
+    }
+
+    /**
+     * @Then there should now be a(n) :username user in the database
+     */
+    public function thereShouldNowBeAnUserInTheDatabase($username)
+    {
+        $user = User::findByUsername($username);
+        PHPUnit_Framework_Assert::assertNotNull($user);
     }
 }

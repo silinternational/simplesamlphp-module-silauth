@@ -96,9 +96,8 @@ Feature: User login
     And that user account should still be blocked for awhile
     And I should not be allowed through
 
-  Scenario: Providing credentials to an account not in the db or ldap
+  Scenario: Providing credentials to an account not in the db
     Given there is no user with a username of "Bob" in the database
-    And there is no user with a username of "Bob" in the ldap
     And I provide a username of "Bob"
     And I provide a password
     When I try to login
@@ -106,12 +105,27 @@ Feature: User login
     And I should see an error message with "password" in it
     And I should not be allowed through
 
-  Scenario: Providing correct credentials to an account not in the db but in ldap
-    Given there is no user with a username of "ldap_access" in the database
-    But there is an "ldap_access" user in the ldap with a password of "ldap_access"
-    And I provide a username of "ldap_access"
-    And I provide a password of "ldap_access"
+  Scenario: Incorrect password for an account with no password in the db, just in ldap
+    Given the following user exists in the database:
+        | username  | login_attempts |
+        | BOB_ADAMS | 0              |
+    And there is a "BOB_ADAMS" user in the ldap
+    And I provide a username of "BOB_ADAMS"
+    And I provide a password of "ThisIsWrong"
+    When I try to login
+    Then I should see an error message with "user" in it
+    And I should see an error message with "password" in it
+    And I should not be allowed through
+    And that user account's failed login attempts should be at 1
+
+  Scenario: Correct password for an account with no password in the db, just in ldap
+    Given the following user exists in the database:
+        | username | login_attempts |
+        | ROB_HOLT | 0              |
+    And there is a "ROB_HOLT" user in the ldap with a password of "TestPassword"
+    And I provide a username of "ROB_HOLT"
+    And I provide a password of "TestPassword"
     When I try to login
     Then I should not see an error message
     And I should be allowed through
-    And there should now be an "ldap_access" user in the database with a password of "ldap_access"
+    And that user account's failed login attempts should be at 0

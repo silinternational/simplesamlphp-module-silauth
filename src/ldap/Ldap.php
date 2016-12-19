@@ -8,7 +8,6 @@ use Adldap\Exceptions\Auth\UsernameRequiredException;
 use Adldap\Schemas\OpenLDAP;
 use Adldap\Connections\Provider;
 use Sil\PhpEnv\Env;
-use Sil\SilAuth\ldap\BasicUserInfo;
 use \yii\helpers\ArrayHelper;
 
 class Ldap
@@ -62,41 +61,6 @@ class Ldap
         $this->errors[] = $errorMessage;
     }
     
-    /**
-     * Delete the specified user in the LDAP.
-     * 
-     * @param string $userCn The username of the record to delete.
-     * @return bool Whether the deletion was successful. If not, check
-     *     getErrors() to see why.
-     */
-    public function deleteUser($userCn)
-    {
-        throw new \Exception('Not yet implemented');
-    }
-    
-    /**
-     * Get the basic info about the specified user in the LDAP. If not such
-     * user is found, return null.
-     * 
-     * @param string $userCn The CN value to search for.
-     * @return BasicUserInfo|null The info about the user, or null if not found.
-     */
-    public function getBasicInfoAboutUser($userCn)
-    {
-        $ldapUser = $this->getUserByCn($userCn);
-        $info = null;
-        if ($ldapUser !== null) {
-            $info = new BasicUserInfo(
-                $userCn,
-                mb_strtolower($ldapUser->getEmail()),
-                $ldapUser->getEmployeeId(),
-                $ldapUser->getFirstName(),
-                $ldapUser->getLastName()
-            );
-        }
-        return $info;
-    }
-    
     public function getErrors()
     {
         return $this->errors;
@@ -112,7 +76,13 @@ class Ldap
     protected function getUserByCn($userCn)
     {
         $this->connect();
-        $results = $this->provider->search()->select(['mail'])->where(['cn' => $userCn])->get();
+        $results = $this->provider->search()->select([
+            'mail', // Email address
+            'givenname', // First name
+            'sn', // Last name
+            'employeenumber', // Employee ID
+            'dn', // Distinguished name
+        ])->where(['cn' => $userCn])->get();
         foreach ($results as $ldapUser) {
             /* @var $ldapUser Adldap\Models\User */
             return $ldapUser;
@@ -120,7 +90,7 @@ class Ldap
         return null;
     }
     
-    public function isCorrectPasswordForUser($userCn, $password)
+    public function isPasswordCorrectForUser($userCn, $password)
     {
         try {
             $ldapUser = $this->getUserByCn($userCn);

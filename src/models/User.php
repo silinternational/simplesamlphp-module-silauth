@@ -131,6 +131,16 @@ class User extends UserBase
         return max($remainingSeconds, 0);
     }
     
+    /**
+     * Whether this User database record has a (hashed) password.
+     * 
+     * @return bool
+     */
+    public function hasPasswordInDatabase()
+    {
+        return ($this->password_hash !== null);
+    }
+    
     public function isActive()
     {
         return (strcasecmp($this->active, self::ACTIVE_YES) === 0);
@@ -139,6 +149,11 @@ class User extends UserBase
     public function isBlockedByRateLimit()
     {
         return ($this->getSecondsUntilUnblocked() > 0);
+    }
+    
+    public function isPasswordCorrect($password)
+    {
+        return password_verify($password, $this->password_hash);
     }
     
     protected function isEnoughFailedLoginsToBlock($failedLoginAttempts)
@@ -158,7 +173,7 @@ class User extends UserBase
         if ( ! $successful) {
             Yii::error(sprintf(
                 'Failed to update login attempts counter in database for %s.',
-                $this->username
+                var_export($this->username, true)
             ));
         }
     }
@@ -209,6 +224,11 @@ class User extends UserBase
                 },
             ],
         ], parent::rules());
+    }
+    
+    public function setPassword($password)
+    {
+        $this->password_hash = password_hash($password, PASSWORD_DEFAULT);
     }
     
     /**

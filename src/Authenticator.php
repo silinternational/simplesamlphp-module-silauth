@@ -27,41 +27,23 @@ class Authenticator
             return;
         }
         
+        /* @todo Make sure the CSRF has been validated. */
+        
         $user = User::findByUsername($username);
         if ($user === null) {
-            $ldap = new Ldap();
-            $basicUserInfo = $ldap->getBasicInfoAboutUser($username);
-            if ($basicUserInfo === null) {
-                
-                /* "Check" the given password even though we have no such user,
-                 * to avoid exposing the existence of certain users (or absence
-                 * thereof) through a timing attack.  */
-                password_verify($password, null);
-                
-                // Now proceed with the appropriate error message.
-                $this->addWrongUsernameOrPasswordError();
-                return;
-            }
-            
-            $user = new User([
-                'username' => $basicUserInfo->getUsername(),
-                'email' => $basicUserInfo->getEmail(),
-                'employee_id' => $basicUserInfo->getEmployeeId(),
-                'first_name' => $basicUserInfo->getFirstName(),
-                'last_name' => $basicUserInfo->getLastName(),
-            ]);
-            
-            if ( ! $user->save()) {
-                \Yii::error(sprintf(
-                    'Failed to add password-less record to database for a user record in the LDAP: %s',
-                    print_r($user->getErrors(), true)
-                ));
-                throw new \Exception(\Yii::t(
-                    'app',
-                    'Hmm... something went wrong. Please try again later. '
-                    . print_r($user->getErrors(), true)
-                ), 1481914909);
-            }
+
+            /* "Check" the given password even though we have no such user,
+             * to avoid exposing the existence of certain users (or absence
+             * thereof) through a timing attack. Technically, they could still
+             * deduce it since we don't rate-limit non-existent accounts (in
+             * order to protect our database from a DDoS attack), but this at
+             * least reduces the number of available side channels.  */
+            $dummyUser = new User();
+            $dummyUser->isPasswordCorrect($password);
+
+            // Now proceed with the appropriate error message.
+            $this->addWrongUsernameOrPasswordError();
+            return;
         }
         
         if ($user->isBlockedByRateLimit()) {
@@ -80,7 +62,23 @@ class Authenticator
             return;
         }
         
-        if ( ! password_verify($password, $user->password_hash)) {
+        if ( ! $user->hasPasswordInDatabase()) {
+            $ldap = new Ldap();
+            if ($ldap->isPasswordCorrectForUser($username, $password)) {
+                $user->setPassword($password);
+                if ( ! $user->save()) {
+                    \Yii::error(sprintf(
+                        'Failed to record password from LDAP into database for %s: %s',
+                        var_export($username, true),
+                        print_r($user->getErrors(), true)
+                    ));
+                    $this->addGenericTryLaterError();
+                    return;
+                }
+            }
+        }
+        
+        if ( ! $user->isPasswordCorrect($password)) {
             if ( ! $user->isNewRecord) {
                 $user->recordLoginAttemptInDatabase();
             }
@@ -88,9 +86,9 @@ class Authenticator
             return;
         }
         
-        $user->resetFailedLoginAttemptsInDatabase();
-        
         // NOTE: If we reach this point, the user successfully authenticated.
+        
+        $user->resetFailedLoginAttemptsInDatabase();
     }
     
     protected function addError($errorMessage)
@@ -104,6 +102,14 @@ class Authenticator
             'app',
             'There have been too many failed logins for this account. Please wait {friendlyWaitTime}, then try again.',
             ['friendlyWaitTime' => $friendlyWaitTime]
+        ));
+    }
+    
+    protected function addGenericTryLaterError()
+    {
+        $this->addError(\Yii::t(
+            'app',
+            'Hmm... something went wrong. Please try again later. '
         ));
     }
     
