@@ -102,5 +102,6 @@ Feature: User login
     And I provide a username of "Bob"
     And I provide a password
     When I try to login
-    Then I should see an error message
+    Then I should see an error message with "user" in it
+    And I should see an error message with "password" in it
     And I should not be allowed through
