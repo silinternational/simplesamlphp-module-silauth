@@ -105,3 +105,13 @@ Feature: User login
     Then I should see an error message with "user" in it
     And I should see an error message with "password" in it
     And I should not be allowed through
+
+  Scenario: Providing correct credentials to an account not in the db but in ldap
+    Given there is no user with a username of "ldap_access" in the database
+    But there is an "ldap_access" user in the ldap with a password of "ldap_access"
+    And I provide a username of "ldap_access"
+    And I provide a password of "ldap_access"
+    When I try to login
+    Then I should not see an error message
+    And I should be allowed through
+    And there should now be an "ldap_access" user in the database with a password of "ldap_access"

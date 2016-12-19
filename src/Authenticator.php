@@ -1,6 +1,7 @@
 <?php
 namespace Sil\SilAuth;
 
+use Sil\SilAuth\ldap\Ldap;
 use Sil\SilAuth\models\User;
 
 class Authenticator
@@ -26,8 +27,42 @@ class Authenticator
             return;
         }
         
-        /* @var $user User */
-        $user = User::findByUsername($username) ?? (new User());
+        $user = User::findByUsername($username);
+        if ($user === null) {
+            $ldap = new Ldap();
+            $basicUserInfo = $ldap->getBasicInfoAboutUser($username);
+            if ($basicUserInfo === null) {
+                
+                /* "Check" the given password even though we have no such user,
+                 * to avoid exposing the existence of certain users (or absence
+                 * thereof) through a timing attack.  */
+                password_verify($password, null);
+                
+                // Now proceed with the appropriate error message.
+                $this->addWrongUsernameOrPasswordError();
+                return;
+            }
+            
+            $user = new User([
+                'username' => $basicUserInfo->getUsername(),
+                'email' => $basicUserInfo->getEmail(),
+                'employee_id' => $basicUserInfo->getEmployeeId(),
+                'first_name' => $basicUserInfo->getFirstName(),
+                'last_name' => $basicUserInfo->getLastName(),
+            ]);
+            
+            if ( ! $user->save()) {
+                \Yii::error(sprintf(
+                    'Failed to add password-less record to database for a user record in the LDAP: %s',
+                    print_r($user->getErrors(), true)
+                ));
+                throw new \Exception(\Yii::t(
+                    'app',
+                    'Hmm... something went wrong. Please try again later. '
+                    . print_r($user->getErrors(), true)
+                ), 1481914909);
+            }
+        }
         
         if ($user->isBlockedByRateLimit()) {
             $friendlyWaitTime = $user->getFriendlyWaitTimeUntilUnblocked();
@@ -45,10 +80,7 @@ class Authenticator
             return;
         }
         
-        /* Check the given password even if we have no such user, to avoid
-         * exposing the existence of certain users through a timing attack.  */
-        $passwordHash = (($user === null) ? null : $user->password_hash);
-        if ( ! password_verify($password, $passwordHash)) {
+        if ( ! password_verify($password, $user->password_hash)) {
             if ( ! $user->isNewRecord) {
                 $user->recordLoginAttemptInDatabase();
             }
