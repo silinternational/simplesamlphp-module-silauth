@@ -8,6 +8,7 @@ use Adldap\Exceptions\Auth\UsernameRequiredException;
 use Adldap\Schemas\OpenLDAP;
 use Adldap\Connections\Provider;
 use Sil\PhpEnv\Env;
+use Sil\SilAuth\ldap\BasicUserInfo;
 use \yii\helpers\ArrayHelper;
 
 class Ldap
@@ -71,6 +72,29 @@ class Ldap
     public function deleteUser($userCn)
     {
         throw new \Exception('Not yet implemented');
+    }
+    
+    /**
+     * Get the basic info about the specified user in the LDAP. If not such
+     * user is found, return null.
+     * 
+     * @param string $userCn The CN value to search for.
+     * @return BasicUserInfo|null The info about the user, or null if not found.
+     */
+    public function getBasicInfoAboutUser($userCn)
+    {
+        $ldapUser = $this->getUserByCn($userCn);
+        $info = null;
+        if ($ldapUser !== null) {
+            $info = new BasicUserInfo(
+                $userCn,
+                mb_strtolower($ldapUser->getEmail()),
+                $ldapUser->getEmployeeId(),
+                $ldapUser->getFirstName(),
+                $ldapUser->getLastName()
+            );
+        }
+        return $info;
     }
     
     public function getErrors()
