@@ -35,6 +35,25 @@ class UserTest extends TestCase
         }
     }
     
+    public function testCalculateBlockUntilUtcMaxDelay()
+    {
+        // Arrange:
+        $expected = User::MAX_SECONDS_TO_BLOCK;
+        $nowUtc = new UtcTime();
+        
+        // Act:
+        $blockUntilUtcString = User::calculateBlockUntilUtc(100);
+        $blockUntilUtcTime = new UtcTime($blockUntilUtcString);
+        $actual = $nowUtc->getSecondsUntil($blockUntilUtcTime);
+        
+        // Assert:
+        $this->assertEquals($expected, $actual, sprintf(
+            'Maximum delay should be no more than %s seconds (not %s).',
+            $expected,
+            $actual
+        ), 1);
+    }
+    
     public function testChangingAnExistingUuid()
     {
         // Arrange:

@@ -12,6 +12,7 @@ class User extends UserBase
     const ACTIVE_YES = 'Yes';
     
     const BLOCK_AFTER_NTH_FAILED_LOGIN = 2;
+    const MAX_SECONDS_TO_BLOCK = 3600; // 3600 seconds = 1 hour
     
     const LOCKED_NO = 'No';
     const LOCKED_YES = 'Yes';
@@ -36,9 +37,14 @@ class User extends UserBase
             return null;
         }
         
+        $secondsToDelay = min(
+            $failedLoginAttempts * $failedLoginAttempts,
+            self::MAX_SECONDS_TO_BLOCK
+        );
+        
         $blockForInterval = new \DateInterval(sprintf(
             'PT%sS', // = P(eriod)T(ime)#S(econds)
-            ($failedLoginAttempts * $failedLoginAttempts)
+            $secondsToDelay
         ));
         
         $nowUtc = new \DateTime('now', new \DateTimeZone('UTC'));
