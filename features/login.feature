@@ -72,7 +72,7 @@ Feature: User login
     And I provide a username of "BOB_ADAMS"
     And I provide a password of "bob_adams123"
     When I try to login
-    Then I should see an error message with "locked" in it
+    Then I should see an error message with "username" and "password" in it
     And I should not be allowed through
 
   Scenario: Providing correct credentials to an inactive account
@@ -82,7 +82,7 @@ Feature: User login
     And I provide a username of "BOB_ADAMS"
     And I provide a password of "bob_adams123"
     When I try to login
-    Then I should see an error message with "active" in it
+    Then I should see an error message with "username" and "password" in it
     And I should not be allowed through
 
   Scenario: Being told about how long to wait (due to rate limiting bad logins)
