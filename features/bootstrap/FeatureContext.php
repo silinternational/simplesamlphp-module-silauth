@@ -346,4 +346,26 @@ class FeatureContext implements Context
         );
         PHPUnit_Framework_Assert::assertSame(0, $user->getSecondsUntilUnblocked());
     }
+
+    /**
+     * @Then I should have access to some information about that user
+     */
+    public function iShouldHaveAccessToSomeInformationAboutThatUser()
+    {
+        $userInfo = $this->authenticator->getUserAttributes();
+        PHPUnit_Framework_Assert::assertNotEmpty($userInfo);
+    }
+
+    /**
+     * @Then I should not have access to any information about that user
+     */
+    public function iShouldNotHaveAccessToAnyInformationAboutThatUser()
+    {
+        try {
+            $this->authenticator->getUserAttributes();
+            PHPUnit_Framework_Assert::fail();
+        } catch (\Exception $e) {
+            PHPUnit_Framework_Assert::assertNotEmpty($e->getMessage());
+        }
+    }
 }
