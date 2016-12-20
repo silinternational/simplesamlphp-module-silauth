@@ -12,6 +12,7 @@ class User extends UserBase
     const ACTIVE_YES = 'Yes';
     
     const BLOCK_AFTER_NTH_FAILED_LOGIN = 2;
+    const MAX_SECONDS_TO_BLOCK = 3600; // 3600 seconds = 1 hour
     
     const LOCKED_NO = 'No';
     const LOCKED_YES = 'Yes';
@@ -36,9 +37,14 @@ class User extends UserBase
             return null;
         }
         
+        $secondsToDelay = min(
+            $failedLoginAttempts * $failedLoginAttempts,
+            self::MAX_SECONDS_TO_BLOCK
+        );
+        
         $blockForInterval = new \DateInterval(sprintf(
             'PT%sS', // = P(eriod)T(ime)#S(econds)
-            ($failedLoginAttempts * $failedLoginAttempts)
+            $secondsToDelay
         ));
         
         $nowUtc = new \DateTime('now', new \DateTimeZone('UTC'));
@@ -125,6 +131,16 @@ class User extends UserBase
         return max($remainingSeconds, 0);
     }
     
+    /**
+     * Whether this User database record has a (hashed) password.
+     * 
+     * @return bool
+     */
+    public function hasPasswordInDatabase()
+    {
+        return ($this->password_hash !== null);
+    }
+    
     public function isActive()
     {
         return (strcasecmp($this->active, self::ACTIVE_YES) === 0);
@@ -133,6 +149,11 @@ class User extends UserBase
     public function isBlockedByRateLimit()
     {
         return ($this->getSecondsUntilUnblocked() > 0);
+    }
+    
+    public function isPasswordCorrect($password)
+    {
+        return password_verify($password, $this->password_hash);
     }
     
     protected function isEnoughFailedLoginsToBlock($failedLoginAttempts)
@@ -152,7 +173,7 @@ class User extends UserBase
         if ( ! $successful) {
             Yii::error(sprintf(
                 'Failed to update login attempts counter in database for %s.',
-                $this->username
+                var_export($this->username, true)
             ));
         }
     }
@@ -203,6 +224,11 @@ class User extends UserBase
                 },
             ],
         ], parent::rules());
+    }
+    
+    public function setPassword($password)
+    {
+        $this->password_hash = password_hash($password, PASSWORD_DEFAULT);
     }
     
     /**

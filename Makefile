@@ -27,6 +27,15 @@ db:
 generatemodels: migratedb
 	docker-compose run --rm web bash -c "/data/src/rebuildbasemodels.sh"
 
+ldap:
+	docker-compose up -d ldap
+
+ldapadmin: ldap
+	docker-compose up -d ldapadmin
+
+ldapload: ldap
+	docker-compose run --rm ldapload
+
 migratedb: db
 	docker-compose run --rm web bash -c "whenavail db 3306 60 /data/src/yii migrate --interactive=0"
 
@@ -37,7 +46,7 @@ migration:
 	docker-compose run --rm web bash -c "/data/src/yii migrate/create $(NAME)"
 
 phpunit:
-	docker-compose run --rm web bash -c "cd src/tests && MYSQL_HOST=testdb MYSQL_DATABASE=test ../../vendor/bin/phpunit ."
+	docker-compose run --rm phpunit
 
 ps:
 	docker-compose ps
@@ -46,13 +55,17 @@ rmdb:
 	docker-compose kill db
 	docker-compose rm -f db
 
+rmldap:
+	docker-compose kill ldap
+	docker-compose rm -f ldap
+
 rmtestdb:
 	docker-compose kill testdb
 	docker-compose rm -f testdb
 
 start: web
 
-test: composer rmtestdb testdb migratetestdb behat phpunit
+test: composer rmtestdb rmldap testdb ldap migratetestdb ldapload behat phpunit
 
 testdb:
 	docker-compose up -d testdb

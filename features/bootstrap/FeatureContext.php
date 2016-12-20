@@ -5,6 +5,7 @@ use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
 use Sil\SilAuth\Authenticator;
+use Sil\SilAuth\ldap\Ldap;
 use Sil\SilAuth\models\User;
 use yii\helpers\ArrayHelper;
 
@@ -15,6 +16,9 @@ class FeatureContext implements Context
 {
     /** @var Authenticator|null */
     private $authenticator = null;
+
+    /** @var Ldap|null */
+    private $ldap = null;
     
     /** @var string|null */
     private $username = null;
@@ -32,6 +36,7 @@ class FeatureContext implements Context
     public function __construct()
     {
         $this->initializeDependencies();
+        $this->ldap = new Ldap();
     }
     
     protected function initializeDependencies()
@@ -155,8 +160,10 @@ class FeatureContext implements Context
             }
             
             $user = new User();
-            $user->password_hash = password_hash($row['password'], PASSWORD_DEFAULT);
-            unset($row['password']);
+            if (array_key_exists('password', $row)) {
+                $user->setPassword($row['password']);
+                unset($row['password']);
+            }
             
             $defaults = [
                 'email' => strtolower($row['username'] . '@example.com'),
@@ -243,5 +250,64 @@ class FeatureContext implements Context
     {
         $user = User::findByUsername($this->username);
         PHPUnit_Framework_Assert::assertEquals($number, $user->login_attempts);
+    }
+
+    /**
+     * @Given there is no user with a username of :username in the database
+     */
+    public function thereIsNoUserWithAUsernameOfInTheDatabase($username)
+    {
+        $user = User::findByUsername($username);
+        if ($user !== null) {
+            PHPUnit_Framework_Assert::assertTrue(
+                ($user->delete() !== false)
+            );
+        }
+    }
+
+    /**
+     * @Given there is no user with a username of :username in the ldap
+     */
+    public function thereIsNoUserWithAUsernameOfInTheLdap($username)
+    {
+        PHPUnit_Framework_Assert::assertFalse($this->ldap->userExists($username));
+    }
+
+    /**
+     * @Given there is a(n) :username user in the ldap with a password of :password
+     */
+    public function thereIsAnUserInTheLdapWithAPasswordOf($username, $password)
+    {
+        $isCorrect = $this->ldap->isPasswordCorrectForUser($username, $password);
+        PHPUnit_Framework_Assert::assertTrue($isCorrect);
+    }
+
+    /**
+     * @Then there should now be a(n) :username user in the database with a password of :password
+     */
+    public function thereShouldNowBeAnUserInTheDatabaseWithAPasswordOf($username, $password)
+    {
+        $user = User::findByUsername($username);
+        PHPUnit_Framework_Assert::assertNotNull($user);
+        $isCorrect = $user->isPasswordCorrect($password);
+        PHPUnit_Framework_Assert::assertTrue($isCorrect);
+    }
+
+    /**
+     * @Given there is a(n) :username user in the ldap
+     */
+    public function thereIsAnUserInTheLdap($username)
+    {
+        $userExists = $this->ldap->userExists($username);
+        PHPUnit_Framework_Assert::assertTrue($userExists);
+    }
+
+    /**
+     * @Then there should now be a(n) :username user in the database
+     */
+    public function thereShouldNowBeAnUserInTheDatabase($username)
+    {
+        $user = User::findByUsername($username);
+        PHPUnit_Framework_Assert::assertNotNull($user);
     }
 }
