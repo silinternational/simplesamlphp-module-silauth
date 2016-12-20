@@ -41,6 +41,9 @@ class Authenticator
         
         /* @todo Make sure the CSRF has been validated. */
         
+        /* @todo If enough failed logins have occurred that we require a
+         *       Captcha, make sure the Captcha is correct.  */
+        
         $user = User::findByUsername($username);
         if ($user === null) {
 
