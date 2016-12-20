@@ -23,10 +23,10 @@ Feature: User login
 
   Scenario: Providing an incorrect username-password combination
     Given the following user exists in the database:
-        | username | password | login_attempts |
-        | Bob      | MrTomato | 0              |
-    And I provide a username of "Bob"
-    But I provide a password of "MrsAsparagus"
+        | username  | password     | login_attempts |
+        | BOB_ADAMS | bob_adams123 | 0              |
+    And I provide a username of "BOB_ADAMS"
+    But I provide a password of "something_else"
     When I try to login
     Then I should see an error message
     And I should not be allowed through
@@ -34,32 +34,32 @@ Feature: User login
 
   Scenario: Providing a correct username-password combination
     Given the following user exists in the database:
-        | username | password |
-        | Bob      | MrTomato |
-    And I provide a username of "Bob"
-    And I provide a password of "MrTomato"
+        | username  | password     |
+        | BOB_ADAMS | bob_adams123 |
+    And I provide a username of "BOB_ADAMS"
+    And I provide a password of "bob_adams123"
     When I try to login
     Then I should not see an error message
     And I should be allowed through
 
   Scenario: Providing too many incorrect username-password combinations
     Given the following user exists in the database:
-        | username | password | login_attempts |
-        | Bob      | MrTomato | 0              |
-    When I try to login using "Bob" and "MrsAsparagus" too many times
+        | username  | password     | login_attempts |
+        | BOB_ADAMS | bob_adams123 | 0              |
+    When I try to login using "BOB_ADAMS" and "aWrongPassword" too many times
     Then I should see an error message with "wait" in it
     And that user account should be blocked for awhile
     And I should not be allowed through
 
   Scenario: Providing correct credentials after one failed login attempt
     Given the following user exists in the database:
-        | username | password | login_attempts |
-        | Bob      | MrTomato | 0              |
-    And I provide a username of "Bob"
-    But I provide a password of "MrsAsparagus"
+        | username  | password     | login_attempts |
+        | BOB_ADAMS | bob_adams123 | 0              |
+    And I provide a username of "BOB_ADAMS"
+    But I provide a password of "bob_adams789"
     And I try to login
-    Then I provide a username of "Bob"
-    And I provide a password of "MrTomato"
+    Then I provide a username of "BOB_ADAMS"
+    And I provide a password of "bob_adams123"
     When I try to login
     Then I should not see an error message
     And I should be allowed through
@@ -67,30 +67,30 @@ Feature: User login
 
   Scenario: Providing correct credentials to a locked account
     Given the following user exists in the database:
-        | username | password | locked |
-        | Bob      | MrTomato | Yes    |
-    And I provide a username of "Bob"
-    And I provide a password of "MrTomato"
+        | username  | password     | locked |
+        | BOB_ADAMS | bob_adams123 | Yes    |
+    And I provide a username of "BOB_ADAMS"
+    And I provide a password of "bob_adams123"
     When I try to login
     Then I should see an error message with "locked" in it
     And I should not be allowed through
 
   Scenario: Providing correct credentials to an inactive account
     Given the following user exists in the database:
-        | username | password | active |
-        | Bob      | MrTomato | No     |
-    And I provide a username of "Bob"
-    And I provide a password of "MrTomato"
+        | username  | password     | active |
+        | BOB_ADAMS | bob_adams123 | No     |
+    And I provide a username of "BOB_ADAMS"
+    And I provide a password of "bob_adams123"
     When I try to login
     Then I should see an error message with "active" in it
     And I should not be allowed through
 
   Scenario: Being told about how long to wait (due to rate limiting bad logins)
     Given the following user exists in the database:
-        | username | password | login_attempts |
-        | Bob      | MrTomato | 5              |
-    And I provide a username of "Bob"
-    And I provide a password of "MrTomato"
+        | username  | password     | login_attempts |
+        | BOB_ADAMS | bob_adams123 | 5              |
+    And I provide a username of "BOB_ADAMS"
+    And I provide a password of "bob_adams123"
     When I try to login
     Then I should see an error message with "about 30 seconds" in it
     And that user account should still be blocked for awhile
