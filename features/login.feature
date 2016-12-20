@@ -46,6 +46,17 @@ Feature: User login
     And I should have access to some information about that user
     And I should be allowed through
 
+  Scenario: Providing a correct password but using the wrong upper/lowercase username
+    Given the following user exists in the database:
+        | username  | password     |
+        | BOB_ADAMS | bob_adams123 |
+    And I provide a username of "bob_adams"
+    And I provide a password of "bob_adams123"
+    When I try to login
+    Then I should not see an error message
+    And I should have access to some information about that user
+    And I should be allowed through
+
   Scenario: Providing too many incorrect username-password combinations
     Given the following user exists in the database:
         | username  | password     | login_attempts |
