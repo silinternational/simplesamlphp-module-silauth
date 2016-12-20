@@ -7,6 +7,7 @@ use Behat\Gherkin\Node\TableNode;
 use Sil\SilAuth\Authenticator;
 use Sil\SilAuth\ldap\Ldap;
 use Sil\SilAuth\models\User;
+use Sil\SilAuth\UtcTime;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -343,5 +344,20 @@ class FeatureContext implements Context
         $user = User::findByUsername($this->username);
         PHPUnit_Framework_Assert::assertNotNull($user);
         PHPUnit_Framework_Assert::assertTrue($user->hasPasswordInDatabase());
+    }
+
+    /**
+     * @Given that user account's block-until time is in the past
+     */
+    public function thatUserAccountSBlockUntilTimeIsInThePast()
+    {
+        $user = User::findByUsername($this->username);
+        PHPUnit_Framework_Assert::assertNotNull($user, 'Could not find that user.');
+        $user->block_until_utc = UtcTime::format('-1 second');
+        PHPUnit_Framework_Assert::assertTrue(
+            $user->save(true, ['block_until_utc']),
+            'Failed to set the block-until time to in the past.'
+        );
+        PHPUnit_Framework_Assert::assertSame(0, $user->getSecondsUntilUnblocked());
     }
 }
