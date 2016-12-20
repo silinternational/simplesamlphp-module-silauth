@@ -10,17 +10,18 @@ class LdapTest extends TestCase
     {
         // Arrange:
         $testCases = [
-            ['u' => 'LDAP_ACCESS',         'p' => 'ldap_access', 'expected' => true],
-            ['u' => 'BOB_ADAMS',           'p' => 'asdf',        'expected' => false],
-            ['u' => '',                    'p' => 'asdf',        'expected' => false],
-            ['u' => null,                  'p' => 'asdf',        'expected' => false],
-            ['u' => 'BOB_ADAMS',           'p' => null,          'expected' => false],
-            ['u' => 'BOB_ADAMS',           'p' => '',            'expected' => false],
-            ['u' => '',                    'p' => '',            'expected' => false],
-            ['u' => null,                  'p' => null,          'expected' => false],
-            ['u' => null,                  'p' => '',            'expected' => false],
-            ['u' => '',                    'p' => null,          'expected' => false],
-            ['u' => 'NON_EXISTENT_PERSON', 'p' => 'fdsa',        'expected' => false],
+            ['u' => 'LDAP_ACCESS',  'p' => 'ldap_access',  'expected' => true],
+            ['u' => 'BOB_ADAMS',    'p' => 'bob_adams123', 'expected' => true],
+            ['u' => '',             'p' => 'bob_adams123', 'expected' => false],
+            ['u' => null,           'p' => 'bob_adams123', 'expected' => false],
+            ['u' => 'BOB_ADAMS',    'p' => null,           'expected' => false],
+            ['u' => 'BOB_ADAMS',    'p' => '',             'expected' => false],
+            ['u' => '',             'p' => '',             'expected' => false],
+            ['u' => null,           'p' => null,           'expected' => false],
+            ['u' => null,           'p' => '',             'expected' => false],
+            ['u' => '',             'p' => null,           'expected' => false],
+            ['u' => 'ROB_HOLT',     'p' => 'rob_holt123',  'expected' => true],
+            ['u' => 'NON_EXISTENT', 'p' => 'bob_adams123', 'expected' => false],
         ];
         $ldap = new Ldap();
         foreach ($testCases as $testCase) {

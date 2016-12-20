@@ -122,9 +122,9 @@ Feature: User login
     Given the following user exists in the database:
         | username | login_attempts |
         | ROB_HOLT | 0              |
-    And there is a "ROB_HOLT" user in the ldap with a password of "TestPassword"
+    And there is a "ROB_HOLT" user in the ldap with a password of "rob_holt123"
     And I provide a username of "ROB_HOLT"
-    And I provide a password of "TestPassword"
+    And I provide a password of "rob_holt123"
     When I try to login
     Then I should not see an error message
     And I should be allowed through
