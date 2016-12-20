@@ -96,6 +96,42 @@ class Authenticator
         $user->resetFailedLoginAttemptsInDatabase();
     }
     
+    /**
+     * Get the error code (if any).
+     * 
+     * @return int|null
+     */
+    public function getErrorCode()
+    {
+        return $this->errorCode;
+    }
+    
+    /**
+     * Get the error message (if any).
+     * 
+     * @return string|null
+     */
+    public function getErrorMessage()
+    {
+        return $this->errorMessage;
+    }
+    
+    protected function hasError()
+    {
+        return (($this->errorMessage !== null) || ($this->errorCode !== null));
+    }
+    
+    /**
+     * Check whether authentication was successful. If not, call
+     * getErrorMessage() and/or getErrorCode() to find out why not.
+     * 
+     * @return bool
+     */
+    public function isAuthenticated()
+    {
+        return ( ! $this->hasError());
+    }
+    
     protected function setError($code, $message, $messageParams = [])
     {
         $this->errorCode = $code;
@@ -143,41 +179,5 @@ class Authenticator
             self::ERROR_USERNAME_REQUIRED,
             'Please provide a username.'
         );
-    }
-    
-    /**
-     * Get the error code (if any).
-     * 
-     * @return int|null
-     */
-    public function getErrorCode()
-    {
-        return $this->errorCode;
-    }
-    
-    /**
-     * Get the error message (if any).
-     * 
-     * @return string|null
-     */
-    public function getErrorMessage()
-    {
-        return $this->errorMessage;
-    }
-    
-    protected function hasError()
-    {
-        return (($this->errorMessage !== null) || ($this->errorCode !== null));
-    }
-    
-    /**
-     * Check whether authentication was successful. If not, call
-     * getErrorMessage() and/or getErrorCode() to find out why not.
-     * 
-     * @return bool
-     */
-    public function isAuthenticated()
-    {
-        return ( ! $this->hasError());
     }
 }
