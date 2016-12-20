@@ -19,14 +19,19 @@ if ($source === null) {
 
 $errorCode = null;
 $errorParams = null;
+$username = null;
+$password = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
+        
+        $username = $_POST['username'] ?? null;
+        $password = $_POST['password'] ?? null;
 
         // Either username or password set - attempt to log in
-        if (empty($_POST['username'])) {
+        if (empty($username)) {
             throw new SimpleSAML_Error_Error('WRONGUSERPASS');
-        } elseif (empty($_POST['password'])) {
+        } elseif (empty($password)) {
             throw new SimpleSAML_Error_Error('WRONGUSERPASS');
         }
 
