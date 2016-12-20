@@ -42,7 +42,7 @@ class Authenticator
             $dummyUser->isPasswordCorrect($password);
 
             // Now proceed with the appropriate error message.
-            $this->addWrongUsernameOrPasswordError();
+            $this->addInvalidLoginError();
             return;
         }
         
@@ -53,12 +53,12 @@ class Authenticator
         }
         
         if ( ! $user->isActive()) {
-            $this->addInactiveAccountError();
+            $this->addInvalidLoginError();
             return;
         }
         
         if ($user->isLocked()) {
-            $this->addLockedAccountError();
+            $this->addInvalidLoginError();
             return;
         }
         
@@ -82,7 +82,7 @@ class Authenticator
             if ( ! $user->isNewRecord) {
                 $user->recordLoginAttemptInDatabase();
             }
-            $this->addWrongUsernameOrPasswordError();
+            $this->addInvalidLoginError();
             return;
         }
         
@@ -113,19 +113,12 @@ class Authenticator
         ));
     }
     
-    protected function addInactiveAccountError()
+    protected function addInvalidLoginError()
     {
         $this->addError(\Yii::t(
             'app',
-            "That account is not active. If it is your account, please contact your organization's help desk."
-        ));
-    }
-    
-    protected function addLockedAccountError()
-    {
-        $this->addError(\Yii::t(
-            'app',
-            "That account is locked. If it is your account, please contact your organization's help desk."
+            'Either the username or password was not correct or this account is disabled. '
+            . "Please try again or contact your organization's help desk."
         ));
     }
     
@@ -137,14 +130,6 @@ class Authenticator
     protected function addUsernameRequiredError()
     {
         $this->addError(\Yii::t('app', 'Please provide a username.'));
-    }
-    
-    protected function addWrongUsernameOrPasswordError()
-    {
-        $this->addError(\Yii::t(
-            'app',
-            'Either the username or the password was not correct. Please try again.'
-        ));
     }
     
     /**
