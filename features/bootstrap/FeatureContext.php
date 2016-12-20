@@ -259,7 +259,9 @@ class FeatureContext implements Context
     {
         $user = User::findByUsername($username);
         if ($user !== null) {
-            PHPUnit_Framework_Assert::assertNotFalse($user->delete());
+            PHPUnit_Framework_Assert::assertTrue(
+                ($user->delete() !== false)
+            );
         }
     }
 
@@ -268,9 +270,7 @@ class FeatureContext implements Context
      */
     public function thereIsNoUserWithAUsernameOfInTheLdap($username)
     {
-        if ($this->ldap->userExists($username)) {
-            PHPUnit_Framework_Assert::assertTrue($this->ldap->deleteUser($username));
-        }
+        PHPUnit_Framework_Assert::assertFalse($this->ldap->userExists($username));
     }
 
     /**
