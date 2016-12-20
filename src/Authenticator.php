@@ -4,6 +4,10 @@ namespace Sil\SilAuth;
 use Sil\SilAuth\ldap\Ldap;
 use Sil\SilAuth\models\User;
 
+/**
+ * An immutable class for making a single attempt to authenticate using a given
+ * username and password.
+ */
 class Authenticator
 {
     const ERROR_GENERIC_TRY_LATER = 1;
@@ -14,6 +18,7 @@ class Authenticator
     
     private $errorCode = null;
     private $errorMessage = null;
+    private $userAttributes = null;
     
     /**
      * Attempt to authenticate using the given username and password. Check
@@ -94,6 +99,15 @@ class Authenticator
         // NOTE: If we reach this point, the user successfully authenticated.
         
         $user->resetFailedLoginAttemptsInDatabase();
+        
+        $this->setUserAttributes([
+            'eduPersonTargetID' => $user->uuid,
+            'sn' => $user->last_name,
+            'givenName' => $user->first_name,
+            'mail' => $user->email,
+            'username' => $user->username,
+            'employeeId' => $user->employee_id,
+        ]);
     }
     
     /**
@@ -114,6 +128,18 @@ class Authenticator
     public function getErrorMessage()
     {
         return $this->errorMessage;
+    }
+    
+    public function getUserAttributes()
+    {
+        if ($this->userAttributes === null) {
+            throw new \Exception(
+                "You cannot get the user's attributes until you have authenticated the user.",
+                1482270373
+            );
+        }
+        
+        return $this->userAttributes;
     }
     
     protected function hasError()
@@ -179,5 +205,10 @@ class Authenticator
             self::ERROR_USERNAME_REQUIRED,
             'Please provide a username.'
         );
+    }
+    
+    protected function setUserAttributes($attributes)
+    {
+        $this->userAttributes = $attributes;
     }
 }
