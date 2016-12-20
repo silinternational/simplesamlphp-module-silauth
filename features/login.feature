@@ -96,13 +96,13 @@ Feature: User login
     And that user account should still be blocked for awhile
     And I should not be allowed through
 
-  Scenario: Providing credentials to an account not in the db
-    Given there is no user with a username of "Bob" in the database
-    And I provide a username of "Bob"
-    And I provide a password
+  Scenario: Providing credentials to an account in the ldap but not in the db
+    Given there is no user with a username of "BOB_ADAMS" in the database
+    But there is a "BOB_ADAMS" user in the ldap with a password of "bob_adams123"
+    And I provide a username of "BOB_ADAMS"
+    And I provide a password of "bob_adams123"
     When I try to login
-    Then I should see an error message with "user" in it
-    And I should see an error message with "password" in it
+    Then I should see an error message with "username" and "password" in it
     And I should not be allowed through
 
   Scenario: Incorrect password for an account with no password in the db, just in ldap
@@ -113,8 +113,7 @@ Feature: User login
     And I provide a username of "BOB_ADAMS"
     And I provide a password of "ThisIsWrong"
     When I try to login
-    Then I should see an error message with "user" in it
-    And I should see an error message with "password" in it
+    Then I should see an error message with "username" and "password" in it
     And I should not be allowed through
     And that user account's failed login attempts should be at 1
 
@@ -128,4 +127,5 @@ Feature: User login
     When I try to login
     Then I should not see an error message
     And I should be allowed through
+    And that user account should have a password in the database
     And that user account's failed login attempts should be at 0

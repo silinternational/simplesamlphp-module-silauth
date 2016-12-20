@@ -226,6 +226,9 @@ class FeatureContext implements Context
      */
     public function iShouldSeeAnErrorMessageWithInIt($text)
     {
+        PHPUnit_Framework_Assert::assertNotEmpty(
+            $this->authenticator->getErrors()
+        );
         PHPUnit_Framework_Assert::assertContains(
             $text,
             implode("\n", $this->authenticator->getErrors())
@@ -309,5 +312,36 @@ class FeatureContext implements Context
     {
         $user = User::findByUsername($username);
         PHPUnit_Framework_Assert::assertNotNull($user);
+    }
+
+    /**
+     * @Then I should see an error message with :text1 and :text2 in it
+     */
+    public function iShouldSeeAnErrorMessageWithAndInIt($text1, $text2)
+    {
+        $errorMessages = $this->authenticator->getErrors();
+        PHPUnit_Framework_Assert::assertNotEmpty($errorMessages);
+        $foundOneWithBoth = false;
+        foreach ($errorMessages as $errorMessage) {
+            $inText1 = (strpos($errorMessage, $text1) !== false);
+            $inText2 = (strpos($errorMessage, $text2) !== false);
+            $foundOneWithBoth = $foundOneWithBoth || ($inText1 && $inText2);
+        }
+        PHPUnit_Framework_Assert::assertTrue($foundOneWithBoth, sprintf(
+            'Did not find %s and %s in any single error message: %s',
+            var_export($text1, true),
+            var_export($text2, true),
+            "\n- " . implode("\n- ", $errorMessages)
+        ));
+    }
+
+    /**
+     * @Then that user account should have a password in the database
+     */
+    public function thatUserAccountShouldHaveAPasswordInTheDatabase()
+    {
+        $user = User::findByUsername($this->username);
+        PHPUnit_Framework_Assert::assertNotNull($user);
+        PHPUnit_Framework_Assert::assertTrue($user->hasPasswordInDatabase());
     }
 }
