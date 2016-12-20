@@ -96,6 +96,18 @@ Feature: User login
     And that user account should still be blocked for awhile
     And I should not be allowed through
 
+  Scenario: Logging in after a rate limit has expired
+    Given the following user exists in the database:
+        | username  | password     | login_attempts |
+        | BOB_ADAMS | bob_adams123 | 5              |
+    And I provide a username of "BOB_ADAMS"
+    And I provide a password of "bob_adams123"
+    And that user account's block-until time is in the past
+    When I try to login
+    Then I should not see an error message
+    And I should be allowed through
+    And that user account's failed login attempts should be at 0
+
   Scenario: Providing credentials to an account in the ldap but not in the db
     Given there is no user with a username of "BOB_ADAMS" in the database
     But there is a "BOB_ADAMS" user in the ldap with a password of "bob_adams123"
