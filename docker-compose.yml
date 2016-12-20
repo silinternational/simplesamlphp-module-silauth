@@ -98,6 +98,9 @@ services:
       DEBUG_LEVEL: 320
     links:
       - ldap
+    volumes:
+      - ./development/ldap/fakepeople.ldif:/root/fakepeople.ldif
+      - ./development/ldap/fakerep.ldif:/root/fakerep.ldif
     command: bash -c "sleep 10 && /data/load_ldap.sh"
 
   ldapadmin:
