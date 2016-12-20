@@ -11,9 +11,8 @@ services:
       - ./composer.json:/data/composer.json
       - ./composer.lock:/data/composer.lock
       - ./features:/data/features
-      - ./phinx.yml:/data/phinx.yml
       - ./src:/data/src
-      - ./vendor:/data/vendor
+      #- ./vendor:/data/vendor
       - ./:/silauth
       - ./auth.json:/root/.composer/auth.json
       - ./development/ldap/dev-ldap.conf:/etc/ldap/ldap.conf
