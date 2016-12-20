@@ -79,9 +79,7 @@ class Authenticator
         }
         
         if ( ! $user->isPasswordCorrect($password)) {
-            if ( ! $user->isNewRecord) {
-                $user->recordLoginAttemptInDatabase();
-            }
+            $user->recordLoginAttemptInDatabase();
             $this->addInvalidLoginError();
             return;
         }
