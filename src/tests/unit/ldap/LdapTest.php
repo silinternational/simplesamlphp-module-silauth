@@ -28,7 +28,7 @@ class LdapTest extends TestCase
             $password = $testCase['p'];
             
             // Act:
-            $actual = $ldap->isCorrectPasswordForUser($userCn, $password);
+            $actual = $ldap->isPasswordCorrectForUser($userCn, $password);
             
             // Assert:
             $this->assertSame($testCase['expected'], $actual, sprintf(
