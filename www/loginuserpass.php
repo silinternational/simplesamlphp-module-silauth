@@ -35,6 +35,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         /* Login failed. Extract error code and parameters, to display the error. */
         $errorCode = $e->getErrorCode();
         $errorParams = $e->getParameters();
+        /**
+         * @todo load up $errorParams with requireRecaptcha and try again after XX seconds
+         */
     }
 }
 
