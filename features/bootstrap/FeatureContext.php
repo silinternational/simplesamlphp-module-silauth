@@ -5,6 +5,7 @@ use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
 use Sil\SilAuth\Authenticator;
+use Sil\SilAuth\config\ConfigManager;
 use Sil\SilAuth\ldap\Ldap;
 use Sil\SilAuth\models\User;
 use Sil\SilAuth\UtcTime;
@@ -37,7 +38,7 @@ class FeatureContext implements Context
     public function __construct()
     {
         $this->initializeDependencies();
-        $this->ldap = new Ldap();
+        $this->ldap = new Ldap(ConfigManager::getSspConfigFor('ldap'));
     }
     
     protected function initializeDependencies()

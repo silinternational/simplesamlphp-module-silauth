@@ -1,6 +1,7 @@
 <?php
 namespace Sil\SilAuth;
 
+use Sil\SilAuth\config\ConfigManager;
 use Sil\SilAuth\ldap\Ldap;
 use Sil\SilAuth\models\User;
 
@@ -78,7 +79,7 @@ class Authenticator
         }
         
         if ( ! $user->hasPasswordInDatabase()) {
-            $ldap = new Ldap();
+            $ldap = new Ldap(ConfigManager::getSspConfigFor('ldap'));
             if ($ldap->isPasswordCorrectForUser($username, $password)) {
                 $user->setPassword($password);
                 if ( ! $user->save()) {
