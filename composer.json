@@ -12,10 +12,14 @@
   "minimum-stability": "stable",
   "require": {
     "php": ">=5.6",
+    "danielstjules/stringy": "^2.3",
     "ramsey/uuid": "^3.5",
     "roave/security-advisories": "dev-master",
     "silinternational/php-env": "^0.2.0",
+    "silinternational/ssp-deps": "^0.2",
     "silinternational/ssp-utilities": "dev-develop",
+    "silinternational/simplesamlphp-module-material": "dev-develop",
+    "silinternational/simplesamlphp-module-sildisco": "dev-develop",
     "simplesamlphp/simplesamlphp": "^1.14.10",
     "yiisoft/yii2": "^2.0",
     "yiisoft/yii2-gii": "^2.0",
@@ -25,7 +29,6 @@
   "require-dev": {
     "behat/behat": "^3.2",
     "phpunit/phpunit": "^5.6.1",
-    "silinternational/simplesamlphp-module-material": "dev-develop",
     "simplesamlphp/composer-module-installer": "^1.1.5"
   },
   "autoload": {
