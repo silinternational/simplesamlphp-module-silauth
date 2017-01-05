@@ -1,12 +1,17 @@
 
+# Get the most recent Git tag as the current version of this repo (needed for
+# resolving what version of this repo the current files represent, since this
+# is a sub-dependency of itself via ssp-deps).
+VERSION=$(shell git describe --abbrev=0 --tags)
+
 bash:
 	docker-compose run --rm web bash
 
 behat:
-	docker-compose run --rm web bash -c "MYSQL_HOST=testdb MYSQL_DATABASE=test vendor/bin/behat"
+	docker-compose run --rm tests bash -c "vendor/bin/behat"
 
 behatappend:
-	docker-compose run --rm web bash -c "MYSQL_HOST=testdb MYSQL_DATABASE=test vendor/bin/behat --append-snippets"
+	docker-compose run --rm tests bash -c "vendor/bin/behat --append-snippets"
 
 bounce:
 	docker-compose up -d web
@@ -16,10 +21,10 @@ clean:
 	docker-compose rm -f
 
 composer:
-	docker-compose run --rm web bash -c "composer install --no-plugins --no-scripts --prefer-dist"
+	docker-compose run --rm tests bash -c "COMPOSER_ROOT_VERSION=$(VERSION) composer install --no-plugins --no-scripts"
 
 composerupdate:
-	docker-compose run --rm web bash -c "composer update --no-plugins --no-scripts --prefer-dist"
+	docker-compose run --rm tests bash -c "COMPOSER_ROOT_VERSION=$(VERSION) composer update --no-plugins --no-scripts"
 
 db:
 	docker-compose up -d db
@@ -40,13 +45,13 @@ migratedb: db
 	docker-compose run --rm web bash -c "whenavail db 3306 60 /data/src/yii migrate --interactive=0"
 
 migratetestdb: testdb
-	docker-compose run --rm web bash -c "MYSQL_HOST=testdb MYSQL_DATABASE=test whenavail testdb 3306 60 /data/src/yii migrate --interactive=0"
+	docker-compose run --rm tests bash -c "whenavail testdb 3306 60 /data/src/yii migrate --interactive=0"
 
 migration:
 	docker-compose run --rm web bash -c "/data/src/yii migrate/create $(NAME)"
 
 phpunit:
-	docker-compose run --rm phpunit
+	docker-compose run --rm tests bash -c "cd src/tests && ../../vendor/bin/phpunit ."
 
 ps:
 	docker-compose ps
@@ -65,7 +70,7 @@ rmtestdb:
 
 start: web
 
-test: composer rmtestdb rmldap testdb ldap migratetestdb ldapload behat phpunit
+test: composer rmtestdb rmldap testdb ldap migratetestdb ldapload phpunit behat
 
 testdb:
 	docker-compose up -d testdb
