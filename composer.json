@@ -31,6 +31,7 @@
   "autoload": {
     "psr-4": {
       "Sil\\SilAuth\\": "src/"
-    }
+    },
+    "files": ["vendor/yiisoft/yii2/Yii.php"]
   }
 }
