@@ -6,6 +6,7 @@ services:
     image: silintl/ssp-base:latest
     ports:
       - "80:80"
+      - "9000:9000"
     volumes:
       - ./:/silauth
       - ./auth.json:/root/.composer/auth.json
