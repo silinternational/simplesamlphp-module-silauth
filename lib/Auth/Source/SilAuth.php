@@ -24,6 +24,8 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
     public function __construct($info, $config)
     {
         parent::__construct($info, $config);
+        
+        require_once __DIR__ . '/../../../src/bootstrap-yii2.php';
     }
 
     protected function login($username, $password)
