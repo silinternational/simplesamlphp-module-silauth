@@ -70,10 +70,10 @@ rmtestdb:
 
 start: web
 
-test: composer rmtestdb rmldap testdb ldap migratetestdb ldapload phpunit behat
+test: composer rmtestdb rmldap testdb ldap migratetestdb ldapload behat phpunit
 
 testdb:
 	docker-compose up -d testdb
 
-web: db composer migratedb
+web: db migratedb
 	docker-compose up -d web
