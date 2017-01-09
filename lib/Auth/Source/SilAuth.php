@@ -3,26 +3,12 @@
 use Sil\SilAuth\Authenticator;
 
 /**
- * Class sspmod_silauth_Auth_Source_SilAuth
- * simpleSAMLphp auth library to support custom business rules support migrating accounts from LDAP to DB
+ * Class sspmod_silauth_Auth_Source_SilAuth.
  *
- * Configuration settings (defined in authsources.php):
- *  - db.driver
- *  - db.host
- *  - db.database
- *  - db.username
- *  - db.password
- *  - db.charset
- *  - db.collation
- *  - db.prefix
- *  - ldap.baseDn
- *  - ldap.host
- *  - ldap.port
- *  - ldap.useSsl
- *  - ldap.useTls
- *  - recaptcha.clientId
- *  - recaptcha.secret
+ * SimpleSAMLphp auth library to support custom business rules support migrating
+ * accounts from LDAP to DB.
  *
+ * Configuration settings defined in src/config/ssp-config.php.
  */
 class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
 {
