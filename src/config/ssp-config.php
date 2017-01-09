@@ -16,6 +16,6 @@ return [
     'ldap.use_ssl' => Env::get('LDAP_USE_SSL', true),
     'ldap.use_tls' => Env::get('LDAP_USE_TLS', true),
     'ldap.timeout' => Env::get('LDAP_TIMEOUT', 5),
-    'recaptcha.siteKey' => '',
-    'recaptcha.secret' => '',
+    'recaptcha.siteKey' => Env::get('RECAPTCHA_SITE_KEY'),
+    'recaptcha.secret' => Env::get('RECAPTCHA_SECRET'),
 ];
