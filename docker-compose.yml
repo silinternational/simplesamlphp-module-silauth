@@ -32,6 +32,7 @@ services:
     volumes:
       - ./composer.json:/data/composer.json
       - ./composer.lock:/data/composer.lock
+      - ./development/run-tests.sh:/data/run-tests.sh
       - ./features:/data/features
       - ./vendor:/data/vendor
     env_file:
@@ -46,6 +47,7 @@ services:
       - testdb
       - ldap
     working_dir: /data
+    command: ["/data/run-tests.sh"]
 
   db:
     image: silintl/mariadb:latest

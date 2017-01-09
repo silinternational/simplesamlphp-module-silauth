@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+echo '************************************************'
+echo 'This is not how tests are run. See the Makefile.'
+echo '************************************************'
+exit 1;
+
 # Try to install composer dev dependencies
 cd /data/vendor/simplesamlphp/simplesamlphp/modules/silauth
 composer install --prefer-dist --no-interaction --optimize-autoloader --dev
