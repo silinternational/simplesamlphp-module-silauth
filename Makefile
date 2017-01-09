@@ -7,6 +7,9 @@ VERSION=$(shell git describe --abbrev=0 --tags)
 bash:
 	docker-compose run --rm web bash
 
+bashtests:
+	docker-compose run --rm tests bash
+
 behat:
 	docker-compose run --rm tests bash -c "vendor/bin/behat"
 
