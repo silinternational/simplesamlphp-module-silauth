@@ -2,6 +2,7 @@
 namespace Sil\SilAuth\models;
 
 use Ramsey\Uuid\Uuid;
+use Sil\SilAuth\auth\AuthError;
 use Sil\SilAuth\UtcTime;
 use yii\helpers\ArrayHelper;
 use Yii;
@@ -171,7 +172,7 @@ class User extends UserBase
         $this->login_attempts += 1;
         $successful = $this->save(true, ['login_attempts', 'block_until_utc']);
         if ( ! $successful) {
-            Yii::error(sprintf(
+            AuthError::logError(sprintf(
                 'Failed to update login attempts counter in database for %s.',
                 var_export($this->username, true)
             ));
@@ -183,7 +184,7 @@ class User extends UserBase
         $this->login_attempts = 0;
         $successful = $this->save(true, ['login_attempts', 'block_until_utc']);
         if ( ! $successful) {
-            Yii::error(sprintf(
+            AuthError::logError(sprintf(
                 'Failed to reset login attempts counter in database for %s.',
                 $this->username
             ));

@@ -1,6 +1,7 @@
 <?php
 namespace Sil\SilAuth\auth;
 
+use Sil\SilAuth\auth\AuthError;
 use Sil\SilAuth\config\ConfigManager;
 use Sil\SilAuth\ldap\Ldap;
 use Sil\SilAuth\models\User;
@@ -11,14 +12,8 @@ use Sil\SilAuth\models\User;
  */
 class Authenticator
 {
-    const ERROR_GENERIC_TRY_LATER = 1;
-    const ERROR_USERNAME_REQUIRED = 2;
-    const ERROR_PASSWORD_REQUIRED = 3;
-    const ERROR_INVALID_LOGIN_ERROR = 4;
-    const ERROR_BLOCKED_BY_RATE_LIMIT = 5;
-    
-    private $errorCode = null;
-    private $errorMessage = null;
+    /** @var AuthError|null */
+    private $authError = null;
     private $userAttributes = null;
     
     /**
@@ -83,7 +78,7 @@ class Authenticator
             if ($ldap->isPasswordCorrectForUser($username, $password)) {
                 $user->setPassword($password);
                 if ( ! $user->save()) {
-                    \Yii::error(sprintf(
+                    AuthError::logError(sprintf(
                         'Failed to record password from LDAP into database for %s: %s',
                         var_export($username, true),
                         print_r($user->getErrors(), true)
@@ -115,23 +110,13 @@ class Authenticator
     }
     
     /**
-     * Get the error code (if any).
+     * Get the error information (if any).
      * 
-     * @return int|null
+     * @return AuthError|null
      */
-    public function getErrorCode()
+    public function getAuthError()
     {
-        return $this->errorCode;
-    }
-    
-    /**
-     * Get the error message (if any).
-     * 
-     * @return string|null
-     */
-    public function getErrorMessage()
-    {
-        return $this->errorMessage;
+        return $this->authError;
     }
     
     public function getUserAttributes()
@@ -148,7 +133,7 @@ class Authenticator
     
     protected function hasError()
     {
-        return (($this->errorMessage !== null) || ($this->errorCode !== null));
+        return ($this->authError !== null);
     }
     
     /**
@@ -164,14 +149,20 @@ class Authenticator
     
     protected function setError($code, $message, $messageParams = [])
     {
-        $this->errorCode = $code;
-        $this->errorMessage = \Yii::t('app', $message, $messageParams);
+        $this->authError = new AuthError($code, $message, $messageParams);
     }
     
     protected function setErrorBlockedByRateLimit($friendlyWaitTime)
     {
+        
+        
+        
+        /** @todo Change this to use the appropriate code based on wait time. */
+        
+        
+        
         $this->setError(
-            self::ERROR_BLOCKED_BY_RATE_LIMIT,
+            AuthError::CODE_BLOCKED_BY_RATE_LIMIT,
             'There have been too many failed logins for this account. '
             . 'Please wait {friendlyWaitTime}, then try again.',
             ['friendlyWaitTime' => $friendlyWaitTime]
@@ -181,15 +172,15 @@ class Authenticator
     protected function setErrorGenericTryLater()
     {
         $this->setError(
-            self::ERROR_GENERIC_TRY_LATER,
-            'Hmm... something went wrong. Please try again later. '
+            AuthError::CODE_GENERIC_TRY_LATER,
+            'Hmm... something went wrong. Please try again later.'
         );
     }
     
     protected function setErrorInvalidLogin()
     {
         $this->setError(
-            self::ERROR_INVALID_LOGIN_ERROR,
+            AuthError::CODE_INVALID_LOGIN_ERROR,
             'Either the username or password was not correct or this account is disabled. '
             . "Please try again or contact your organization's help desk."
         );
@@ -198,7 +189,7 @@ class Authenticator
     protected function setErrorPasswordRequired()
     {
         $this->setError(
-            self::ERROR_PASSWORD_REQUIRED,
+            AuthError::CODE_PASSWORD_REQUIRED,
             'Please provide a password.'
         );
     }
@@ -206,7 +197,7 @@ class Authenticator
     protected function setErrorUsernameRequired()
     {
         $this->setError(
-            self::ERROR_USERNAME_REQUIRED,
+            AuthError::CODE_USERNAME_REQUIRED,
             'Please provide a username.'
         );
     }

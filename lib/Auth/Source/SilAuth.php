@@ -1,6 +1,7 @@
 <?php
 
 use Sil\SilAuth\auth\Authenticator;
+use Sil\SilAuth\auth\AuthError;
 
 /**
  * Class sspmod_silauth_Auth_Source_SilAuth.
@@ -27,16 +28,18 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
         
         require_once __DIR__ . '/../../../src/bootstrap-yii2.php';
     }
-
+    
     protected function login($username, $password)
     {
         $authenticator = new Authenticator($username, $password);
         
         if ( ! $authenticator->isAuthenticated()) {
-            throw new SimpleSAML_Error_Error('WRONGUSERPASS', new \Exception(
-                $authenticator->getErrorMessage(),
-                $authenticator->getErrorCode()
-            ));
+            $authError = $authenticator->getAuthError();
+            throw new SimpleSAML_Error_Error([
+                'WRONGUSERPASS',
+                $authError->getFullSspErrorTag(),
+                $authError->getMessageParams()
+            ]);
         }
         
         return $authenticator->getUserAttributes();
