@@ -1,6 +1,6 @@
 <?php
 
-use Sil\SilAuth\Authenticator;
+use Sil\SilAuth\auth\Authenticator;
 
 /**
  * Class sspmod_silauth_Auth_Source_SilAuth.

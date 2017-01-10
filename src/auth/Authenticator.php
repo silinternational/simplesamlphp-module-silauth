@@ -1,5 +1,5 @@
 <?php
-namespace Sil\SilAuth;
+namespace Sil\SilAuth\auth;
 
 use Sil\SilAuth\config\ConfigManager;
 use Sil\SilAuth\ldap\Ldap;
