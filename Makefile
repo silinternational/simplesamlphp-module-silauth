@@ -4,6 +4,10 @@
 # is a sub-dependency of itself via ssp-deps).
 VERSION=$(shell git describe --abbrev=0 --tags)
 
+
+# Set up the default (i.e. - first) make entry.
+start: web
+
 bash:
 	docker-compose run --rm web bash
 
@@ -70,8 +74,6 @@ rmldap:
 rmtestdb:
 	docker-compose kill testdb
 	docker-compose rm -f testdb
-
-start: web
 
 test: composer rmtestdb rmldap testdb ldap migratetestdb ldapload behat phpunit
 
