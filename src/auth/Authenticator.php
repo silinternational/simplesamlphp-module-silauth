@@ -4,6 +4,7 @@ namespace Sil\SilAuth\auth;
 use Sil\SilAuth\auth\AuthError;
 use Sil\SilAuth\config\ConfigManager;
 use Sil\SilAuth\ldap\Ldap;
+use Sil\SilAuth\time\WaitTime;
 use Sil\SilAuth\models\User;
 
 /**
@@ -58,8 +59,8 @@ class Authenticator
         }
         
         if ($user->isBlockedByRateLimit()) {
-            $friendlyWaitTime = $user->getFriendlyWaitTimeUntilUnblocked();
-            $this->setErrorBlockedByRateLimit($friendlyWaitTime);
+            $waitTime = $user->getFriendlyWaitTimeUntilUnblocked();
+            $this->setErrorBlockedByRateLimit($waitTime);
             return;
         }
         
@@ -147,59 +148,50 @@ class Authenticator
         return ( ! $this->hasError());
     }
     
-    protected function setError($code, $message, $messageParams = [])
+    protected function setError($code, $messageParams = [])
     {
-        $this->authError = new AuthError($code, $message, $messageParams);
+        $this->authError = new AuthError($code, $messageParams);
     }
     
-    protected function setErrorBlockedByRateLimit($friendlyWaitTime)
+    /**
+     * @param WaitTime $waitTime
+     */
+    protected function setErrorBlockedByRateLimit($waitTime)
     {
+        $unit = $waitTime->getUnit();
+        $number = $waitTime->getFriendlyNumber();
         
+        if ($unit === WaitTime::UNIT_SECOND) {
+            $errorCode = AuthError::CODE_RATE_LIMIT_SECONDS;
+        } else { // = minute
+            if ($number === 1) {
+                $errorCode = AuthError::CODE_RATE_LIMIT_1_MINUTE;
+            } else {
+                $errorCode = AuthError::CODE_RATE_LIMIT_MINUTES;
+            }
+        }
         
-        
-        /** @todo Change this to use the appropriate code based on wait time. */
-        
-        
-        
-        $this->setError(
-            AuthError::CODE_BLOCKED_BY_RATE_LIMIT,
-            'There have been too many failed logins for this account. '
-            . 'Please wait {friendlyWaitTime}, then try again.',
-            ['friendlyWaitTime' => $friendlyWaitTime]
-        );
+        $this->setError($errorCode, ['number' => $number]);
     }
     
     protected function setErrorGenericTryLater()
     {
-        $this->setError(
-            AuthError::CODE_GENERIC_TRY_LATER,
-            'Hmm... something went wrong. Please try again later.'
-        );
+        $this->setError(AuthError::CODE_GENERIC_TRY_LATER);
     }
     
     protected function setErrorInvalidLogin()
     {
-        $this->setError(
-            AuthError::CODE_INVALID_LOGIN_ERROR,
-            'Either the username or password was not correct or this account is disabled. '
-            . "Please try again or contact your organization's help desk."
-        );
+        $this->setError(AuthError::CODE_INVALID_LOGIN);
     }
     
     protected function setErrorPasswordRequired()
     {
-        $this->setError(
-            AuthError::CODE_PASSWORD_REQUIRED,
-            'Please provide a password.'
-        );
+        $this->setError(AuthError::CODE_PASSWORD_REQUIRED);
     }
     
     protected function setErrorUsernameRequired()
     {
-        $this->setError(
-            AuthError::CODE_USERNAME_REQUIRED,
-            'Please provide a username.'
-        );
+        $this->setError(AuthError::CODE_USERNAME_REQUIRED);
     }
     
     protected function setUserAttributes($attributes)

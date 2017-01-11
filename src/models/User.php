@@ -4,6 +4,7 @@ namespace Sil\SilAuth\models;
 use Ramsey\Uuid\Uuid;
 use Sil\SilAuth\auth\AuthError;
 use Sil\SilAuth\time\UtcTime;
+use Sil\SilAuth\time\WaitTime;
 use yii\helpers\ArrayHelper;
 use Yii;
 
@@ -70,47 +71,15 @@ class User extends UserBase
         return Uuid::uuid4()->toString();
     }
     
+    /**
+     * Get a human-friendly wait time.
+     *
+     * @return WaitTime
+     */
     public function getFriendlyWaitTimeUntilUnblocked()
     {
         $secondsUntilUnblocked = $this->getSecondsUntilUnblocked();
-        return self::getFriendlyWaitTimeFor($secondsUntilUnblocked);
-    }
-    
-    /**
-     * Get a human-friendly description of approximately how long the user must
-     * wait before (at least) the given number of seconds have elapsed.
-     * 
-     * NOTE: This will not be precise, as it may round up to have a more
-     *       natural-sounding result (e.g. 'about 20 seconds' rather than
-     *       '17 seconds').
-     * 
-     * @param int $secondsToWait The number of seconds the user must wait.
-     * @return string|null A string describing the remaining wait time (e.g.
-     *     '20 seconds', '3 minutes', etc.), or null if no waiting is necessary.
-     */
-    public static function getFriendlyWaitTimeFor($secondsToWait)
-    {
-        if ($secondsToWait < 1) {
-            return null;
-        }
-        
-        if ($secondsToWait <= 5) {
-            $valueToUse = 5;
-            $unitToUse = 'second';
-        } elseif ($secondsToWait <= 30) {
-            $valueToUse = (int) ceil($secondsToWait / 10) * 10;
-            $unitToUse = 'second';
-        } else {
-            $valueToUse = (int) ceil($secondsToWait / 60);
-            $unitToUse = 'minute';
-        }
-        
-        return sprintf(
-            'about %s %s%s',
-            $valueToUse,
-            $unitToUse,
-            (($valueToUse === 1) ? '' : 's')
-        );
+        return new WaitTime($secondsUntilUnblocked);
     }
     
     /**

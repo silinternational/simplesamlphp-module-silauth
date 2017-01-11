@@ -16,14 +16,20 @@ class AuthError
     const CODE_RATE_LIMIT_MINUTES = 'rate_limit_minutes';
     
     private $code = null;
-    private $message = null;
     private $messageParams = [];
     
-    public function __construct($code, $message, $messageParams = [])
+    public function __construct($code, $messageParams = [])
     {
         $this->code = $code;
-        $this->message = $message;
         $this->messageParams = $messageParams;
+    }
+    
+    public function __toString()
+    {
+        return var_export([
+            'code' => $this->code,
+            'messageParams' => $this->messageParams,
+        ], true);
     }
     
     public function getCode()
