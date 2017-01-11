@@ -62,7 +62,7 @@ Feature: User login
         | username  | password     | login_attempts |
         | BOB_ADAMS | bob_adams123 | 0              |
     When I try to login using "BOB_ADAMS" and "aWrongPassword" too many times
-    Then I should see an error message with "wait" in it
+    Then I should see an error message telling me to wait
     And that user account should be blocked for awhile
     And I should not have access to any information about that user
     And I should not be allowed through
@@ -89,7 +89,7 @@ Feature: User login
     And I provide a username of "BOB_ADAMS"
     And I provide a password of "bob_adams123"
     When I try to login
-    Then I should see an error message with "username" and "password" in it
+    Then I should see a generic invalid-login error message
     And I should not have access to any information about that user
     And I should not be allowed through
 
@@ -100,7 +100,7 @@ Feature: User login
     And I provide a username of "BOB_ADAMS"
     And I provide a password of "bob_adams123"
     When I try to login
-    Then I should see an error message with "username" and "password" in it
+    Then I should see a generic invalid-login error message
     And I should not have access to any information about that user
     And I should not be allowed through
 
@@ -111,7 +111,7 @@ Feature: User login
     And I provide a username of "BOB_ADAMS"
     And I provide a password of "bob_adams123"
     When I try to login
-    Then I should see an error message with "about 30 seconds" in it
+    Then I should see an error message with "30" and "seconds" in it
     And that user account should still be blocked for awhile
     And I should not have access to any information about that user
     And I should not be allowed through
@@ -135,7 +135,7 @@ Feature: User login
     And I provide a username of "BOB_ADAMS"
     And I provide a password of "bob_adams123"
     When I try to login
-    Then I should see an error message with "username" and "password" in it
+    Then I should see a generic invalid-login error message
     And I should not have access to any information about that user
     And I should not be allowed through
 
@@ -147,7 +147,7 @@ Feature: User login
     And I provide a username of "BOB_ADAMS"
     And I provide a password of "ThisIsWrong"
     When I try to login
-    Then I should see an error message with "username" and "password" in it
+    Then I should see a generic invalid-login error message
     And I should not have access to any information about that user
     And I should not be allowed through
     And that user account's failed login attempts should be at 1

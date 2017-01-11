@@ -79,7 +79,7 @@ class FeatureContext implements Context
     public function iShouldSeeAnErrorMessage()
     {
         PHPUnit_Framework_Assert::assertNotEmpty(
-            $this->authenticator->getErrorMessage()
+            $this->authenticator->getAuthError()
         );
     }
 
@@ -122,10 +122,10 @@ class FeatureContext implements Context
      */
     public function iShouldNotSeeAnErrorMessage()
     {
-        $errorMessage = $this->authenticator->getErrorMessage();
+        $authError = $this->authenticator->getAuthError();
         PHPUnit_Framework_Assert::assertEmpty(
-            $errorMessage,
-            "Unexpected error: \n- " . $errorMessage
+            $authError,
+            "Unexpected error: \n- " . $authError
         );
     }
 
@@ -228,9 +228,9 @@ class FeatureContext implements Context
      */
     public function iShouldSeeAnErrorMessageWithInIt($text)
     {
-        $errorMessage = $this->authenticator->getErrorMessage();
-        PHPUnit_Framework_Assert::assertNotEmpty($errorMessage);
-        PHPUnit_Framework_Assert::assertContains($text, $errorMessage);
+        $authError = $this->authenticator->getAuthError();
+        PHPUnit_Framework_Assert::assertNotEmpty($authError);
+        PHPUnit_Framework_Assert::assertContains($text, (string)$authError);
     }
 
     /**
@@ -317,10 +317,11 @@ class FeatureContext implements Context
      */
     public function iShouldSeeAnErrorMessageWithAndInIt($text1, $text2)
     {
-        $errorMessage = $this->authenticator->getErrorMessage();
-        PHPUnit_Framework_Assert::assertNotEmpty($errorMessage);
-        PHPUnit_Framework_Assert::assertContains($text1, $errorMessage);
-        PHPUnit_Framework_Assert::assertContains($text2, $errorMessage);
+        $authError = $this->authenticator->getAuthError();
+        PHPUnit_Framework_Assert::assertNotEmpty($authError);
+        $authErrorString = (string)$authError;
+        PHPUnit_Framework_Assert::assertContains($text1, $authErrorString);
+        PHPUnit_Framework_Assert::assertContains($text2, $authErrorString);
     }
 
     /**
@@ -368,5 +369,25 @@ class FeatureContext implements Context
         } catch (\Exception $e) {
             PHPUnit_Framework_Assert::assertNotEmpty($e->getMessage());
         }
+    }
+
+    /**
+     * @Then I should see an error message telling me to wait
+     */
+    public function iShouldSeeAnErrorMessageTellingMeToWait()
+    {
+        $authError = $this->authenticator->getAuthError();
+        PHPUnit_Framework_Assert::assertNotEmpty($authError);
+        PHPUnit_Framework_Assert::assertContains('rate_limit', (string)$authError);
+    }
+
+    /**
+     * @Then I should see a generic invalid-login error message
+     */
+    public function iShouldSeeAGenericInvalidLoginErrorMessage()
+    {
+        $authError = $this->authenticator->getAuthError();
+        PHPUnit_Framework_Assert::assertNotEmpty($authError);
+        PHPUnit_Framework_Assert::assertContains('invalid_login', (string)$authError);
     }
 }
