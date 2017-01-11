@@ -24,7 +24,7 @@
 		"ko": ""
 	},
 	"rate_limit_seconds": {
-		"en": "There have been too many failed logins for this account. Please wait about {numberOfSeconds} seconds, then try again.",
+		"en": "There have been too many failed logins for this account. Please wait about {number} seconds, then try again.",
 		"es": "",
 		"fr": "",
 		"ko": ""
@@ -36,7 +36,7 @@
 		"ko": ""
 	},
 	"rate_limit_minutes": {
-		"en": "There have been too many failed logins for this account. Please wait about {numberOfMinutes} minutes, then try again.",
+		"en": "There have been too many failed logins for this account. Please wait about {number} minutes, then try again.",
 		"es": "",
 		"fr": "",
 		"ko": ""
