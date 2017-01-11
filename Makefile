@@ -28,10 +28,10 @@ clean:
 	docker-compose rm -f
 
 composer:
-	docker-compose run --rm tests bash -c "COMPOSER_ROOT_VERSION=$(VERSION) composer install --no-plugins --no-scripts"
+	docker-compose run --rm tests bash -c "COMPOSER_ROOT_VERSION=$(VERSION) composer install --no-scripts"
 
 composerupdate:
-	docker-compose run --rm tests bash -c "COMPOSER_ROOT_VERSION=$(VERSION) composer update --no-plugins --no-scripts"
+	docker-compose run --rm tests bash -c "COMPOSER_ROOT_VERSION=$(VERSION) composer update --no-scripts"
 
 db:
 	docker-compose up -d db
