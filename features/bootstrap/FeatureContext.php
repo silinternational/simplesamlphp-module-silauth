@@ -8,7 +8,7 @@ use Sil\SilAuth\auth\Authenticator;
 use Sil\SilAuth\config\ConfigManager;
 use Sil\SilAuth\ldap\Ldap;
 use Sil\SilAuth\models\User;
-use Sil\SilAuth\UtcTime;
+use Sil\SilAuth\time\UtcTime;
 use yii\helpers\ArrayHelper;
 
 /**

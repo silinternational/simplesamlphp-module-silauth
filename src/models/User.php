@@ -3,7 +3,7 @@ namespace Sil\SilAuth\models;
 
 use Ramsey\Uuid\Uuid;
 use Sil\SilAuth\auth\AuthError;
-use Sil\SilAuth\UtcTime;
+use Sil\SilAuth\time\UtcTime;
 use yii\helpers\ArrayHelper;
 use Yii;
 
