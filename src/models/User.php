@@ -19,8 +19,6 @@ class User extends UserBase
     const LOCKED_NO = 'No';
     const LOCKED_YES = 'Yes';
     
-    const TIME_FORMAT = 'Y-m-d H:i:s';
-    
     /**
      * @inheritdoc
      */
@@ -39,10 +37,7 @@ class User extends UserBase
             return null;
         }
         
-        $secondsToDelay = min(
-            $failedLoginAttempts * $failedLoginAttempts,
-            self::MAX_SECONDS_TO_BLOCK
-        );
+        $secondsToDelay = self::calculateSecondsToDelay($failedLoginAttempts);
         
         $blockForInterval = new \DateInterval(sprintf(
             'PT%sS', // = P(eriod)T(ime)#S(econds)
@@ -52,7 +47,15 @@ class User extends UserBase
         $nowUtc = new \DateTime('now', new \DateTimeZone('UTC'));
         /* @var $blockUntilUtc \DateTime */
         $blockUntilUtc = $nowUtc->add($blockForInterval);
-        return $blockUntilUtc->format(self::TIME_FORMAT);
+        return $blockUntilUtc->format(UtcTime::DATE_TIME_FORMAT);
+    }
+    
+    public static function calculateSecondsToDelay($failedLoginAttempts)
+    {
+        return min(
+            $failedLoginAttempts * $failedLoginAttempts,
+            self::MAX_SECONDS_TO_BLOCK
+        );
     }
     
     /**
@@ -184,7 +187,7 @@ class User extends UserBase
             ], [
                 'last_updated_utc',
                 'default',
-                'value' => gmdate(self::TIME_FORMAT),
+                'value' => UtcTime::format(),
             ], [
                 'login_attempts',
                 'filter',

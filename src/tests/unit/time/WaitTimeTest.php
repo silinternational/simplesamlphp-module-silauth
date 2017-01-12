@@ -18,6 +18,9 @@ class WaitTimeTest extends TestCase
             ['secondsToWait' => 22, 'expected' => '30 seconds'],
             ['secondsToWait' => 41, 'expected' => '1 minute'],
             ['secondsToWait' => 90, 'expected' => '2 minutes'],
+            ['secondsToWait' => 119, 'expected' => '2 minutes'],
+            ['secondsToWait' => 120, 'expected' => '2 minutes'],
+            ['secondsToWait' => 121, 'expected' => '3 minutes'],
         ];
         foreach ($testCases as $testCase) {
             $waitTime = new WaitTime($testCase['secondsToWait']);
