@@ -101,12 +101,12 @@ class Authenticator
         $user->resetFailedLoginAttemptsInDatabase();
         
         $this->setUserAttributes([
-            'eduPersonTargetID' => $user->uuid,
-            'sn' => $user->last_name,
-            'givenName' => $user->first_name,
-            'mail' => $user->email,
-            'username' => $user->username,
-            'employeeId' => $user->employee_id,
+            'eduPersonTargetID' => [$user->uuid],
+            'sn' => [$user->last_name],
+            'givenName' => [$user->first_name],
+            'mail' => [$user->email],
+            'username' => [$user->username],
+            'employeeId' => [$user->employee_id],
         ]);
     }
     
