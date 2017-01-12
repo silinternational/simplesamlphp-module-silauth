@@ -44,7 +44,7 @@ class AuthError
      *
      * @return string Example: '{silauth:error:generic_try_later}'
      */
-    protected function getFullSspErrorTag()
+    public function getFullSspErrorTag()
     {
         return sprintf(
             '{%s:%s}',
