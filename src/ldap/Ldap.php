@@ -7,8 +7,6 @@ use Adldap\Exceptions\Auth\PasswordRequiredException;
 use Adldap\Exceptions\Auth\UsernameRequiredException;
 use Adldap\Schemas\OpenLDAP;
 use Adldap\Connections\Provider;
-use Sil\PhpEnv\Env;
-use \yii\helpers\ArrayHelper;
 
 class Ldap
 {
@@ -18,16 +16,7 @@ class Ldap
     
     public function __construct(array $config = [])
     {
-        $this->config = ArrayHelper::merge([
-            'account_suffix' => Env::get('LDAP_ACCT_SUFFIX'),
-            'domain_controllers' => explode('|', Env::get('LDAP_DOMAIN_CONTROLLERS')),
-            'base_dn' => Env::get('LDAP_BASE_DN'),
-            'admin_username' => Env::get('LDAP_ADMIN_USERNAME'),
-            'admin_password' => Env::get('LDAP_ADMIN_PASSWORD'),
-            'use_ssl' => Env::get('LDAP_USE_SSL', true),
-            'use_tls' => Env::get('LDAP_USE_TLS', true),
-            'timeout' => Env::get('LDAP_TIMEOUT', 5),
-        ], $config);
+        $this->config = $config;
         
         if ($this->config['use_ssl'] && $this->config['use_tls']) {
             // Prefer TLS over SSL.

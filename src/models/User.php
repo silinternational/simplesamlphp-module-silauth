@@ -2,7 +2,9 @@
 namespace Sil\SilAuth\models;
 
 use Ramsey\Uuid\Uuid;
-use Sil\SilAuth\UtcTime;
+use Sil\SilAuth\auth\AuthError;
+use Sil\SilAuth\time\UtcTime;
+use Sil\SilAuth\time\WaitTime;
 use yii\helpers\ArrayHelper;
 use Yii;
 
@@ -16,8 +18,6 @@ class User extends UserBase
     
     const LOCKED_NO = 'No';
     const LOCKED_YES = 'Yes';
-    
-    const TIME_FORMAT = 'Y-m-d H:i:s';
     
     /**
      * @inheritdoc
@@ -37,10 +37,7 @@ class User extends UserBase
             return null;
         }
         
-        $secondsToDelay = min(
-            $failedLoginAttempts * $failedLoginAttempts,
-            self::MAX_SECONDS_TO_BLOCK
-        );
+        $secondsToDelay = self::calculateSecondsToDelay($failedLoginAttempts);
         
         $blockForInterval = new \DateInterval(sprintf(
             'PT%sS', // = P(eriod)T(ime)#S(econds)
@@ -50,7 +47,15 @@ class User extends UserBase
         $nowUtc = new \DateTime('now', new \DateTimeZone('UTC'));
         /* @var $blockUntilUtc \DateTime */
         $blockUntilUtc = $nowUtc->add($blockForInterval);
-        return $blockUntilUtc->format(self::TIME_FORMAT);
+        return $blockUntilUtc->format(UtcTime::DATE_TIME_FORMAT);
+    }
+    
+    public static function calculateSecondsToDelay($failedLoginAttempts)
+    {
+        return min(
+            $failedLoginAttempts * $failedLoginAttempts,
+            self::MAX_SECONDS_TO_BLOCK
+        );
     }
     
     /**
@@ -69,47 +74,15 @@ class User extends UserBase
         return Uuid::uuid4()->toString();
     }
     
+    /**
+     * Get a human-friendly wait time.
+     *
+     * @return WaitTime
+     */
     public function getFriendlyWaitTimeUntilUnblocked()
     {
         $secondsUntilUnblocked = $this->getSecondsUntilUnblocked();
-        return self::getFriendlyWaitTimeFor($secondsUntilUnblocked);
-    }
-    
-    /**
-     * Get a human-friendly description of approximately how long the user must
-     * wait before (at least) the given number of seconds have elapsed.
-     * 
-     * NOTE: This will not be precise, as it may round up to have a more
-     *       natural-sounding result (e.g. 'about 20 seconds' rather than
-     *       '17 seconds').
-     * 
-     * @param int $secondsToWait The number of seconds the user must wait.
-     * @return string|null A string describing the remaining wait time (e.g.
-     *     '20 seconds', '3 minutes', etc.), or null if no waiting is necessary.
-     */
-    public static function getFriendlyWaitTimeFor($secondsToWait)
-    {
-        if ($secondsToWait < 1) {
-            return null;
-        }
-        
-        if ($secondsToWait <= 5) {
-            $valueToUse = 5;
-            $unitToUse = 'second';
-        } elseif ($secondsToWait <= 30) {
-            $valueToUse = (int) ceil($secondsToWait / 10) * 10;
-            $unitToUse = 'second';
-        } else {
-            $valueToUse = (int) ceil($secondsToWait / 60);
-            $unitToUse = 'minute';
-        }
-        
-        return sprintf(
-            'about %s %s%s',
-            $valueToUse,
-            $unitToUse,
-            (($valueToUse === 1) ? '' : 's')
-        );
+        return new WaitTime($secondsUntilUnblocked);
     }
     
     /**
@@ -171,7 +144,7 @@ class User extends UserBase
         $this->login_attempts += 1;
         $successful = $this->save(true, ['login_attempts', 'block_until_utc']);
         if ( ! $successful) {
-            Yii::error(sprintf(
+            AuthError::logError(sprintf(
                 'Failed to update login attempts counter in database for %s.',
                 var_export($this->username, true)
             ));
@@ -183,7 +156,7 @@ class User extends UserBase
         $this->login_attempts = 0;
         $successful = $this->save(true, ['login_attempts', 'block_until_utc']);
         if ( ! $successful) {
-            Yii::error(sprintf(
+            AuthError::logError(sprintf(
                 'Failed to reset login attempts counter in database for %s.',
                 $this->username
             ));
@@ -214,7 +187,7 @@ class User extends UserBase
             ], [
                 'last_updated_utc',
                 'default',
-                'value' => gmdate(self::TIME_FORMAT),
+                'value' => UtcTime::format(),
             ], [
                 'login_attempts',
                 'filter',
