@@ -1,8 +1,8 @@
 <?php
 namespace Sil\SilAuth\tests\unit\models;
 
-use Sil\SilAuth\UtcTime;
 use Sil\SilAuth\models\User;
+use Sil\SilAuth\time\UtcTime;
 use PHPUnit\Framework\TestCase;
 
 class UserTest extends TestCase
@@ -54,6 +54,36 @@ class UserTest extends TestCase
         ), 1);
     }
     
+    public function testCalculateSecondsToDelay()
+    {
+        // Arrange:
+        $testCases = [
+            ['failedLoginAttempts' => 0, 'expected' => 0],
+            ['failedLoginAttempts' => 1, 'expected' => 1],
+            ['failedLoginAttempts' => 5, 'expected' => 25],
+            ['failedLoginAttempts' => 6, 'expected' => 36],
+            ['failedLoginAttempts' => 10, 'expected' => 100],
+            ['failedLoginAttempts' => 20, 'expected' => 400],
+            ['failedLoginAttempts' => 50, 'expected' => 2500],
+            ['failedLoginAttempts' => 60, 'expected' => 3600],
+            ['failedLoginAttempts' => 61, 'expected' => 3600],
+            ['failedLoginAttempts' => 100, 'expected' => 3600],
+        ];
+        foreach ($testCases as $testCase) {
+            
+            // Act:
+            $actual = User::calculateSecondsToDelay($testCase['failedLoginAttempts']);
+            
+            // Assert:
+            $this->assertSame($testCase['expected'], $actual, sprintf(
+                'Expected %s failed login attempts to result in %s second(s), not %s.',
+                var_export($testCase['failedLoginAttempts'], true),
+                var_export($testCase['expected'], true),
+                var_export($actual, true)
+            ));
+        }
+    }
+    
     public function testChangingAnExistingUuid()
     {
         // Arrange:
@@ -90,34 +120,6 @@ class UserTest extends TestCase
         
         // Assert:
         $this->assertNotEmpty($uuid);
-    }
-    
-    public function testGetFriendlyWaitTimeFor()
-    {
-        // Arrange:
-        $testCases = [
-            ['secondsToWait' => 0, 'expected' => null],
-            ['secondsToWait' => 1, 'expected' => 'about 5 seconds'],
-            ['secondsToWait' => 5, 'expected' => 'about 5 seconds'],
-            ['secondsToWait' => 6, 'expected' => 'about 10 seconds'],
-            ['secondsToWait' => 17, 'expected' => 'about 20 seconds'],
-            ['secondsToWait' => 22, 'expected' => 'about 30 seconds'],
-            ['secondsToWait' => 41, 'expected' => 'about 1 minute'],
-            ['secondsToWait' => 90, 'expected' => 'about 2 minutes'],
-        ];
-        foreach ($testCases as $testCase) {
-            
-            // Act:
-            $actual = User::getFriendlyWaitTimeFor($testCase['secondsToWait']);
-            
-            // Assert:
-            $this->assertSame($testCase['expected'], $actual, sprintf(
-                'Expected %s second(s) to result in %s, not %s.',
-                var_export($testCase['secondsToWait'], true),
-                var_export($testCase['expected'], true),
-                var_export($actual, true)
-            ));
-        }
     }
     
     public function testGetSecondsUntilUnblocked()
@@ -180,9 +182,6 @@ class UserTest extends TestCase
     public function testIsBlockedByRateLimit()
     {
         // Arrange:
-        $utc = new \DateTimeZone('UTC');
-        $yesterday = new \DateTime('yesterday', $utc);
-        $tomorrow = new \DateTime('tomorrow', $utc);
         $testCases = [
             [
                 'attributes' => [
@@ -191,12 +190,12 @@ class UserTest extends TestCase
                 'expectedResult' => false,
             ], [
                 'attributes' => [
-                    'block_until_utc' => $yesterday->format(User::TIME_FORMAT),
+                    'block_until_utc' => UtcTime::format('yesterday'),
                 ],
                 'expectedResult' => false,
             ], [
                 'attributes' => [
-                    'block_until_utc' => $tomorrow->format(User::TIME_FORMAT),
+                    'block_until_utc' => UtcTime::format('tomorrow'),
                 ],
                 'expectedResult' => true,
             ],

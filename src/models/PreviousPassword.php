@@ -1,6 +1,7 @@
 <?php
 namespace Sil\SilAuth\models;
 
+use Sil\SilAuth\time\UtcTime;
 use \yii\helpers\ArrayHelper;
 use Yii;
 
@@ -22,7 +23,7 @@ class PreviousPassword extends PreviousPasswordBase
             [
                 'created_utc',
                 'default',
-                'value' => gmdate(User::TIME_FORMAT),
+                'value' => UtcTime::format(),
             ],
         ], parent::rules());
     }

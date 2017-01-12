@@ -2,6 +2,7 @@
 namespace Sil\SilAuth\tests\unit\ldap;
 
 use PHPUnit\Framework\TestCase;
+use Sil\SilAuth\config\ConfigManager;
 use Sil\SilAuth\ldap\Ldap;
 
 class LdapTest extends TestCase
@@ -23,7 +24,7 @@ class LdapTest extends TestCase
             ['u' => 'ROB_HOLT',     'p' => 'rob_holt123',  'expected' => true],
             ['u' => 'NON_EXISTENT', 'p' => 'bob_adams123', 'expected' => false],
         ];
-        $ldap = new Ldap();
+        $ldap = new Ldap(ConfigManager::getSspConfigFor('ldap'));
         foreach ($testCases as $testCase) {
             $userCn = $testCase['u'];
             $password = $testCase['p'];
@@ -49,7 +50,7 @@ class LdapTest extends TestCase
             ['username' => 'BOB_ADAMS', 'expected' => true],
             ['username' => 'NON_EXISTENT_PERSON', 'expected' => false],
         ];
-        $ldap = new Ldap();
+        $ldap = new Ldap(ConfigManager::getSspConfigFor('ldap'));
         foreach ($testCases as $testCase) {
             
             // Act:

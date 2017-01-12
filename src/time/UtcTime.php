@@ -1,5 +1,5 @@
 <?php
-namespace Sil\SilAuth;
+namespace Sil\SilAuth\time;
 
 class UtcTime
 {

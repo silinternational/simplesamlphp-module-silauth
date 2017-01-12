@@ -6,16 +6,13 @@ services:
     image: silintl/ssp-base:latest
     ports:
       - "80:80"
+      - "9000:9000"
     volumes:
-      - ./development/run-dev.sh:/data/run-dev.sh
-      - ./composer.json:/data/composer.json
-      - ./composer.lock:/data/composer.lock
-      - ./features:/data/features
-      - ./src:/data/src
-      #- ./vendor:/data/vendor
       - ./:/silauth
       - ./auth.json:/root/.composer/auth.json
       - ./development/ldap/dev-ldap.conf:/etc/ldap/ldap.conf
+      - ./development/run-dev.sh:/data/run-dev.sh
+      - ./src:/data/src
     env_file:
       - ./common.env
       - ./local.env
@@ -29,10 +26,16 @@ services:
       - ldap
     command: ["/data/run-dev.sh"]
 
-  phpunit:
+  tests:
     image: silintl/ssp-base:latest
     volumes_from:
       - web
+    volumes:
+      - ./composer.json:/data/composer.json
+      - ./composer.lock:/data/composer.lock
+      - ./development/run-tests.sh:/data/run-tests.sh
+      - ./features:/data/features
+      - ./vendor:/data/vendor
     env_file:
       - ./common.env
       - ./local.env
@@ -44,8 +47,8 @@ services:
     links:
       - testdb
       - ldap
-    working_dir: /data/src/tests
-    command: ../../vendor/bin/phpunit .
+    working_dir: /data
+    command: ["/data/run-tests.sh"]
 
   db:
     image: silintl/mariadb:latest

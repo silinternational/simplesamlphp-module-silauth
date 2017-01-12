@@ -12,6 +12,7 @@ Feature: User login
     But I do not provide a username
     When I try to login
     Then I should see an error message
+    And I should not have access to any information about that user
     And I should not be allowed through
 
   Scenario: Failing to provide a password
@@ -19,6 +20,7 @@ Feature: User login
     But I do not provide a password
     When I try to login
     Then I should see an error message
+    And I should not have access to any information about that user
     And I should not be allowed through
 
   Scenario: Providing an incorrect username-password combination
@@ -29,6 +31,7 @@ Feature: User login
     But I provide a password of "something_else"
     When I try to login
     Then I should see an error message
+    And I should not have access to any information about that user
     And I should not be allowed through
     And that user account's failed login attempts should be at 1
 
@@ -40,6 +43,18 @@ Feature: User login
     And I provide a password of "bob_adams123"
     When I try to login
     Then I should not see an error message
+    And I should have access to some information about that user
+    And I should be allowed through
+
+  Scenario: Providing a correct password but using the wrong upper/lowercase username
+    Given the following user exists in the database:
+        | username  | password     |
+        | BOB_ADAMS | bob_adams123 |
+    And I provide a username of "bob_adams"
+    And I provide a password of "bob_adams123"
+    When I try to login
+    Then I should not see an error message
+    And I should have access to some information about that user
     And I should be allowed through
 
   Scenario: Providing too many incorrect username-password combinations
@@ -47,8 +62,9 @@ Feature: User login
         | username  | password     | login_attempts |
         | BOB_ADAMS | bob_adams123 | 0              |
     When I try to login using "BOB_ADAMS" and "aWrongPassword" too many times
-    Then I should see an error message with "wait" in it
+    Then I should see an error message telling me to wait
     And that user account should be blocked for awhile
+    And I should not have access to any information about that user
     And I should not be allowed through
 
   Scenario: Providing correct credentials after one failed login attempt
@@ -62,6 +78,7 @@ Feature: User login
     And I provide a password of "bob_adams123"
     When I try to login
     Then I should not see an error message
+    And I should have access to some information about that user
     And I should be allowed through
     And that user account's failed login attempts should be at 0
 
@@ -72,7 +89,8 @@ Feature: User login
     And I provide a username of "BOB_ADAMS"
     And I provide a password of "bob_adams123"
     When I try to login
-    Then I should see an error message with "username" and "password" in it
+    Then I should see a generic invalid-login error message
+    And I should not have access to any information about that user
     And I should not be allowed through
 
   Scenario: Providing correct credentials to an inactive account
@@ -82,7 +100,8 @@ Feature: User login
     And I provide a username of "BOB_ADAMS"
     And I provide a password of "bob_adams123"
     When I try to login
-    Then I should see an error message with "username" and "password" in it
+    Then I should see a generic invalid-login error message
+    And I should not have access to any information about that user
     And I should not be allowed through
 
   Scenario: Being told about how long to wait (due to rate limiting bad logins)
@@ -92,8 +111,9 @@ Feature: User login
     And I provide a username of "BOB_ADAMS"
     And I provide a password of "bob_adams123"
     When I try to login
-    Then I should see an error message with "about 30 seconds" in it
+    Then I should see an error message with "30" and "seconds" in it
     And that user account should still be blocked for awhile
+    And I should not have access to any information about that user
     And I should not be allowed through
 
   Scenario: Logging in after a rate limit has expired
@@ -105,6 +125,7 @@ Feature: User login
     And that user account's block-until time is in the past
     When I try to login
     Then I should not see an error message
+    And I should have access to some information about that user
     And I should be allowed through
     And that user account's failed login attempts should be at 0
 
@@ -114,7 +135,8 @@ Feature: User login
     And I provide a username of "BOB_ADAMS"
     And I provide a password of "bob_adams123"
     When I try to login
-    Then I should see an error message with "username" and "password" in it
+    Then I should see a generic invalid-login error message
+    And I should not have access to any information about that user
     And I should not be allowed through
 
   Scenario: Incorrect password for an account with no password in the db, just in ldap
@@ -125,7 +147,8 @@ Feature: User login
     And I provide a username of "BOB_ADAMS"
     And I provide a password of "ThisIsWrong"
     When I try to login
-    Then I should see an error message with "username" and "password" in it
+    Then I should see a generic invalid-login error message
+    And I should not have access to any information about that user
     And I should not be allowed through
     And that user account's failed login attempts should be at 1
 
@@ -139,5 +162,6 @@ Feature: User login
     When I try to login
     Then I should not see an error message
     And I should be allowed through
+    And I should have access to some information about that user
     And that user account should have a password in the database
     And that user account's failed login attempts should be at 0

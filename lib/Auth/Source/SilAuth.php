@@ -1,113 +1,82 @@
 <?php
 
+ini_set('display_errors', 'On');
+
+use Sil\SilAuth\auth\Authenticator;
+use Sil\SilAuth\auth\AuthError;
+
 /**
- * Class sspmod_silauth_Auth_Source_SilAuth
- * simpleSAMLphp auth library to support custom business rules support migrating accounts from LDAP to DB
+ * Class sspmod_silauth_Auth_Source_SilAuth.
  *
- * Configuration settings (defined in authsources.php):
- *  - db.driver
- *  - db.host
- *  - db.database
- *  - db.username
- *  - db.password
- *  - db.charset
- *  - db.collation
- *  - db.prefix
- *  - ldap.baseDn
- *  - ldap.host
- *  - ldap.port
- *  - ldap.useSsl
- *  - ldap.useTls
- *  - recaptcha.clientId
- *  - recaptcha.secret
+ * SimpleSAMLphp auth library to support custom business rules support migrating
+ * accounts from LDAP to DB.
  *
+ * Configuration settings defined in src/config/ssp-config.php.
  */
-class sspmod_silauth_Auth_Source_SilAuth extends SimpleSAML_Auth_Source
+class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
 {
-
-    /**
-     * The string used to identify our states.
-     */
-    const STAGEID = 'sspmod_silauth_Auth_Source_SilAuth.state';
-
-
-    /**
-     * The key of the AuthId field in the state.
-     */
-    const AUTHID = 'sspmod_silauth_Auth_Source_SilAuth.AuthId';
-
-
-    /**
-     * sspmod_silauth_Auth_Source_SilAuth constructor.
-     * Call parent constructor and then load in config needed for LDAP and DB connections
-     * @param array $info
-     * @param array $config
-     */
-    public function __construct(array $info, array $config)
+	/**
+	 * Constructor for this authentication source.
+	 *
+	 * All subclasses who implement their own constructor must call this constructor before
+	 * using $config for anything.
+	 *
+	 * @param array $info Information about this authentication source.
+	 * @param array $config Configuration for this authentication source.
+	 */
+    public function __construct($info, $config)
     {
         parent::__construct($info, $config);
-
-
+        
+        require_once __DIR__ . '/../../../src/bootstrap-yii2.php';
     }
 
-    /**
-     * Method required by interface, it simply saves state and redirects to login page.
-     * Login page submission is processed by self::handleLogin
-     * @param array $state
-     */
-    public function authenticate(&$state)
+	/**
+	 * Initialize login.
+	 *
+	 * This function saves the information about the login, and redirects to a
+	 * login page.
+	 *
+	 * @param array &$state  Information about the current authentication.
+	 */
+	public function authenticate(&$state) {
+		assert('is_array($state)');
+
+		/*
+		 * Save the identifier of this authentication source, so that we can
+		 * retrieve it later. This allows us to call the login()-function on
+		 * the current object.
+		 */
+		$state[self::AUTHID] = $this->authId;
+
+		/* Save the $state-array, so that we can restore it after a redirect. */
+		$id = SimpleSAML_Auth_State::saveState($state, self::STAGEID);
+
+		/*
+		 * Redirect to the login form. We include the identifier of the saved
+		 * state array as a parameter to the login form.
+		 */
+		$url = SimpleSAML_Module::getModuleURL('silauth/loginuserpass.php');
+		$params = array('AuthState' => $id);
+		\SimpleSAML\Utils\HTTP::redirectTrustedURL($url, $params);
+
+		/* The previous function never returns, so this code is never executed. */
+		assert('FALSE');
+	}
+    
+    protected function login($username, $password)
     {
-        assert('is_array($state)');
-
-        /*
-         * Save the identifier of this authentication source, so that we can
-         * retrieve it later. This allows us to call the login()-function on
-         * the current object.
-         */
-        $state[self::AUTHID] = $this->authId;
-
-        /* Save the $state-array, so that we can restore it after a redirect. */
-        $id = SimpleSAML_Auth_State::saveState($state, self::STAGEID);
-
-        /*
-         * Redirect to the login form. We include the identifier of the saved
-         * state array as a parameter to the login form.
-         */
-        $url = SimpleSAML_Module::getModuleURL('silauth/loginuserpass.php');
-        $params = array('AuthState' => $id);
-        \SimpleSAML\Utils\HTTP::redirectTrustedURL($url, $params);
-
-        /* The previous function never returns, so this code is never executed. */
-        assert('FALSE');
-    }
-
-    /**
-     * Handle login request.
-     *
-     * This function is used by the login form (core/www/loginuserpass.php) when the user
-     * enters a username and password. On success, it will not return. On wrong
-     * username/password failure, and other errors, it will throw an exception.
-     *
-     * @param string $authStateId  The identifier of the authentication state.
-     * @param string $username  The username the user wrote.
-     * @param string $password  The password the user wrote.
-     * @throws \Exception
-     */
-    public static function handleLogin($authStateId, $username, $password)
-    {
-        assert('is_string($authStateId)');
-        assert('is_string($username)');
-        assert('is_string($password)');
-
-        /* Here we retrieve the state array we saved in the authenticate-function. */
-        $state = SimpleSAML_Auth_State::loadState($authStateId, self::STAGEID);
-
-        /* Retrieve the authentication source we are executing. */
-        assert('array_key_exists(self::AUTHID, $state)');
-        $source = SimpleSAML_Auth_Source::getById($state[self::AUTHID]);
-        if ($source === NULL) {
-            throw new Exception('Could not find authentication source with id ' . $state[self::AUTHID]);
+        $authenticator = new Authenticator($username, $password);
+        
+        if ( ! $authenticator->isAuthenticated()) {
+            $authError = $authenticator->getAuthError();
+            throw new SimpleSAML_Error_Error([
+                'WRONGUSERPASS',
+                $authError->getFullSspErrorTag(),
+                $authError->getMessageParams()
+            ]);
         }
-
+        
+        return $authenticator->getUserAttributes();
     }
 }

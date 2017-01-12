@@ -4,10 +4,11 @@ use Behat\Behat\Tester\Exception\PendingException;
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
-use Sil\SilAuth\Authenticator;
+use Sil\SilAuth\auth\Authenticator;
+use Sil\SilAuth\config\ConfigManager;
 use Sil\SilAuth\ldap\Ldap;
 use Sil\SilAuth\models\User;
-use Sil\SilAuth\UtcTime;
+use Sil\SilAuth\time\UtcTime;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -37,7 +38,7 @@ class FeatureContext implements Context
     public function __construct()
     {
         $this->initializeDependencies();
-        $this->ldap = new Ldap();
+        $this->ldap = new Ldap(ConfigManager::getSspConfigFor('ldap'));
     }
     
     protected function initializeDependencies()
@@ -78,7 +79,7 @@ class FeatureContext implements Context
     public function iShouldSeeAnErrorMessage()
     {
         PHPUnit_Framework_Assert::assertNotEmpty(
-            $this->authenticator->getErrors()
+            $this->authenticator->getAuthError()
         );
     }
 
@@ -121,10 +122,10 @@ class FeatureContext implements Context
      */
     public function iShouldNotSeeAnErrorMessage()
     {
-        $errors = $this->authenticator->getErrors();
+        $authError = $this->authenticator->getAuthError();
         PHPUnit_Framework_Assert::assertEmpty(
-            $errors,
-            "Unexpected error(s): \n- " . implode("\n- ", $errors)
+            $authError,
+            "Unexpected error: \n- " . $authError
         );
     }
 
@@ -227,13 +228,9 @@ class FeatureContext implements Context
      */
     public function iShouldSeeAnErrorMessageWithInIt($text)
     {
-        PHPUnit_Framework_Assert::assertNotEmpty(
-            $this->authenticator->getErrors()
-        );
-        PHPUnit_Framework_Assert::assertContains(
-            $text,
-            implode("\n", $this->authenticator->getErrors())
-        );
+        $authError = $this->authenticator->getAuthError();
+        PHPUnit_Framework_Assert::assertNotEmpty($authError);
+        PHPUnit_Framework_Assert::assertContains($text, (string)$authError);
     }
 
     /**
@@ -320,20 +317,11 @@ class FeatureContext implements Context
      */
     public function iShouldSeeAnErrorMessageWithAndInIt($text1, $text2)
     {
-        $errorMessages = $this->authenticator->getErrors();
-        PHPUnit_Framework_Assert::assertNotEmpty($errorMessages);
-        $foundOneWithBoth = false;
-        foreach ($errorMessages as $errorMessage) {
-            $inText1 = (strpos($errorMessage, $text1) !== false);
-            $inText2 = (strpos($errorMessage, $text2) !== false);
-            $foundOneWithBoth = $foundOneWithBoth || ($inText1 && $inText2);
-        }
-        PHPUnit_Framework_Assert::assertTrue($foundOneWithBoth, sprintf(
-            'Did not find %s and %s in any single error message: %s',
-            var_export($text1, true),
-            var_export($text2, true),
-            "\n- " . implode("\n- ", $errorMessages)
-        ));
+        $authError = $this->authenticator->getAuthError();
+        PHPUnit_Framework_Assert::assertNotEmpty($authError);
+        $authErrorString = (string)$authError;
+        PHPUnit_Framework_Assert::assertContains($text1, $authErrorString);
+        PHPUnit_Framework_Assert::assertContains($text2, $authErrorString);
     }
 
     /**
@@ -359,5 +347,47 @@ class FeatureContext implements Context
             'Failed to set the block-until time to in the past.'
         );
         PHPUnit_Framework_Assert::assertSame(0, $user->getSecondsUntilUnblocked());
+    }
+
+    /**
+     * @Then I should have access to some information about that user
+     */
+    public function iShouldHaveAccessToSomeInformationAboutThatUser()
+    {
+        $userInfo = $this->authenticator->getUserAttributes();
+        PHPUnit_Framework_Assert::assertNotEmpty($userInfo);
+    }
+
+    /**
+     * @Then I should not have access to any information about that user
+     */
+    public function iShouldNotHaveAccessToAnyInformationAboutThatUser()
+    {
+        try {
+            $this->authenticator->getUserAttributes();
+            PHPUnit_Framework_Assert::fail();
+        } catch (\Exception $e) {
+            PHPUnit_Framework_Assert::assertNotEmpty($e->getMessage());
+        }
+    }
+
+    /**
+     * @Then I should see an error message telling me to wait
+     */
+    public function iShouldSeeAnErrorMessageTellingMeToWait()
+    {
+        $authError = $this->authenticator->getAuthError();
+        PHPUnit_Framework_Assert::assertNotEmpty($authError);
+        PHPUnit_Framework_Assert::assertContains('rate_limit', (string)$authError);
+    }
+
+    /**
+     * @Then I should see a generic invalid-login error message
+     */
+    public function iShouldSeeAGenericInvalidLoginErrorMessage()
+    {
+        $authError = $this->authenticator->getAuthError();
+        PHPUnit_Framework_Assert::assertNotEmpty($authError);
+        PHPUnit_Framework_Assert::assertContains('invalid_login', (string)$authError);
     }
 }
