@@ -2,7 +2,7 @@
 
 /**
  * This page shows a username/password login form, and passes information from it
- * to the sspmod_silauth_Auth_SilAuth class
+ * to the sspmod_silauth_Auth_Source_SilAuth class
  */
 
 // Retrieve the authentication state
