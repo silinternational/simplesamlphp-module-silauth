@@ -1,0 +1,25 @@
+#!/usr/bin/env php
+<?php
+
+require(__DIR__ . '/../vendor/autoload.php');
+require(__DIR__ . '/../src/bootstrap-yii2.php');
+
+use Sil\SilAuth\models\User;
+
+$usersToAdd = [
+  [
+    'first_name' => 'Bob',
+    'last_name' => 'Adams',
+    'username' => 'BOB_ADAMS',
+    'email' => 'bob_adams@acme.org',
+    'employee_id' => '99999',
+  ],
+];
+foreach ($usersToAdd as $userToAdd) {
+  $user = new User($userToAdd);
+  if ( ! $user->save()) {
+    echo var_export($user->getErrors(), true);
+    exit(1);
+  }
+}
+exit(0);
