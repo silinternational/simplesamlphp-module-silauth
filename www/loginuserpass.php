@@ -28,13 +28,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $username = $_POST['username'] ?? null;
         $password = $_POST['password'] ?? null;
 
-        // Either username or password set - attempt to log in
-        if (empty($username)) {
-            throw new SimpleSAML_Error_Error('WRONGUSERPASS');
-        } elseif (empty($password)) {
-            throw new SimpleSAML_Error_Error('WRONGUSERPASS');
-        }
-
         sspmod_silauth_Auth_Source_SilAuth::handleLogin($authStateId, $username, $password);
     } catch (SimpleSAML_Error_Error $e) {
         /* Login failed. Extract error code and parameters, to display the error. */
