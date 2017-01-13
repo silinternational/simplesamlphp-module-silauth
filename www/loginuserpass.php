@@ -1,5 +1,7 @@
 <?php
 
+use Sil\SilAuth\text\Text;
+
 /**
  * This page shows a username/password login form, and passes information from it
  * to the sspmod_silauth_Auth_Source_SilAuth class
@@ -25,9 +27,9 @@ $password = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         
-        $username = $_POST['username'] ?? null;
-        $password = $_POST['password'] ?? null;
-
+        $username = Text::sanitizeInputString(INPUT_POST, 'username');
+        $password = Text::sanitizeInputString(INPUT_POST, 'password');
+        
         sspmod_silauth_Auth_Source_SilAuth::handleLogin($authStateId, $username, $password);
     } catch (SimpleSAML_Error_Error $e) {
         /* Login failed. Extract error code and parameters, to display the error. */
