@@ -23,6 +23,7 @@ class TextTest extends TestCase
             ['input' => 'trailing space ', 'expected' => 'trailing space'],
             ['input' => 'low ASCII char: ' . chr(2), 'expected' => 'low ASCII char:'],
             ['input' => 'high ASCII char: ' . chr(160), 'expected' => 'high ASCII char: ' . chr(160)],
+            ['input' => 'with `backticks`', 'expected' => 'with backticks'],
         ];
         foreach ($testCases as $testCase) {
             
