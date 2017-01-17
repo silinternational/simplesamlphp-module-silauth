@@ -8,6 +8,9 @@ VERSION=$(shell git describe --abbrev=0 --tags)
 # Set up the default (i.e. - first) make entry.
 start: web
 
+addtestusers: migratedb
+	docker-compose run --rm web bash -c "/data/symlink.sh && /data/src/add-test-users"
+
 bash:
 	docker-compose run --rm web bash
 
