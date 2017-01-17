@@ -37,7 +37,7 @@ db:
 	docker-compose up -d db
 
 generatemodels: migratedb
-	docker-compose run --rm web bash -c "/data/src/rebuildbasemodels.sh"
+	docker-compose run --rm web bash -c "/data/symlink.sh && /data/src/rebuildbasemodels.sh"
 
 ldap:
 	docker-compose up -d ldap
@@ -49,13 +49,13 @@ ldapload: ldap
 	docker-compose run --rm ldapload
 
 migratedb: db
-	docker-compose run --rm web bash -c "whenavail db 3306 60 /data/src/yii migrate --interactive=0"
+	docker-compose run --rm web bash -c "/data/symlink.sh && whenavail db 3306 60 /data/src/yii migrate --interactive=0"
 
 migratetestdb: testdb
 	docker-compose run --rm tests bash -c "whenavail testdb 3306 60 /data/src/yii migrate --interactive=0"
 
 migration:
-	docker-compose run --rm web bash -c "/data/src/yii migrate/create $(NAME)"
+	docker-compose run --rm web bash -c "/data/symlink.sh && /data/src/yii migrate/create $(NAME)"
 
 phpunit:
 	docker-compose run --rm tests bash -c "cd src/tests && ../../vendor/bin/phpunit ."
