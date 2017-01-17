@@ -1,9 +1,6 @@
 <?php
 
-ini_set('display_errors', 'On');
-
 use Sil\SilAuth\auth\Authenticator;
-use Sil\SilAuth\auth\AuthError;
 use Sil\SilAuth\config\ConfigManager;
 use Sil\SilAuth\ldap\Ldap;
 
