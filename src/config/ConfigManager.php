@@ -14,9 +14,14 @@ class ConfigManager
     
     public static function getSspConfigFor($category)
     {
+        return self::getConfigFor($category, self::getSspConfig());
+    }
+    
+    public static function getConfigFor($category, $config)
+    {
         $categoryPrefix = $category . self::SEPARATOR;
         $categoryConfig = [];
-        foreach (self::getSspConfig() as $key => $value) {
+        foreach ($config as $key => $value) {
             if (Text::startsWith($key, $categoryPrefix)) {
                 $subKey = self::removeCategory($key);
                 $categoryConfig[$subKey] = $value;
