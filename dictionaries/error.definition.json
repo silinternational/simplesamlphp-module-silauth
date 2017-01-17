@@ -18,7 +18,7 @@
 		"ko": ""
 	},
 	"invalid_login": {
-		"en": "Either that username or password was wrong (or the account is disabled). Please try again or contact your organization's help desk.",
+		"en": "Either that username or that password was wrong (or the account is disabled). Please try again or contact your organization's help desk.",
 		"es": "",
 		"fr": "",
 		"ko": ""
