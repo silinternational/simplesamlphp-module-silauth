@@ -69,7 +69,8 @@ class FeatureContext implements Context
     {
         $this->authenticator = new Authenticator(
             $this->username,
-            $this->password
+            $this->password,
+            $this->ldap
         );
     }
 
@@ -218,7 +219,8 @@ class FeatureContext implements Context
         for ($i = 0; $i < ($blockAfterNthFailedLogin + 1) ; $i++) {
             $this->authenticator = new Authenticator(
                 $this->username,
-                $this->password
+                $this->password,
+                $this->ldap
             );
         }
     }
