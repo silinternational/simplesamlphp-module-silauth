@@ -38,7 +38,15 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
         $this->mysqlConfig = ConfigManager::getConfigFor('mysql', $config);
         $this->recaptchaConfig = ConfigManager::getConfigFor('recaptcha', $config);
         
-        require_once __DIR__ . '/../../../src/bootstrap-yii2.php';
+        ConfigManager::initializeYii2WebApp(['components' => ['db' => [
+            'dsn' => sprintf(
+                'mysql:host=%s;dbname=%s',
+                $this->mysqlConfig['host'],
+                $this->mysqlConfig['database']
+            ),
+            'username' => $this->mysqlConfig['user'],
+            'password' => $this->mysqlConfig['password'],
+        ]]]);
     }
 
 	/**
@@ -49,7 +57,8 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
 	 *
 	 * @param array &$state  Information about the current authentication.
 	 */
-	public function authenticate(&$state) {
+	public function authenticate(&$state)
+    {
 		assert('is_array($state)');
 
 		/*

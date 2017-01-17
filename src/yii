@@ -16,12 +16,18 @@ defined('STDIN') or define('STDIN', fopen('php://stdin', 'r'));
 defined('STDOUT') or define('STDOUT', fopen('php://stdout', 'w'));
 
 require(__DIR__ . '/../vendor/autoload.php');
-if ( ! class_exists('Yii')) {
-    require __DIR__ . '/../vendor/yiisoft/yii2/Yii.php';
-}
 
-$yiiConfig = require(__DIR__ . '/config/yii2-config.php');
+use Sil\PhpEnv\Env;
+use Sil\SilAuth\config\ConfigManager;
 
-$application = new yii\console\Application($yiiConfig);
+$application = ConfigManager::getYii2ConsoleApp(['components' => ['db' => [
+    'dsn' => sprintf(
+        'mysql:host=%s;dbname=%s',
+        Env::get('MYSQL_HOST'),
+        Env::get('MYSQL_DATABASE')
+    ),
+    'username' => Env::get('MYSQL_USER'),
+    'password' => Env::get('MYSQL_PASSWORD'),
+]]]);
 $exitCode = $application->run();
 exit($exitCode);
