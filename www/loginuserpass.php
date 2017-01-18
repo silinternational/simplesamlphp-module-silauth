@@ -24,6 +24,12 @@ $errorParams = null;
 $username = null;
 $password = null;
 
+$globalConfig = SimpleSAML_Configuration::getInstance();
+$authSourcesConfig = $globalConfig->getConfig('authsources.php');
+$silAuthConfig = $authSourcesConfig->getConfigItem('silauth');
+$recaptchaSiteKey = $silAuthConfig->getString('recaptcha.siteKey');
+$recaptchaSecret = $silAuthConfig->getString('recaptcha.secret');
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         
@@ -40,12 +46,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
          */
     }
 }
-
-$globalConfig = SimpleSAML_Configuration::getInstance();
-$authSourcesConfig = $globalConfig->getConfig('authsources.php');
-$silAuthConfig = $authSourcesConfig->getConfigItem('silauth');
-$recaptchaSiteKey = $silAuthConfig->getString('recaptcha.siteKey');
-$recaptchaSecret = $silAuthConfig->getString('recaptcha.secret');
 
 $t = new SimpleSAML_XHTML_Template($globalConfig, 'core:loginuserpass.php');
 $t->data['stateparams'] = array('AuthState' => $authStateId);
