@@ -39,6 +39,9 @@ composerupdate:
 db:
 	docker-compose up -d db
 
+enabledebug:
+	docker-compose exec web bash -c "/data/enable-debug.sh"
+
 generatemodels: migratedb
 	docker-compose run --rm web bash -c "/data/symlink.sh && /data/src/rebuildbasemodels.sh"
 
