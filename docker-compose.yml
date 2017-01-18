@@ -12,6 +12,7 @@ services:
       - ./auth.json:/root/.composer/auth.json
       - ./development/ldap/dev-ldap.conf:/etc/ldap/ldap.conf
       - ./development/run-dev.sh:/data/run-dev.sh
+      - ./development/symlink.sh:/data/symlink.sh
       - ./src:/data/src
     env_file:
       - ./common.env
