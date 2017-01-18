@@ -29,6 +29,9 @@ class FeatureContext implements Context
     /** @var string|null */
     private $password = null;
     
+    /** @var string|null */
+    private $captchaValue = null;
+    
     /**
      * Initializes context.
      *
@@ -400,5 +403,23 @@ class FeatureContext implements Context
         $authError = $this->authenticator->getAuthError();
         PHPUnit_Framework_Assert::assertNotEmpty($authError);
         PHPUnit_Framework_Assert::assertContains('invalid_login', (string)$authError);
+    }
+
+    /**
+     * @Given a captcha is required for that user
+     */
+    public function aCaptchaIsRequiredForThatUser()
+    {
+        PHPUnit_Framework_Assert::assertTrue(
+            User::isCaptchaRequiredFor($this->username)
+        );
+    }
+
+    /**
+     * @Given I do not provide a captcha value
+     */
+    public function iDoNotProvideACaptchaValue()
+    {
+        $this->captchaValue = '';
     }
 }
