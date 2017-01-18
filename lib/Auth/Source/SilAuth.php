@@ -1,9 +1,8 @@
 <?php
 
-ini_set('display_errors', 'On');
-
 use Sil\SilAuth\auth\Authenticator;
-use Sil\SilAuth\auth\AuthError;
+use Sil\SilAuth\config\ConfigManager;
+use Sil\SilAuth\ldap\Ldap;
 
 /**
  * Class sspmod_silauth_Auth_Source_SilAuth.
@@ -15,6 +14,10 @@ use Sil\SilAuth\auth\AuthError;
  */
 class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
 {
+    protected $ldapConfig;
+    protected $mysqlConfig;
+    protected $recaptchaConfig;
+    
 	/**
 	 * Constructor for this authentication source.
 	 *
@@ -28,7 +31,19 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
     {
         parent::__construct($info, $config);
         
-        require_once __DIR__ . '/../../../src/bootstrap-yii2.php';
+        $this->ldapConfig = ConfigManager::getConfigFor('ldap', $config);
+        $this->mysqlConfig = ConfigManager::getConfigFor('mysql', $config);
+        $this->recaptchaConfig = ConfigManager::getConfigFor('recaptcha', $config);
+        
+        ConfigManager::initializeYii2WebApp(['components' => ['db' => [
+            'dsn' => sprintf(
+                'mysql:host=%s;dbname=%s',
+                $this->mysqlConfig['host'],
+                $this->mysqlConfig['database']
+            ),
+            'username' => $this->mysqlConfig['user'],
+            'password' => $this->mysqlConfig['password'],
+        ]]]);
     }
 
 	/**
@@ -39,7 +54,8 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
 	 *
 	 * @param array &$state  Information about the current authentication.
 	 */
-	public function authenticate(&$state) {
+	public function authenticate(&$state)
+    {
 		assert('is_array($state)');
 
 		/*
@@ -66,7 +82,8 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
     
     protected function login($username, $password)
     {
-        $authenticator = new Authenticator($username, $password);
+        $ldap = new Ldap($this->ldapConfig);
+        $authenticator = new Authenticator($username, $password, $ldap);
         
         if ( ! $authenticator->isAuthenticated()) {
             $authError = $authenticator->getAuthError();

@@ -15,7 +15,7 @@
     "ramsey/uuid": "^3.5",
     "roave/security-advisories": "dev-master",
     "silinternational/php-env": "^0.2.0",
-    "silinternational/ssp-deps": "^0.3.4",
+    "silinternational/ssp-deps": "^0.4.0",
     "silinternational/ssp-utilities": "dev-develop",
     "silinternational/simplesamlphp-module-material": "dev-develop",
     "silinternational/simplesamlphp-module-sildisco": "dev-develop",
@@ -23,7 +23,8 @@
     "yiisoft/yii2": "^2.0",
     "yiisoft/yii2-gii": "^2.0",
     "adldap2/adldap2": "^6.1",
-    "fillup/fake-bower-assets": "^2.0"
+    "fillup/fake-bower-assets": "^2.0",
+    "google/recaptcha": "^1.1"
   },
   "require-dev": {
     "behat/behat": "^3.2",

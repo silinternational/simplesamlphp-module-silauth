@@ -4,6 +4,7 @@ use Behat\Behat\Tester\Exception\PendingException;
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
+use Sil\PhpEnv\Env;
 use Sil\SilAuth\auth\Authenticator;
 use Sil\SilAuth\config\ConfigManager;
 use Sil\SilAuth\ldap\Ldap;
@@ -43,7 +44,15 @@ class FeatureContext implements Context
     
     protected function initializeDependencies()
     {
-        require_once __DIR__ . '/../../src/bootstrap-yii2.php';
+        ConfigManager::initializeYii2WebApp(['components' => ['db' => [
+            'dsn' => sprintf(
+                'mysql:host=%s;dbname=%s',
+                Env::get('MYSQL_HOST'),
+                Env::get('MYSQL_DATABASE')
+            ),
+            'username' => Env::get('MYSQL_USER'),
+            'password' => Env::get('MYSQL_PASSWORD'),
+        ]]]);
     }
 
     /**
@@ -69,7 +78,8 @@ class FeatureContext implements Context
     {
         $this->authenticator = new Authenticator(
             $this->username,
-            $this->password
+            $this->password,
+            $this->ldap
         );
     }
 
@@ -218,7 +228,8 @@ class FeatureContext implements Context
         for ($i = 0; $i < ($blockAfterNthFailedLogin + 1) ; $i++) {
             $this->authenticator = new Authenticator(
                 $this->username,
-                $this->password
+                $this->password,
+                $this->ldap
             );
         }
     }

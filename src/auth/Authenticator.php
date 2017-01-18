@@ -21,10 +21,11 @@ class Authenticator
      * Attempt to authenticate using the given username and password. Check
      * isAuthenticated() to see whether authentication was successful.
      * 
-     * @param string $username
-     * @param string $password
+     * @param string $username The username to check.
+     * @param string $password The password to check.
+     * @param Ldap $ldap An object for interacting with the LDAP server.
      */
-    public function __construct($username, $password)
+    public function __construct($username, $password, $ldap)
     {
         if (empty($username)) {
             $this->setErrorUsernameRequired();
@@ -75,7 +76,6 @@ class Authenticator
         }
         
         if ( ! $user->hasPasswordInDatabase()) {
-            $ldap = new Ldap(ConfigManager::getSspConfigFor('ldap'));
             if ($ldap->isPasswordCorrectForUser($username, $password)) {
                 $user->setPassword($password);
                 if ( ! $user->save()) {
