@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "1474734f5e3a69eb9843f95585d182b4",
+    "content-hash": "1aba714ddd21b1562e82cfc7b55146e0",
     "packages": [
         {
             "name": "adldap2/adldap2",
@@ -631,12 +631,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "8b674956ac0ca9b4c90a98197f244cf81079e084"
+                "reference": "74f3abd031c937d75549739e88995f1caabc4dd9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/8b674956ac0ca9b4c90a98197f244cf81079e084",
-                "reference": "8b674956ac0ca9b4c90a98197f244cf81079e084",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/74f3abd031c937d75549739e88995f1caabc4dd9",
+                "reference": "74f3abd031c937d75549739e88995f1caabc4dd9",
                 "shasum": ""
             },
             "conflict": {
@@ -708,7 +708,7 @@
                 "thelia/backoffice-default-template": ">=2.1,<2.1.2",
                 "thelia/thelia": ">=2.1.0-beta1,<2.1.3|>=2.1,<2.1.2",
                 "twig/twig": "<1.20",
-                "typo3/cms": ">=6.2,<6.2.29|>=8,<8.4.1|>=7,<7.6.13",
+                "typo3/cms": ">=6.2,<6.2.30|>=8,<8.4.1|>=7,<7.6.13",
                 "typo3/flow": ">=2.3,<2.3.16|>=3,<3.0.10|>=3.1,<3.1.7|>=3.2,<3.2.7|>=3.3,<3.3.5|>=1,<1.0.4|>=1.1,<1.1.1|>=2,<2.0.1",
                 "typo3/neos": ">=1.1,<1.1.3|>=1.2,<1.2.13|>=2,<2.0.4",
                 "willdurand/js-translation-bundle": "<2.1.1",
@@ -754,7 +754,7 @@
                 }
             ],
             "description": "Prevents installation of composer packages with known security vulnerabilities: no API, simply require it",
-            "time": "2017-01-09T15:59:17+00:00"
+            "time": "2017-01-18T01:18:40+00:00"
         },
         {
             "name": "robrichards/xmlseclibs",
@@ -836,12 +836,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/silinternational/simplesamlphp-module-material.git",
-                "reference": "d6500395e148188e4a389cc542da7cc6b59a08b1"
+                "reference": "c3b3be257408c837b780731c854c64231e6c78e4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/silinternational/simplesamlphp-module-material/zipball/d6500395e148188e4a389cc542da7cc6b59a08b1",
-                "reference": "d6500395e148188e4a389cc542da7cc6b59a08b1",
+                "url": "https://api.github.com/repos/silinternational/simplesamlphp-module-material/zipball/c3b3be257408c837b780731c854c64231e6c78e4",
+                "reference": "c3b3be257408c837b780731c854c64231e6c78e4",
                 "shasum": ""
             },
             "require": {
@@ -862,7 +862,7 @@
                 }
             ],
             "description": "Material Design theme for IdP Hub based on SimpleSAMLphp",
-            "time": "2017-01-13 18:52:26"
+            "time": "2017-01-18 20:30:03"
         },
         {
             "name": "silinternational/simplesamlphp-module-sildisco",
@@ -905,16 +905,16 @@
         },
         {
             "name": "silinternational/ssp-deps",
-            "version": "0.4.0",
+            "version": "dev-develop",
             "source": {
                 "type": "git",
                 "url": "https://github.com/silinternational/ssp-deps.git",
-                "reference": "ccc7fb67db9a4dd6c5490b4dc54db76903da2e1b"
+                "reference": "fb874ab94f5af2a2376aa0fab53da3c690c4c052"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/silinternational/ssp-deps/zipball/ccc7fb67db9a4dd6c5490b4dc54db76903da2e1b",
-                "reference": "ccc7fb67db9a4dd6c5490b4dc54db76903da2e1b",
+                "url": "https://api.github.com/repos/silinternational/ssp-deps/zipball/fb874ab94f5af2a2376aa0fab53da3c690c4c052",
+                "reference": "fb874ab94f5af2a2376aa0fab53da3c690c4c052",
                 "shasum": ""
             },
             "require": {
@@ -922,7 +922,7 @@
                 "roave/security-advisories": "dev-master",
                 "silinternational/php-env": "0.2.0",
                 "silinternational/simplesamlphp-module-material": "dev-develop",
-                "silinternational/simplesamlphp-module-silauth": "0.4.1",
+                "silinternational/simplesamlphp-module-silauth": "dev-develop",
                 "silinternational/simplesamlphp-module-sildisco": "dev-develop",
                 "silinternational/ssp-utilities": "dev-develop",
                 "simplesamlphp/composer-module-installer": "1.1.5",
@@ -944,7 +944,7 @@
                 }
             ],
             "description": "Shared dependencies for simpleSAMLphp (aka. SSP) repos",
-            "time": "2017-01-17T18:41:07+00:00"
+            "time": "2017-01-18 21:15:37"
         },
         {
             "name": "silinternational/ssp-utilities",
@@ -3428,6 +3428,7 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "roave/security-advisories": 20,
+        "silinternational/ssp-deps": 20,
         "silinternational/ssp-utilities": 20,
         "silinternational/simplesamlphp-module-material": 20,
         "silinternational/simplesamlphp-module-sildisco": 20
