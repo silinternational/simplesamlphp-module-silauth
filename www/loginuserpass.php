@@ -53,7 +53,6 @@ $t->data['username'] = $username;
 $t->data['errorcode'] = $errorCode;
 $t->data['errorparams'] = $errorParams;
 $t->data['recaptcha.siteKey'] = $recaptchaSiteKey;
-$t->data['recaptcha.secret'] = $recaptchaSecret;
 
 if (isset($state['SPMetadata'])) {
     $t->data['SPMetadata'] = $state['SPMetadata'];
