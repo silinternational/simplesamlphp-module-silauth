@@ -13,6 +13,7 @@ class User extends UserBase
     const ACTIVE_NO = 'No';
     const ACTIVE_YES = 'Yes';
     
+    const REQUIRE_CAPTCHA_AFTER_NTH_FAILED_LOGIN = 1;
     const BLOCK_AFTER_NTH_FAILED_LOGIN = 2;
     const MAX_SECONDS_TO_BLOCK = 3600; // 3600 seconds = 1 hour
     
@@ -137,6 +138,20 @@ class User extends UserBase
     public function isLocked()
     {
         return (strcasecmp($this->locked, self::LOCKED_NO) !== 0);
+    }
+    
+    public function isCaptchaRequired()
+    {
+        return ($this->login_attempts >= self::REQUIRE_CAPTCHA_AFTER_NTH_FAILED_LOGIN);
+    }
+    
+    public static function isCaptchaRequiredFor($username)
+    {
+        $user = self::findByUsername($username);
+        if ($user === null) {
+            return false;
+        }
+        return $user->isCaptchaRequired();
     }
     
     public function recordLoginAttemptInDatabase()
