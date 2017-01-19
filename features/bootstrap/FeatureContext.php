@@ -75,9 +75,9 @@ class FeatureContext implements Context
     }
 
     /**
-     * @When I try to login
+     * @When I try to log in
      */
-    public function iTryToLogin()
+    public function iTryToLogIn()
     {
         $this->authenticator = new Authenticator(
             $this->username,
@@ -212,9 +212,9 @@ class FeatureContext implements Context
     }
 
     /**
-     * @When I try to login using :username and :password too many times
+     * @When I try to log in using :username and :password too many times
      */
-    public function iTryToLoginUsingAndTooManyTimes($username, $password)
+    public function iTryToLogInUsingAndTooManyTimes($username, $password)
     {
         $this->username = $username;
         $this->password = $password;
