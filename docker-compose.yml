@@ -10,6 +10,7 @@ services:
     volumes:
       - ./:/silauth
       - ./auth.json:/root/.composer/auth.json
+      - ./development/enable-debug.sh:/data/enable-debug.sh
       - ./development/ldap/dev-ldap.conf:/etc/ldap/ldap.conf
       - ./development/run-dev.sh:/data/run-dev.sh
       - ./development/symlink.sh:/data/symlink.sh

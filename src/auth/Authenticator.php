@@ -2,7 +2,6 @@
 namespace Sil\SilAuth\auth;
 
 use Sil\SilAuth\auth\AuthError;
-use Sil\SilAuth\config\ConfigManager;
 use Sil\SilAuth\ldap\Ldap;
 use Sil\SilAuth\time\WaitTime;
 use Sil\SilAuth\models\User;

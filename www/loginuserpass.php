@@ -1,5 +1,7 @@
 <?php
 
+use Sil\SilAuth\auth\AuthError;
+use Sil\SilAuth\models\User;
 use Sil\SilAuth\text\Text;
 
 /**
@@ -24,36 +26,65 @@ $errorParams = null;
 $username = null;
 $password = null;
 
+$globalConfig = SimpleSAML_Configuration::getInstance();
+$authSourcesConfig = $globalConfig->getConfig('authsources.php');
+$silAuthConfig = $authSourcesConfig->getConfigItem('silauth');
+$recaptchaSiteKey = $silAuthConfig->getString('recaptcha.siteKey');
+$recaptchaSecret = $silAuthConfig->getString('recaptcha.secret');
+$remoteIp = Text::sanitizeInputString(INPUT_SERVER, 'REMOTE_ADDR');
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         
         $username = Text::sanitizeInputString(INPUT_POST, 'username');
         $password = Text::sanitizeInputString(INPUT_POST, 'password');
         
-        sspmod_silauth_Auth_Source_SilAuth::handleLogin($authStateId, $username, $password);
+        $gRecaptchaResponse = Text::sanitizeInputString(INPUT_POST, 'g-recaptcha-response');
+        
+        if (User::isCaptchaRequiredFor($username)) {
+            AuthError::logWarning(sprintf(
+                'Required reCAPTCHA for user %s.',
+                var_export($username, true)
+            ));
+            
+            $recaptcha = new \ReCaptcha\ReCaptcha($recaptchaSecret);
+            $rcResponse = $recaptcha->verify($gRecaptchaResponse, $remoteIp);
+            if ( ! $rcResponse->isSuccess()) {
+                AuthError::logError(sprintf(
+                    'Failed reCAPTCHA (user %s): %s',
+                    var_export($username, true),
+                    join(', ', $rcResponse->getErrorCodes())
+                ));
+                
+                $authError = new AuthError(AuthError::CODE_GENERIC_TRY_LATER);
+                throw new SimpleSAML_Error_Error([
+                    'WRONGUSERPASS',
+                    $authError->getFullSspErrorTag(),
+                    $authError->getMessageParams()
+                ]);
+            }
+        }
+        
+        sspmod_silauth_Auth_Source_SilAuth::handleLogin(
+            $authStateId,
+            $username,
+            $password
+        );
     } catch (SimpleSAML_Error_Error $e) {
         /* Login failed. Extract error code and parameters, to display the error. */
         $errorCode = $e->getErrorCode();
         $errorParams = $e->getParameters();
-        /**
-         * @todo load up $errorParams with requireRecaptcha and try again after XX seconds
-         */
     }
 }
-
-$globalConfig = SimpleSAML_Configuration::getInstance();
-$authSourcesConfig = $globalConfig->getConfig('authsources.php');
-$silAuthConfig = $authSourcesConfig->getConfigItem('silauth');
-$recaptchaSiteKey = $silAuthConfig->getString('recaptcha.siteKey');
-$recaptchaSecret = $silAuthConfig->getString('recaptcha.secret');
 
 $t = new SimpleSAML_XHTML_Template($globalConfig, 'core:loginuserpass.php');
 $t->data['stateparams'] = array('AuthState' => $authStateId);
 $t->data['username'] = $username;
 $t->data['errorcode'] = $errorCode;
 $t->data['errorparams'] = $errorParams;
-$t->data['recaptcha.siteKey'] = $recaptchaSiteKey;
-$t->data['recaptcha.secret'] = $recaptchaSecret;
+if (( ! empty($username)) && User::isCaptchaRequiredFor($username)) {
+    $t->data['recaptcha.siteKey'] = $recaptchaSiteKey;
+}
 
 if (isset($state['SPMetadata'])) {
     $t->data['SPMetadata'] = $state['SPMetadata'];
@@ -63,4 +94,3 @@ if (isset($state['SPMetadata'])) {
 
 $t->show();
 exit();
-
