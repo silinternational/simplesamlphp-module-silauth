@@ -56,7 +56,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     join(', ', $rcResponse->getErrorCodes())
                 ));
                 
-                $authError = new AuthError(AuthError::CODE_GENERIC_TRY_LATER);
+                /* If they entered a username that has enough failed login
+                 * attempts that we need to require captcha, act like they
+                 * simply mistyped the password (so that they will re-type
+                 * their credentials now that we're using a captcha).  */
+                $authError = new AuthError(AuthError::CODE_INVALID_LOGIN);
                 throw new SimpleSAML_Error_Error([
                     'WRONGUSERPASS',
                     $authError->getFullSspErrorTag(),
