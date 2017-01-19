@@ -1,6 +1,6 @@
 
 # Set up the default (i.e. - first) make entry.
-start: web
+start: web ldapload addtestusers
 
 addtestusers: migratedb
 	docker-compose run --rm web bash -c "/data/symlink.sh && /data/src/add-test-users"
