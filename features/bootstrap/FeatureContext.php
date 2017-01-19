@@ -404,22 +404,54 @@ class FeatureContext implements Context
         PHPUnit_Framework_Assert::assertNotEmpty($authError);
         PHPUnit_Framework_Assert::assertContains('invalid_login', (string)$authError);
     }
-
+    
     /**
-     * @Given a captcha is required for that user
+     * @Then I should not have to pass a captcha test for that user
      */
-    public function aCaptchaIsRequiredForThatUser()
+    public function iShouldNotHaveToPassACaptchaTestForThatUser()
     {
-        PHPUnit_Framework_Assert::assertTrue(
+        PHPUnit_Framework_Assert::assertNotEmpty($this->username);
+        PHPUnit_Framework_Assert::assertFalse(
             User::isCaptchaRequiredFor($this->username)
         );
     }
 
     /**
-     * @Given I do not provide a captcha value
+     * @When I try to log in with an incorrect password enough times to require a captcha
      */
-    public function iDoNotProvideACaptchaValue()
+    public function iTryToLogInWithAnIncorrectPasswordEnoughTimesToRequireACaptcha()
     {
-        $this->captchaValue = '';
+        // Arrange:
+        $this->password = 'ThisIsWrong';
+        $user = User::findByUsername($this->username);
+        
+        // Pre-assert:
+        PHPUnit_Framework_Assert::assertNotNull($user, sprintf(
+            'Unable to find a user with that username (%s).',
+            var_export($this->username, true)
+        ));
+        PHPUnit_Framework_Assert::assertFalse(
+            $user->isPasswordCorrect($this->password)
+        );
+        
+        // Act:
+        for ($i = 0; $i < User::REQUIRE_CAPTCHA_AFTER_NTH_FAILED_LOGIN; $i++) {
+            $this->authenticator = new Authenticator(
+                $this->username,
+                $this->password,
+                $this->ldap
+            );
+        }
+    }
+
+    /**
+     * @Then I should have to pass a captcha test for that user
+     */
+    public function iShouldHaveToPassACaptchaTestForThatUser()
+    {
+        PHPUnit_Framework_Assert::assertNotEmpty($this->username);
+        PHPUnit_Framework_Assert::assertTrue(
+            User::isCaptchaRequiredFor($this->username)
+        );
     }
 }

@@ -166,16 +166,17 @@ Feature: User login
     And that user account should have a password in the database
     And that user account's failed login attempts should be at 0
 
-  Scenario: Failing to provide any captcha value when it is required
+  Scenario: No failed logins (and thus no captcha requirement)
     Given the following user exists in the database:
         | username  | password     | login_attempts |
-        | BOB_ADAMS | bob_adams123 | 1              |
-    And I provide a username of "BOB_ADAMS"
-    And a captcha is required for that user
-    And I provide a password of "bob_adams123"
-    But I do not provide a captcha value
-    When I try to login
-    Then I should see an error message
-    And I should not have access to any information about that user
-    And I should not be allowed through
-    And that user account's failed login attempts should be at 2
+        | BOB_ADAMS | bob_adams123 | 0              |
+    When I provide a username of "BOB_ADAMS"
+    Then I should not have to pass a captcha test for that user
+
+  Scenario: Enough failed logins to require a captcha
+    Given the following user exists in the database:
+        | username  | password     |
+        | BOB_ADAMS | bob_adams123 |
+    When I provide a username of "BOB_ADAMS"
+    And I try to log in with an incorrect password enough times to require a captcha
+    Then I should have to pass a captcha test for that user
