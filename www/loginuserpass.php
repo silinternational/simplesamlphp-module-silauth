@@ -74,9 +74,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         /* Login failed. Extract error code and parameters, to display the error. */
         $errorCode = $e->getErrorCode();
         $errorParams = $e->getParameters();
-        /**
-         * @todo load up $errorParams with requireRecaptcha and try again after XX seconds
-         */
     }
 }
 
@@ -85,7 +82,9 @@ $t->data['stateparams'] = array('AuthState' => $authStateId);
 $t->data['username'] = $username;
 $t->data['errorcode'] = $errorCode;
 $t->data['errorparams'] = $errorParams;
-$t->data['recaptcha.siteKey'] = $recaptchaSiteKey;
+if (( ! empty($username)) && User::isCaptchaRequiredFor($username)) {
+    $t->data['recaptcha.siteKey'] = $recaptchaSiteKey;
+}
 
 if (isset($state['SPMetadata'])) {
     $t->data['SPMetadata'] = $state['SPMetadata'];
@@ -95,4 +94,3 @@ if (isset($state['SPMetadata'])) {
 
 $t->show();
 exit();
-
