@@ -13,8 +13,8 @@ class User extends UserBase
     const ACTIVE_NO = 'No';
     const ACTIVE_YES = 'Yes';
     
-    const REQUIRE_CAPTCHA_AFTER_NTH_FAILED_LOGIN = 1;
-    const BLOCK_AFTER_NTH_FAILED_LOGIN = 2;
+    const REQUIRE_CAPTCHA_AFTER_NTH_FAILED_LOGIN = 2;
+    const BLOCK_AFTER_NTH_FAILED_LOGIN = 3;
     const MAX_SECONDS_TO_BLOCK = 3600; // 3600 seconds = 1 hour
     
     const LOCKED_NO = 'No';
