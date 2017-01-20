@@ -31,7 +31,7 @@ class User extends UserBase
     
     public static function calculateBlockUntilUtc($failedLoginAttempts)
     {
-        if ( ! self::isEnoughFailedLoginsToBlock($failedLoginAttempts)) {
+        if ( ! Authenticator::isEnoughFailedLoginsToBlock($failedLoginAttempts)) {
             return null;
         }
         
@@ -125,11 +125,6 @@ class User extends UserBase
     public function isPasswordCorrect($password)
     {
         return password_verify($password, $this->password_hash);
-    }
-    
-    public static function isEnoughFailedLoginsToBlock($failedLoginAttempts)
-    {
-        return ($failedLoginAttempts >= Authenticator::BLOCK_AFTER_NTH_FAILED_LOGIN);
     }
     
     public function isLocked()

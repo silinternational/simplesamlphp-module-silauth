@@ -160,6 +160,11 @@ class Authenticator
         return ( ! $this->hasError());
     }
     
+    public static function isEnoughFailedLoginsToBlock($failedLoginAttempts)
+    {
+        return ($failedLoginAttempts >= self::BLOCK_AFTER_NTH_FAILED_LOGIN);
+    }
+    
     protected function setError($code, $messageParams = [])
     {
         $this->authError = new AuthError($code, $messageParams);
