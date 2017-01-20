@@ -92,7 +92,15 @@ class Authenticator
         
         if ( ! $user->isPasswordCorrect($password)) {
             $user->recordLoginAttemptInDatabase();
-            $this->setErrorInvalidLogin();
+            
+            $user->refresh();
+            if ($user->isBlockedByRateLimit()) {
+                $this->setErrorBlockedByRateLimit(
+                    $user->getWaitTimeUntilUnblocked()
+                );
+            } else {
+                $this->setErrorInvalidLogin();
+            }
             return;
         }
         
