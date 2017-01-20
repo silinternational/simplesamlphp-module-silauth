@@ -80,7 +80,7 @@ class User extends UserBase
      *
      * @return WaitTime
      */
-    public function getFriendlyWaitTimeUntilUnblocked()
+    public function getWaitTimeUntilUnblocked()
     {
         $secondsUntilUnblocked = $this->getSecondsUntilUnblocked();
         return new WaitTime($secondsUntilUnblocked);

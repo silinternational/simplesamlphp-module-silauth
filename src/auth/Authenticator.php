@@ -59,8 +59,9 @@ class Authenticator
         }
         
         if ($user->isBlockedByRateLimit()) {
-            $waitTime = $user->getFriendlyWaitTimeUntilUnblocked();
-            $this->setErrorBlockedByRateLimit($waitTime);
+            $this->setErrorBlockedByRateLimit(
+                $user->getWaitTimeUntilUnblocked()
+            );
             return;
         }
         
