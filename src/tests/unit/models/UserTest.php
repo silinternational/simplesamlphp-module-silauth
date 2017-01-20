@@ -212,6 +212,25 @@ class UserTest extends TestCase
         }
     }
     
+    public function testIsEnoughFailedLoginsToBlock()
+    {
+        // Arrange:
+        $testCases = [
+            ['expected' => false, 'failedLogins' => 0],
+            ['expected' => false, 'failedLogins' => User::BLOCK_AFTER_NTH_FAILED_LOGIN - 1],
+            ['expected' => true, 'failedLogins' => User::BLOCK_AFTER_NTH_FAILED_LOGIN],
+            ['expected' => true, 'failedLogins' => User::BLOCK_AFTER_NTH_FAILED_LOGIN + 1],
+        ];
+        foreach ($testCases as $testCase) {
+            
+            // Act:
+            $actual = User::isEnoughFailedLoginsToBlock($testCase['failedLogins']);
+            
+            // Assert:
+            $this->assertSame($testCase['expected'], $actual);
+        }
+    }
+    
     public function testIsLocked()
     {
         // Arrange:

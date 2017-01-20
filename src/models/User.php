@@ -130,7 +130,7 @@ class User extends UserBase
         return password_verify($password, $this->password_hash);
     }
     
-    protected static function isEnoughFailedLoginsToBlock($failedLoginAttempts)
+    public static function isEnoughFailedLoginsToBlock($failedLoginAttempts)
     {
         return ($failedLoginAttempts >= self::BLOCK_AFTER_NTH_FAILED_LOGIN);
     }
