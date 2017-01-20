@@ -4,6 +4,7 @@ use Sil\PhpEnv\Env;
 
 return [
     'silauth:SilAuth',
+    'link.forgotPassword' => Env::get('FORGOT_PASSWORD_URL'),
     'mysql.host' => Env::get('MYSQL_HOST'),
     'mysql.database' => Env::get('MYSQL_DATABASE'),
     'mysql.user' => Env::get('MYSQL_USER'),

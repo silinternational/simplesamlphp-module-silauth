@@ -31,6 +31,8 @@ $authSourcesConfig = $globalConfig->getConfig('authsources.php');
 $silAuthConfig = $authSourcesConfig->getConfigItem('silauth');
 $recaptchaSiteKey = $silAuthConfig->getString('recaptcha.siteKey');
 $recaptchaSecret = $silAuthConfig->getString('recaptcha.secret');
+$forgotPasswordUrl = $silAuthConfig->getString('link.forgotPassword', null);
+
 $remoteIp = Text::sanitizeInputString(INPUT_SERVER, 'REMOTE_ADDR');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -86,6 +88,7 @@ $t->data['stateparams'] = array('AuthState' => $authStateId);
 $t->data['username'] = $username;
 $t->data['errorcode'] = $errorCode;
 $t->data['errorparams'] = $errorParams;
+$t->data['forgotPasswordUrl'] = $forgotPasswordUrl;
 if (( ! empty($username)) && User::isCaptchaRequiredFor($username)) {
     $t->data['recaptcha.siteKey'] = $recaptchaSiteKey;
 }
