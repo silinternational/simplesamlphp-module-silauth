@@ -29,8 +29,9 @@ $password = null;
 $globalConfig = SimpleSAML_Configuration::getInstance();
 $authSourcesConfig = $globalConfig->getConfig('authsources.php');
 $silAuthConfig = $authSourcesConfig->getConfigItem('silauth');
-$recaptchaSiteKey = $silAuthConfig->getString('recaptcha.siteKey');
-$recaptchaSecret = $silAuthConfig->getString('recaptcha.secret');
+
+$recaptchaSiteKey = $silAuthConfig->getString('recaptcha.siteKey', null);
+$recaptchaSecret = $silAuthConfig->getString('recaptcha.secret', null);
 $forgotPasswordUrl = $silAuthConfig->getString('link.forgotPassword', null);
 
 $remoteIp = Text::sanitizeInputString(INPUT_SERVER, 'REMOTE_ADDR');
