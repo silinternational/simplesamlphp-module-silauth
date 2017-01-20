@@ -122,6 +122,14 @@ class Authenticator
         ]);
     }
     
+    public static function calculateSecondsToDelay($failedLoginAttempts)
+    {
+        return min(
+            $failedLoginAttempts * $failedLoginAttempts,
+            self::MAX_SECONDS_TO_BLOCK
+        );
+    }
+    
     /**
      * Get the error information (if any).
      * 

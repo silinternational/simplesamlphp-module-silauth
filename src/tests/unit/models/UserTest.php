@@ -55,36 +55,6 @@ class UserTest extends TestCase
         ), 1);
     }
     
-    public function testCalculateSecondsToDelay()
-    {
-        // Arrange:
-        $testCases = [
-            ['failedLoginAttempts' => 0, 'expected' => 0],
-            ['failedLoginAttempts' => 1, 'expected' => 1],
-            ['failedLoginAttempts' => 5, 'expected' => 25],
-            ['failedLoginAttempts' => 6, 'expected' => 36],
-            ['failedLoginAttempts' => 10, 'expected' => 100],
-            ['failedLoginAttempts' => 20, 'expected' => 400],
-            ['failedLoginAttempts' => 50, 'expected' => 2500],
-            ['failedLoginAttempts' => 60, 'expected' => 3600],
-            ['failedLoginAttempts' => 61, 'expected' => 3600],
-            ['failedLoginAttempts' => 100, 'expected' => 3600],
-        ];
-        foreach ($testCases as $testCase) {
-            
-            // Act:
-            $actual = User::calculateSecondsToDelay($testCase['failedLoginAttempts']);
-            
-            // Assert:
-            $this->assertSame($testCase['expected'], $actual, sprintf(
-                'Expected %s failed login attempts to result in %s second(s), not %s.',
-                var_export($testCase['failedLoginAttempts'], true),
-                var_export($testCase['expected'], true),
-                var_export($actual, true)
-            ));
-        }
-    }
-    
     public function testChangingAnExistingUuid()
     {
         // Arrange:

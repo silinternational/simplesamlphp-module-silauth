@@ -35,7 +35,9 @@ class User extends UserBase
             return null;
         }
         
-        $secondsToDelay = self::calculateSecondsToDelay($failedLoginAttempts);
+        $secondsToDelay = Authenticator::calculateSecondsToDelay(
+            $failedLoginAttempts
+        );
         
         $blockForInterval = new \DateInterval(sprintf(
             'PT%sS', // = P(eriod)T(ime)#S(econds)
@@ -46,14 +48,6 @@ class User extends UserBase
         /* @var $blockUntilUtc \DateTime */
         $blockUntilUtc = $nowUtc->add($blockForInterval);
         return $blockUntilUtc->format(UtcTime::DATE_TIME_FORMAT);
-    }
-    
-    public static function calculateSecondsToDelay($failedLoginAttempts)
-    {
-        return min(
-            $failedLoginAttempts * $failedLoginAttempts,
-            Authenticator::MAX_SECONDS_TO_BLOCK
-        );
     }
     
     /**
