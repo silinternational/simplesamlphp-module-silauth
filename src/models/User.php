@@ -2,6 +2,7 @@
 namespace Sil\SilAuth\models;
 
 use Ramsey\Uuid\Uuid;
+use Sil\SilAuth\auth\Authenticator;
 use Sil\SilAuth\auth\AuthError;
 use Sil\SilAuth\time\UtcTime;
 use Sil\SilAuth\time\WaitTime;
@@ -12,10 +13,6 @@ class User extends UserBase
 {
     const ACTIVE_NO = 'No';
     const ACTIVE_YES = 'Yes';
-    
-    const REQUIRE_CAPTCHA_AFTER_NTH_FAILED_LOGIN = 2;
-    const BLOCK_AFTER_NTH_FAILED_LOGIN = 3;
-    const MAX_SECONDS_TO_BLOCK = 3600; // 3600 seconds = 1 hour
     
     const LOCKED_NO = 'No';
     const LOCKED_YES = 'Yes';
@@ -55,7 +52,7 @@ class User extends UserBase
     {
         return min(
             $failedLoginAttempts * $failedLoginAttempts,
-            self::MAX_SECONDS_TO_BLOCK
+            Authenticator::MAX_SECONDS_TO_BLOCK
         );
     }
     
@@ -132,7 +129,7 @@ class User extends UserBase
     
     public static function isEnoughFailedLoginsToBlock($failedLoginAttempts)
     {
-        return ($failedLoginAttempts >= self::BLOCK_AFTER_NTH_FAILED_LOGIN);
+        return ($failedLoginAttempts >= Authenticator::BLOCK_AFTER_NTH_FAILED_LOGIN);
     }
     
     public function isLocked()
@@ -142,7 +139,7 @@ class User extends UserBase
     
     public function isCaptchaRequired()
     {
-        return ($this->login_attempts >= self::REQUIRE_CAPTCHA_AFTER_NTH_FAILED_LOGIN);
+        return ($this->login_attempts >= Authenticator::REQUIRE_CAPTCHA_AFTER_NTH_FAILED_LOGIN);
     }
     
     public static function isCaptchaRequiredFor($username)

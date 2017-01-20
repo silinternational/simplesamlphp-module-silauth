@@ -12,6 +12,10 @@ use Sil\SilAuth\models\User;
  */
 class Authenticator
 {
+    const REQUIRE_CAPTCHA_AFTER_NTH_FAILED_LOGIN = 2;
+    const BLOCK_AFTER_NTH_FAILED_LOGIN = 3;
+    const MAX_SECONDS_TO_BLOCK = 3600; // 3600 seconds = 1 hour
+    
     /** @var AuthError|null */
     private $authError = null;
     private $userAttributes = null;

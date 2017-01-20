@@ -219,7 +219,7 @@ class FeatureContext implements Context
         $this->username = $username;
         $this->password = $password;
         
-        $blockAfterNthFailedLogin = User::BLOCK_AFTER_NTH_FAILED_LOGIN;
+        $blockAfterNthFailedLogin = Authenticator::BLOCK_AFTER_NTH_FAILED_LOGIN;
         
         PHPUnit_Framework_Assert::assertGreaterThan(
             0,
@@ -435,7 +435,7 @@ class FeatureContext implements Context
         );
         
         // Act:
-        for ($i = 0; $i < User::REQUIRE_CAPTCHA_AFTER_NTH_FAILED_LOGIN; $i++) {
+        for ($i = 0; $i < Authenticator::REQUIRE_CAPTCHA_AFTER_NTH_FAILED_LOGIN; $i++) {
             $this->authenticator = new Authenticator(
                 $this->username,
                 $this->password,

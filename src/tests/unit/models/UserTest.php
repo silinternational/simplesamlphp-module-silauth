@@ -1,6 +1,7 @@
 <?php
 namespace Sil\SilAuth\tests\unit\models;
 
+use Sil\SilAuth\auth\Authenticator;
 use Sil\SilAuth\models\User;
 use Sil\SilAuth\time\UtcTime;
 use PHPUnit\Framework\TestCase;
@@ -15,13 +16,13 @@ class UserTest extends TestCase
                 'afterNthFailedLogin' => 0,
                 'blockUntilShouldBeNull' => true,
             ], [
-                'afterNthFailedLogin' => User::BLOCK_AFTER_NTH_FAILED_LOGIN - 1,
+                'afterNthFailedLogin' => Authenticator::BLOCK_AFTER_NTH_FAILED_LOGIN - 1,
                 'blockUntilShouldBeNull' => true,
             ], [
-                'afterNthFailedLogin' => User::BLOCK_AFTER_NTH_FAILED_LOGIN,
+                'afterNthFailedLogin' => Authenticator::BLOCK_AFTER_NTH_FAILED_LOGIN,
                 'blockUntilShouldBeNull' => false,
             ], [
-                'afterNthFailedLogin' => User::BLOCK_AFTER_NTH_FAILED_LOGIN + 1,
+                'afterNthFailedLogin' => Authenticator::BLOCK_AFTER_NTH_FAILED_LOGIN + 1,
                 'blockUntilShouldBeNull' => false,
             ],
         ];
@@ -38,7 +39,7 @@ class UserTest extends TestCase
     public function testCalculateBlockUntilUtcMaxDelay()
     {
         // Arrange:
-        $expected = User::MAX_SECONDS_TO_BLOCK;
+        $expected = Authenticator::MAX_SECONDS_TO_BLOCK;
         $nowUtc = new UtcTime();
         
         // Act:
@@ -217,9 +218,9 @@ class UserTest extends TestCase
         // Arrange:
         $testCases = [
             ['expected' => false, 'failedLogins' => 0],
-            ['expected' => false, 'failedLogins' => User::BLOCK_AFTER_NTH_FAILED_LOGIN - 1],
-            ['expected' => true, 'failedLogins' => User::BLOCK_AFTER_NTH_FAILED_LOGIN],
-            ['expected' => true, 'failedLogins' => User::BLOCK_AFTER_NTH_FAILED_LOGIN + 1],
+            ['expected' => false, 'failedLogins' => Authenticator::BLOCK_AFTER_NTH_FAILED_LOGIN - 1],
+            ['expected' => true, 'failedLogins' => Authenticator::BLOCK_AFTER_NTH_FAILED_LOGIN],
+            ['expected' => true, 'failedLogins' => Authenticator::BLOCK_AFTER_NTH_FAILED_LOGIN + 1],
         ];
         foreach ($testCases as $testCase) {
             
