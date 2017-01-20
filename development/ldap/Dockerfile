@@ -1,6 +1,6 @@
 FROM silintl/openldap
 
-RUN yum install -y nc which curl \
+RUN yum update -y && yum install -y nc which curl \
     && curl -o /usr/local/bin/whenavail https://bitbucket.org/silintl/docker-whenavail/raw/master/whenavail \
     && chmod a+x /usr/local/bin/whenavail 
     
