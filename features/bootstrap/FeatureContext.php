@@ -29,9 +29,6 @@ class FeatureContext implements Context
     /** @var string|null */
     private $password = null;
     
-    /** @var string|null */
-    private $captchaValue = null;
-    
     /**
      * Initializes context.
      *
