@@ -28,7 +28,6 @@ $username = null;
 $password = null;
 
 $csrfProtector = new CsrfProtector(SimpleSAML_Session::getSession());
-$csrfMasterToken = $csrfProtector->getMasterToken();
 
 $globalConfig = SimpleSAML_Configuration::getInstance();
 $authSourcesConfig = $globalConfig->getConfig('authsources.php');
@@ -90,6 +89,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 var_export($username, true)
             ));
         }
+        
+        $csrfProtector->changeMasterToken();
+        
     } catch (SimpleSAML_Error_Error $e) {
         /* Login failed. Extract error code and parameters, to display the error. */
         $errorCode = $e->getErrorCode();
@@ -103,7 +105,7 @@ $t->data['username'] = $username;
 $t->data['errorcode'] = $errorCode;
 $t->data['errorparams'] = $errorParams;
 $t->data['forgotPasswordUrl'] = $forgotPasswordUrl;
-$t->data['csrfToken'] = $csrfMasterToken;
+$t->data['csrfToken'] = $csrfProtector->getMasterToken();;
 if (( ! empty($username)) && User::isCaptchaRequiredFor($username)) {
     $t->data['recaptcha.siteKey'] = $recaptchaSiteKey;
 }

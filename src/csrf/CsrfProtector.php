@@ -21,6 +21,12 @@ class CsrfProtector
         $this->session = $session;
     }
     
+    public function changeMasterToken()
+    {
+        $newMasterToken = $this->generateToken();
+        $this->setTokenInSession($newMasterToken);
+    }
+    
     protected function generateToken()
     {
         return bin2hex(random_bytes(32));
