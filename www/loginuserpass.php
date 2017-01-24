@@ -90,13 +90,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ));
         }
         
-        $csrfProtector->changeMasterToken();
-        
     } catch (SimpleSAML_Error_Error $e) {
         /* Login failed. Extract error code and parameters, to display the error. */
         $errorCode = $e->getErrorCode();
         $errorParams = $e->getParameters();
     }
+    
+    $csrfProtector->changeMasterToken();
 }
 
 $t = new SimpleSAML_XHTML_Template($globalConfig, 'core:loginuserpass.php');
