@@ -6,6 +6,7 @@ use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
 use Sil\PhpEnv\Env;
 use Sil\SilAuth\auth\Authenticator;
+use Sil\SilAuth\auth\AuthError;
 use Sil\SilAuth\config\ConfigManager;
 use Sil\SilAuth\ldap\Ldap;
 use Sil\SilAuth\models\User;
@@ -449,6 +450,39 @@ class FeatureContext implements Context
         PHPUnit_Framework_Assert::assertNotEmpty($this->username);
         PHPUnit_Framework_Assert::assertTrue(
             User::isCaptchaRequiredFor($this->username)
+        );
+    }
+
+    /**
+     * @Given that user account does not have a password in the database
+     */
+    public function thatUserAccountDoesNotHaveAPasswordInTheDatabase()
+    {
+        $user = User::findByUsername($this->username);
+        PHPUnit_Framework_Assert::assertNotNull($user);
+        PHPUnit_Framework_Assert::assertFalse($user->hasPasswordInDatabase());
+    }
+
+    /**
+     * @Given the LDAP is offline
+     */
+    public function theLdapIsOffline()
+    {
+        $ldapConfig = ConfigManager::getSspConfigFor('ldap');
+        $ldapConfig['domain_controllers'] = ['wrongdomainname'];
+        $this->ldap = new Ldap($ldapConfig);
+    }
+
+    /**
+     * @Then I should see an error message about needing to set my password
+     */
+    public function iShouldSeeAnErrorMessageAboutNeedingToSetMyPassword()
+    {
+        $authError = $this->authenticator->getAuthError();
+        PHPUnit_Framework_Assert::assertNotEmpty($authError);
+        PHPUnit_Framework_Assert::assertContains(
+            AuthError::CODE_NEED_TO_SET_ACCT_PASSWORD,
+            (string)$authError
         );
     }
 }
