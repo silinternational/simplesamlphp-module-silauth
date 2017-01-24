@@ -72,8 +72,6 @@ class System
     {
         if ($this->logger !== null) {
             $this->logger->error($message);
-        } else {
-            echo $message . PHP_EOL;
         }
     }
     
