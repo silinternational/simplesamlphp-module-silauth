@@ -21,6 +21,10 @@ try {
     
 } catch (\Throwable $e) {
     
-    echo 'ERROR ' . $e->getCode() . ': ' . $e->getMessage(); // TEMP
+    echo sprintf(
+        '%s (%s)',
+        $e->getMessage(),
+        $e->getCode()
+    );
     \http_response_code(500);
 }

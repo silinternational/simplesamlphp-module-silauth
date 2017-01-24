@@ -44,8 +44,9 @@ class System
     }
     
     /**
-     * Check the status of the system, and throw an exception if any serious
-     * error conditions are found. Log any problems, even if recoverable.
+     * Check the status of the system, and throw an exception (that is safe to
+     * show to the public) if any serious error conditions are found. Log any
+     * problems, even if recoverable.
      * 
      * @throws \Exception
      */
