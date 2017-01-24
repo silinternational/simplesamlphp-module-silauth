@@ -53,7 +53,7 @@ class ConfigManager
         return new \yii\console\Application($mergedYii2Config);
     }
     
-    public static function initializeYii2WebApp($customConfig)
+    public static function initializeYii2WebApp($customConfig = [])
     {
         self::initializeYiiClass();
         
