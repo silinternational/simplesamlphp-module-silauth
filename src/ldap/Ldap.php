@@ -24,7 +24,12 @@ class Ldap
         }
     }
     
-    protected function connect()
+    /**
+     * Connect to the LDAP (if not yet connected).
+     *
+     * @throws LdapConnectionException
+     */
+    public function connect()
     {
         if ($this->provider === null) {
             $schema = new OpenLDAP();
@@ -36,7 +41,7 @@ class Ldap
                 $ldapClient->connect('default');
                 $this->provider = $provider;
             } catch (BindException $e) {
-                throw new \Exception(sprintf(
+                throw new LdapConnectionException(sprintf(
                     'There was a problem connecting to the LDAP server: (%s) %s',
                     $e->getCode(),
                     $e->getMessage()

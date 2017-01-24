@@ -3,6 +3,7 @@ namespace Sil\SilAuth\auth;
 
 use Sil\SilAuth\auth\AuthError;
 use Sil\SilAuth\ldap\Ldap;
+use Sil\SilAuth\ldap\LdapConnectionException;
 use Sil\SilAuth\time\WaitTime;
 use Sil\SilAuth\models\User;
 
@@ -80,6 +81,19 @@ class Authenticator
         }
         
         if ( ! $user->hasPasswordInDatabase()) {
+            try {
+                $ldap->connect();
+            } catch (LdapConnectionException $e) {
+                AuthError::logWarning(sprintf(
+                    'Unable to connect to the LDAP (to check password for user %s). Error %s: %s',
+                    var_export($username, true),
+                    $e->getCode(),
+                    $e->getMessage()
+                ));
+                $this->setErrorNeedToSetAcctPassword();
+                return;
+            }
+            
             if ($ldap->isPasswordCorrectForUser($username, $password)) {
                 $user->setPassword($password);
                 if ( ! $user->save()) {
@@ -207,6 +221,11 @@ class Authenticator
     protected function setErrorInvalidLogin()
     {
         $this->setError(AuthError::CODE_INVALID_LOGIN);
+    }
+    
+    protected function setErrorNeedToSetAcctPassword()
+    {
+        $this->setError(AuthError::CODE_NEED_TO_SET_ACCT_PASSWORD);
     }
     
     protected function setErrorPasswordRequired()
