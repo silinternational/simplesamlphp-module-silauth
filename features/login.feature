@@ -1,5 +1,5 @@
 Feature: User login
-  In order to login
+  In order to log in
   As a user
   I need to be able to provide a username and password
 
@@ -10,7 +10,7 @@ Feature: User login
   Scenario: Failing to provide a username
     Given I provide a password
     But I do not provide a username
-    When I try to login
+    When I try to log in
     Then I should see an error message
     And I should not have access to any information about that user
     And I should not be allowed through
@@ -18,7 +18,7 @@ Feature: User login
   Scenario: Failing to provide a password
     Given I provide a username
     But I do not provide a password
-    When I try to login
+    When I try to log in
     Then I should see an error message
     And I should not have access to any information about that user
     And I should not be allowed through
@@ -29,7 +29,7 @@ Feature: User login
         | BOB_ADAMS | bob_adams123 | 0              |
     And I provide a username of "BOB_ADAMS"
     But I provide a password of "something_else"
-    When I try to login
+    When I try to log in
     Then I should see an error message
     And I should not have access to any information about that user
     And I should not be allowed through
@@ -41,7 +41,7 @@ Feature: User login
         | BOB_ADAMS | bob_adams123 |
     And I provide a username of "BOB_ADAMS"
     And I provide a password of "bob_adams123"
-    When I try to login
+    When I try to log in
     Then I should not see an error message
     And I should have access to some information about that user
     And I should be allowed through
@@ -52,7 +52,7 @@ Feature: User login
         | BOB_ADAMS | bob_adams123 |
     And I provide a username of "bob_adams"
     And I provide a password of "bob_adams123"
-    When I try to login
+    When I try to log in
     Then I should not see an error message
     And I should have access to some information about that user
     And I should be allowed through
@@ -61,7 +61,7 @@ Feature: User login
     Given the following user exists in the database:
         | username  | password     | login_attempts |
         | BOB_ADAMS | bob_adams123 | 0              |
-    When I try to login using "BOB_ADAMS" and "aWrongPassword" too many times
+    When I try to log in using "BOB_ADAMS" and "aWrongPassword" too many times
     Then I should see an error message telling me to wait
     And that user account should be blocked for awhile
     And I should not have access to any information about that user
@@ -73,10 +73,10 @@ Feature: User login
         | BOB_ADAMS | bob_adams123 | 0              |
     And I provide a username of "BOB_ADAMS"
     But I provide a password of "bob_adams789"
-    And I try to login
+    And I try to log in
     Then I provide a username of "BOB_ADAMS"
     And I provide a password of "bob_adams123"
-    When I try to login
+    When I try to log in
     Then I should not see an error message
     And I should have access to some information about that user
     And I should be allowed through
@@ -88,7 +88,7 @@ Feature: User login
         | BOB_ADAMS | bob_adams123 | Yes    |
     And I provide a username of "BOB_ADAMS"
     And I provide a password of "bob_adams123"
-    When I try to login
+    When I try to log in
     Then I should see a generic invalid-login error message
     And I should not have access to any information about that user
     And I should not be allowed through
@@ -99,7 +99,7 @@ Feature: User login
         | BOB_ADAMS | bob_adams123 | No     |
     And I provide a username of "BOB_ADAMS"
     And I provide a password of "bob_adams123"
-    When I try to login
+    When I try to log in
     Then I should see a generic invalid-login error message
     And I should not have access to any information about that user
     And I should not be allowed through
@@ -110,7 +110,7 @@ Feature: User login
         | BOB_ADAMS | bob_adams123 | 5              |
     And I provide a username of "BOB_ADAMS"
     And I provide a password of "bob_adams123"
-    When I try to login
+    When I try to log in
     Then I should see an error message with "30" and "seconds" in it
     And that user account should still be blocked for awhile
     And I should not have access to any information about that user
@@ -123,7 +123,7 @@ Feature: User login
     And I provide a username of "BOB_ADAMS"
     And I provide a password of "bob_adams123"
     And that user account's block-until time is in the past
-    When I try to login
+    When I try to log in
     Then I should not see an error message
     And I should have access to some information about that user
     And I should be allowed through
@@ -134,7 +134,7 @@ Feature: User login
     But there is a "BOB_ADAMS" user in the ldap with a password of "bob_adams123"
     And I provide a username of "BOB_ADAMS"
     And I provide a password of "bob_adams123"
-    When I try to login
+    When I try to log in
     Then I should see a generic invalid-login error message
     And I should not have access to any information about that user
     And I should not be allowed through
@@ -146,7 +146,7 @@ Feature: User login
     And there is a "BOB_ADAMS" user in the ldap
     And I provide a username of "BOB_ADAMS"
     And I provide a password of "ThisIsWrong"
-    When I try to login
+    When I try to log in
     Then I should see a generic invalid-login error message
     And I should not have access to any information about that user
     And I should not be allowed through
@@ -159,9 +159,51 @@ Feature: User login
     And there is a "ROB_HOLT" user in the ldap with a password of "rob_holt123"
     And I provide a username of "ROB_HOLT"
     And I provide a password of "rob_holt123"
-    When I try to login
+    When I try to log in
     Then I should not see an error message
     And I should be allowed through
     And I should have access to some information about that user
     And that user account should have a password in the database
+    And that user account's failed login attempts should be at 0
+
+  Scenario: No failed logins (and thus no captcha requirement)
+    Given the following user exists in the database:
+        | username  | password     | login_attempts |
+        | BOB_ADAMS | bob_adams123 | 0              |
+    When I provide a username of "BOB_ADAMS"
+    Then I should not have to pass a captcha test for that user
+
+  Scenario: Enough failed logins to require a captcha
+    Given the following user exists in the database:
+        | username  | password     |
+        | BOB_ADAMS | bob_adams123 |
+    When I provide a username of "BOB_ADAMS"
+    And I try to log in with an incorrect password enough times to require a captcha
+    Then I should have to pass a captcha test for that user
+
+  Scenario: LDAP is offline and the given user exists in the db and has a password
+    Given the following user exists in the database:
+        | username | password    | login_attempts |
+        | ROB_HOLT | rob_holt123 | 0              |
+    And I provide a username of "ROB_HOLT"
+    And I provide a password of "rob_holt123"
+    And the LDAP is offline
+    When I try to log in
+    Then I should not see an error message
+    And I should be allowed through
+    And I should have access to some information about that user
+    And that user account's failed login attempts should be at 0
+
+  Scenario: LDAP is offline and the given user exists in the db but has no password
+    Given the following user exists in the database:
+        | username | login_attempts |
+        | ROB_HOLT | 0              |
+    And I provide a username of "ROB_HOLT"
+    And I provide a password
+    But that user account does not have a password in the database
+    And the LDAP is offline
+    When I try to log in
+    Then I should see an error message about needing to set my password
+    And I should not be allowed through
+    And I should not have access to any information about that user
     And that user account's failed login attempts should be at 0

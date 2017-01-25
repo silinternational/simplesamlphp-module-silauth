@@ -1,12 +1,6 @@
 
-# Get the most recent Git tag as the current version of this repo (needed for
-# resolving what version of this repo the current files represent, since this
-# is a sub-dependency of itself via ssp-deps).
-VERSION=$(shell git describe --abbrev=0 --tags)
-
-
 # Set up the default (i.e. - first) make entry.
-start: web
+start: web ldapload addtestusers
 
 addtestusers: migratedb
 	docker-compose run --rm web bash -c "/data/symlink.sh && /data/src/add-test-users"
@@ -31,13 +25,16 @@ clean:
 	docker-compose rm -f
 
 composer:
-	docker-compose run --rm tests bash -c "COMPOSER_ROOT_VERSION=$(VERSION) composer install --no-scripts"
+	docker-compose run --rm tests bash -c "COMPOSER_ROOT_VERSION=dev-develop composer install --no-scripts"
 
 composerupdate:
-	docker-compose run --rm tests bash -c "COMPOSER_ROOT_VERSION=$(VERSION) composer update --no-scripts"
+	docker-compose run --rm tests bash -c "COMPOSER_ROOT_VERSION=dev-develop composer update --no-scripts"
 
 db:
 	docker-compose up -d db
+
+enabledebug:
+	docker-compose exec web bash -c "/data/enable-debug.sh"
 
 generatemodels: migratedb
 	docker-compose run --rm web bash -c "/data/symlink.sh && /data/src/rebuildbasemodels.sh"

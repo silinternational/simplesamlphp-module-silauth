@@ -6,6 +6,7 @@ use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
 use Sil\PhpEnv\Env;
 use Sil\SilAuth\auth\Authenticator;
+use Sil\SilAuth\auth\AuthError;
 use Sil\SilAuth\config\ConfigManager;
 use Sil\SilAuth\ldap\Ldap;
 use Sil\SilAuth\models\User;
@@ -72,9 +73,9 @@ class FeatureContext implements Context
     }
 
     /**
-     * @When I try to login
+     * @When I try to log in
      */
-    public function iTryToLogin()
+    public function iTryToLogIn()
     {
         $this->authenticator = new Authenticator(
             $this->username,
@@ -209,14 +210,14 @@ class FeatureContext implements Context
     }
 
     /**
-     * @When I try to login using :username and :password too many times
+     * @When I try to log in using :username and :password too many times
      */
-    public function iTryToLoginUsingAndTooManyTimes($username, $password)
+    public function iTryToLogInUsingAndTooManyTimes($username, $password)
     {
         $this->username = $username;
         $this->password = $password;
         
-        $blockAfterNthFailedLogin = User::BLOCK_AFTER_NTH_FAILED_LOGIN;
+        $blockAfterNthFailedLogin = Authenticator::BLOCK_AFTER_NTH_FAILED_LOGIN;
         
         PHPUnit_Framework_Assert::assertGreaterThan(
             0,
@@ -400,5 +401,88 @@ class FeatureContext implements Context
         $authError = $this->authenticator->getAuthError();
         PHPUnit_Framework_Assert::assertNotEmpty($authError);
         PHPUnit_Framework_Assert::assertContains('invalid_login', (string)$authError);
+    }
+    
+    /**
+     * @Then I should not have to pass a captcha test for that user
+     */
+    public function iShouldNotHaveToPassACaptchaTestForThatUser()
+    {
+        PHPUnit_Framework_Assert::assertNotEmpty($this->username);
+        PHPUnit_Framework_Assert::assertFalse(
+            User::isCaptchaRequiredFor($this->username)
+        );
+    }
+
+    /**
+     * @When I try to log in with an incorrect password enough times to require a captcha
+     */
+    public function iTryToLogInWithAnIncorrectPasswordEnoughTimesToRequireACaptcha()
+    {
+        // Arrange:
+        $this->password = 'ThisIsWrong';
+        $user = User::findByUsername($this->username);
+        
+        // Pre-assert:
+        PHPUnit_Framework_Assert::assertNotNull($user, sprintf(
+            'Unable to find a user with that username (%s).',
+            var_export($this->username, true)
+        ));
+        PHPUnit_Framework_Assert::assertFalse(
+            $user->isPasswordCorrect($this->password)
+        );
+        
+        // Act:
+        for ($i = 0; $i < Authenticator::REQUIRE_CAPTCHA_AFTER_NTH_FAILED_LOGIN; $i++) {
+            $this->authenticator = new Authenticator(
+                $this->username,
+                $this->password,
+                $this->ldap
+            );
+        }
+    }
+
+    /**
+     * @Then I should have to pass a captcha test for that user
+     */
+    public function iShouldHaveToPassACaptchaTestForThatUser()
+    {
+        PHPUnit_Framework_Assert::assertNotEmpty($this->username);
+        PHPUnit_Framework_Assert::assertTrue(
+            User::isCaptchaRequiredFor($this->username)
+        );
+    }
+
+    /**
+     * @Given that user account does not have a password in the database
+     */
+    public function thatUserAccountDoesNotHaveAPasswordInTheDatabase()
+    {
+        $user = User::findByUsername($this->username);
+        PHPUnit_Framework_Assert::assertNotNull($user);
+        PHPUnit_Framework_Assert::assertFalse($user->hasPasswordInDatabase());
+    }
+
+    /**
+     * @Given the LDAP is offline
+     */
+    public function theLdapIsOffline()
+    {
+        $ldapConfig = ConfigManager::getSspConfigFor('ldap');
+        $ldapConfig['domain_controllers'] = ['wrongdomainname'];
+        $this->ldap = new Ldap($ldapConfig);
+    }
+
+    /**
+     * @Then I should see an error message about needing to set my password
+     */
+    public function iShouldSeeAnErrorMessageAboutNeedingToSetMyPassword()
+    {
+        $authError = $this->authenticator->getAuthError();
+        PHPUnit_Framework_Assert::assertNotEmpty($authError);
+        PHPUnit_Framework_Assert::assertContains(
+            AuthError::CODE_NEED_TO_SET_ACCT_PASSWORD,
+            (string)$authError
+        );
     }
 }

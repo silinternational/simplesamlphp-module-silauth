@@ -1,5 +1,8 @@
 <?php
 
+use Sil\SilAuth\auth\AuthError;
+use Sil\SilAuth\csrf\CsrfProtector;
+use Sil\SilAuth\models\User;
 use Sil\SilAuth\text\Text;
 
 /**
@@ -24,36 +27,88 @@ $errorParams = null;
 $username = null;
 $password = null;
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    try {
-        
-        $username = Text::sanitizeInputString(INPUT_POST, 'username');
-        $password = Text::sanitizeInputString(INPUT_POST, 'password');
-        
-        sspmod_silauth_Auth_Source_SilAuth::handleLogin($authStateId, $username, $password);
-    } catch (SimpleSAML_Error_Error $e) {
-        /* Login failed. Extract error code and parameters, to display the error. */
-        $errorCode = $e->getErrorCode();
-        $errorParams = $e->getParameters();
-        /**
-         * @todo load up $errorParams with requireRecaptcha and try again after XX seconds
-         */
-    }
-}
+$csrfProtector = new CsrfProtector(SimpleSAML_Session::getSession());
 
 $globalConfig = SimpleSAML_Configuration::getInstance();
 $authSourcesConfig = $globalConfig->getConfig('authsources.php');
 $silAuthConfig = $authSourcesConfig->getConfigItem('silauth');
-$recaptchaSiteKey = $silAuthConfig->getString('recaptcha.siteKey');
-$recaptchaSecret = $silAuthConfig->getString('recaptcha.secret');
+
+$recaptchaSiteKey = $silAuthConfig->getString('recaptcha.siteKey', null);
+$recaptchaSecret = $silAuthConfig->getString('recaptcha.secret', null);
+$forgotPasswordUrl = $silAuthConfig->getString('link.forgotPassword', null);
+
+$remoteIp = Text::sanitizeInputString(INPUT_SERVER, 'REMOTE_ADDR');
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    try {
+        
+        $csrfFromRequest = Text::sanitizeInputString(INPUT_POST, 'csrf-token'); 
+        if ($csrfProtector->isTokenCorrect($csrfFromRequest)) {
+            
+            $username = Text::sanitizeInputString(INPUT_POST, 'username');
+            $password = Text::sanitizeInputString(INPUT_POST, 'password');
+
+            $gRecaptchaResponse = Text::sanitizeInputString(INPUT_POST, 'g-recaptcha-response');
+
+            if (User::isCaptchaRequiredFor($username)) {
+                AuthError::logWarning(sprintf(
+                    'Required reCAPTCHA for user %s.',
+                    var_export($username, true)
+                ));
+
+                $recaptcha = new \ReCaptcha\ReCaptcha($recaptchaSecret);
+                $rcResponse = $recaptcha->verify($gRecaptchaResponse, $remoteIp);
+                if ( ! $rcResponse->isSuccess()) {
+                    AuthError::logError(sprintf(
+                        'Failed reCAPTCHA (user %s): %s',
+                        var_export($username, true),
+                        join(', ', $rcResponse->getErrorCodes())
+                    ));
+
+                    /* If they entered a username that has enough failed login
+                     * attempts that we need to require captcha, act like they
+                     * simply mistyped the password (so that they will re-type
+                     * their credentials now that we're using a captcha).  */
+                    $authError = new AuthError(AuthError::CODE_INVALID_LOGIN);
+                    throw new SimpleSAML_Error_Error([
+                        'WRONGUSERPASS',
+                        $authError->getFullSspErrorTag(),
+                        $authError->getMessageParams()
+                    ]);
+                }
+            }
+
+            sspmod_silauth_Auth_Source_SilAuth::handleLogin(
+                $authStateId,
+                $username,
+                $password
+            );
+        } else {
+            AuthError::logWarning(sprintf(
+                'Failed CSRF (user %s).',
+                var_export($username, true)
+            ));
+        }
+        
+    } catch (SimpleSAML_Error_Error $e) {
+        /* Login failed. Extract error code and parameters, to display the error. */
+        $errorCode = $e->getErrorCode();
+        $errorParams = $e->getParameters();
+    }
+    
+    $csrfProtector->changeMasterToken();
+}
 
 $t = new SimpleSAML_XHTML_Template($globalConfig, 'core:loginuserpass.php');
 $t->data['stateparams'] = array('AuthState' => $authStateId);
 $t->data['username'] = $username;
 $t->data['errorcode'] = $errorCode;
 $t->data['errorparams'] = $errorParams;
-$t->data['recaptcha.siteKey'] = $recaptchaSiteKey;
-$t->data['recaptcha.secret'] = $recaptchaSecret;
+$t->data['forgotPasswordUrl'] = $forgotPasswordUrl;
+$t->data['csrfToken'] = $csrfProtector->getMasterToken();;
+if (( ! empty($username)) && User::isCaptchaRequiredFor($username)) {
+    $t->data['recaptcha.siteKey'] = $recaptchaSiteKey;
+}
 
 if (isset($state['SPMetadata'])) {
     $t->data['SPMetadata'] = $state['SPMetadata'];
@@ -63,4 +118,3 @@ if (isset($state['SPMetadata'])) {
 
 $t->show();
 exit();
-

@@ -2,8 +2,8 @@
 namespace Sil\SilAuth\auth;
 
 use Sil\SilAuth\auth\AuthError;
-use Sil\SilAuth\config\ConfigManager;
 use Sil\SilAuth\ldap\Ldap;
+use Sil\SilAuth\ldap\LdapConnectionException;
 use Sil\SilAuth\time\WaitTime;
 use Sil\SilAuth\models\User;
 
@@ -13,6 +13,10 @@ use Sil\SilAuth\models\User;
  */
 class Authenticator
 {
+    const REQUIRE_CAPTCHA_AFTER_NTH_FAILED_LOGIN = 2;
+    const BLOCK_AFTER_NTH_FAILED_LOGIN = 3;
+    const MAX_SECONDS_TO_BLOCK = 3600; // 3600 seconds = 1 hour
+    
     /** @var AuthError|null */
     private $authError = null;
     private $userAttributes = null;
@@ -60,8 +64,9 @@ class Authenticator
         }
         
         if ($user->isBlockedByRateLimit()) {
-            $waitTime = $user->getFriendlyWaitTimeUntilUnblocked();
-            $this->setErrorBlockedByRateLimit($waitTime);
+            $this->setErrorBlockedByRateLimit(
+                $user->getWaitTimeUntilUnblocked()
+            );
             return;
         }
         
@@ -76,6 +81,19 @@ class Authenticator
         }
         
         if ( ! $user->hasPasswordInDatabase()) {
+            try {
+                $ldap->connect();
+            } catch (LdapConnectionException $e) {
+                AuthError::logWarning(sprintf(
+                    'Unable to connect to the LDAP (to check password for user %s). Error %s: %s',
+                    var_export($username, true),
+                    $e->getCode(),
+                    $e->getMessage()
+                ));
+                $this->setErrorNeedToSetAcctPassword();
+                return;
+            }
+            
             if ($ldap->isPasswordCorrectForUser($username, $password)) {
                 $user->setPassword($password);
                 if ( ! $user->save()) {
@@ -92,7 +110,15 @@ class Authenticator
         
         if ( ! $user->isPasswordCorrect($password)) {
             $user->recordLoginAttemptInDatabase();
-            $this->setErrorInvalidLogin();
+            
+            $user->refresh();
+            if ($user->isBlockedByRateLimit()) {
+                $this->setErrorBlockedByRateLimit(
+                    $user->getWaitTimeUntilUnblocked()
+                );
+            } else {
+                $this->setErrorInvalidLogin();
+            }
             return;
         }
         
@@ -108,6 +134,14 @@ class Authenticator
             'username' => [$user->username],
             'employeeId' => [$user->employee_id],
         ]);
+    }
+    
+    public static function calculateSecondsToDelay($failedLoginAttempts)
+    {
+        return min(
+            $failedLoginAttempts * $failedLoginAttempts,
+            self::MAX_SECONDS_TO_BLOCK
+        );
     }
     
     /**
@@ -148,6 +182,11 @@ class Authenticator
         return ( ! $this->hasError());
     }
     
+    public static function isEnoughFailedLoginsToBlock($failedLoginAttempts)
+    {
+        return ($failedLoginAttempts >= self::BLOCK_AFTER_NTH_FAILED_LOGIN);
+    }
+    
     protected function setError($code, $messageParams = [])
     {
         $this->authError = new AuthError($code, $messageParams);
@@ -182,6 +221,11 @@ class Authenticator
     protected function setErrorInvalidLogin()
     {
         $this->setError(AuthError::CODE_INVALID_LOGIN);
+    }
+    
+    protected function setErrorNeedToSetAcctPassword()
+    {
+        $this->setError(AuthError::CODE_NEED_TO_SET_ACCT_PASSWORD);
     }
     
     protected function setErrorPasswordRequired()

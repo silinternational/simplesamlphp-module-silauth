@@ -2,6 +2,7 @@
 namespace Sil\SilAuth\models;
 
 use Ramsey\Uuid\Uuid;
+use Sil\SilAuth\auth\Authenticator;
 use Sil\SilAuth\auth\AuthError;
 use Sil\SilAuth\time\UtcTime;
 use Sil\SilAuth\time\WaitTime;
@@ -12,9 +13,6 @@ class User extends UserBase
 {
     const ACTIVE_NO = 'No';
     const ACTIVE_YES = 'Yes';
-    
-    const BLOCK_AFTER_NTH_FAILED_LOGIN = 2;
-    const MAX_SECONDS_TO_BLOCK = 3600; // 3600 seconds = 1 hour
     
     const LOCKED_NO = 'No';
     const LOCKED_YES = 'Yes';
@@ -33,11 +31,13 @@ class User extends UserBase
     
     public static function calculateBlockUntilUtc($failedLoginAttempts)
     {
-        if ( ! self::isEnoughFailedLoginsToBlock($failedLoginAttempts)) {
+        if ( ! Authenticator::isEnoughFailedLoginsToBlock($failedLoginAttempts)) {
             return null;
         }
         
-        $secondsToDelay = self::calculateSecondsToDelay($failedLoginAttempts);
+        $secondsToDelay = Authenticator::calculateSecondsToDelay(
+            $failedLoginAttempts
+        );
         
         $blockForInterval = new \DateInterval(sprintf(
             'PT%sS', // = P(eriod)T(ime)#S(econds)
@@ -48,14 +48,6 @@ class User extends UserBase
         /* @var $blockUntilUtc \DateTime */
         $blockUntilUtc = $nowUtc->add($blockForInterval);
         return $blockUntilUtc->format(UtcTime::DATE_TIME_FORMAT);
-    }
-    
-    public static function calculateSecondsToDelay($failedLoginAttempts)
-    {
-        return min(
-            $failedLoginAttempts * $failedLoginAttempts,
-            self::MAX_SECONDS_TO_BLOCK
-        );
     }
     
     /**
@@ -79,7 +71,7 @@ class User extends UserBase
      *
      * @return WaitTime
      */
-    public function getFriendlyWaitTimeUntilUnblocked()
+    public function getWaitTimeUntilUnblocked()
     {
         $secondsUntilUnblocked = $this->getSecondsUntilUnblocked();
         return new WaitTime($secondsUntilUnblocked);
@@ -129,14 +121,23 @@ class User extends UserBase
         return password_verify($password, $this->password_hash);
     }
     
-    protected function isEnoughFailedLoginsToBlock($failedLoginAttempts)
-    {
-        return ($failedLoginAttempts >= self::BLOCK_AFTER_NTH_FAILED_LOGIN);
-    }
-    
     public function isLocked()
     {
         return (strcasecmp($this->locked, self::LOCKED_NO) !== 0);
+    }
+    
+    public function isCaptchaRequired()
+    {
+        return ($this->login_attempts >= Authenticator::REQUIRE_CAPTCHA_AFTER_NTH_FAILED_LOGIN);
+    }
+    
+    public static function isCaptchaRequiredFor($username)
+    {
+        $user = self::findByUsername($username);
+        if ($user === null) {
+            return false;
+        }
+        return $user->isCaptchaRequired();
     }
     
     public function recordLoginAttemptInDatabase()

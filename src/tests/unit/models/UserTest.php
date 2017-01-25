@@ -1,6 +1,7 @@
 <?php
 namespace Sil\SilAuth\tests\unit\models;
 
+use Sil\SilAuth\auth\Authenticator;
 use Sil\SilAuth\models\User;
 use Sil\SilAuth\time\UtcTime;
 use PHPUnit\Framework\TestCase;
@@ -15,13 +16,13 @@ class UserTest extends TestCase
                 'afterNthFailedLogin' => 0,
                 'blockUntilShouldBeNull' => true,
             ], [
-                'afterNthFailedLogin' => User::BLOCK_AFTER_NTH_FAILED_LOGIN - 1,
+                'afterNthFailedLogin' => Authenticator::BLOCK_AFTER_NTH_FAILED_LOGIN - 1,
                 'blockUntilShouldBeNull' => true,
             ], [
-                'afterNthFailedLogin' => User::BLOCK_AFTER_NTH_FAILED_LOGIN,
+                'afterNthFailedLogin' => Authenticator::BLOCK_AFTER_NTH_FAILED_LOGIN,
                 'blockUntilShouldBeNull' => false,
             ], [
-                'afterNthFailedLogin' => User::BLOCK_AFTER_NTH_FAILED_LOGIN + 1,
+                'afterNthFailedLogin' => Authenticator::BLOCK_AFTER_NTH_FAILED_LOGIN + 1,
                 'blockUntilShouldBeNull' => false,
             ],
         ];
@@ -38,7 +39,7 @@ class UserTest extends TestCase
     public function testCalculateBlockUntilUtcMaxDelay()
     {
         // Arrange:
-        $expected = User::MAX_SECONDS_TO_BLOCK;
+        $expected = Authenticator::MAX_SECONDS_TO_BLOCK;
         $nowUtc = new UtcTime();
         
         // Act:
@@ -52,36 +53,6 @@ class UserTest extends TestCase
             $expected,
             $actual
         ), 1);
-    }
-    
-    public function testCalculateSecondsToDelay()
-    {
-        // Arrange:
-        $testCases = [
-            ['failedLoginAttempts' => 0, 'expected' => 0],
-            ['failedLoginAttempts' => 1, 'expected' => 1],
-            ['failedLoginAttempts' => 5, 'expected' => 25],
-            ['failedLoginAttempts' => 6, 'expected' => 36],
-            ['failedLoginAttempts' => 10, 'expected' => 100],
-            ['failedLoginAttempts' => 20, 'expected' => 400],
-            ['failedLoginAttempts' => 50, 'expected' => 2500],
-            ['failedLoginAttempts' => 60, 'expected' => 3600],
-            ['failedLoginAttempts' => 61, 'expected' => 3600],
-            ['failedLoginAttempts' => 100, 'expected' => 3600],
-        ];
-        foreach ($testCases as $testCase) {
-            
-            // Act:
-            $actual = User::calculateSecondsToDelay($testCase['failedLoginAttempts']);
-            
-            // Assert:
-            $this->assertSame($testCase['expected'], $actual, sprintf(
-                'Expected %s failed login attempts to result in %s second(s), not %s.',
-                var_export($testCase['failedLoginAttempts'], true),
-                var_export($testCase['expected'], true),
-                var_export($actual, true)
-            ));
-        }
     }
     
     public function testChangingAnExistingUuid()
