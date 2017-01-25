@@ -23,14 +23,25 @@ $usersToAdd = [
     'last_name' => 'Adams',
     'username' => 'BOB_ADAMS',
     'email' => 'bob_adams@acme.org',
-    'employee_id' => '99999',
+    'employee_id' => '10101',
+  ],
+  [
+    'first_name' => 'Rob',
+    'last_name' => 'Holt',
+    'username' => 'ROB_HOLT',
+    'email' => 'rob_holt@acme.org',
+    'employee_id' => '10121',
   ],
 ];
-foreach ($usersToAdd as $userToAdd) {
-  $user = new User($userToAdd);
-  if ( ! $user->save()) {
-    echo var_export($user->getErrors(), true);
-    exit(1);
+try {
+  foreach ($usersToAdd as $userToAdd) {
+    $user = new User($userToAdd);
+    if ( ! $user->save()) {
+      echo var_export($user->getErrors(), true);
+    }
   }
+} catch (\Throwable $e) {
+  echo $e->getMessage() . PHP_EOL;
+  exit(1);
 }
 exit(0);

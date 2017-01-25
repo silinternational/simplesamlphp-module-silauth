@@ -180,3 +180,30 @@ Feature: User login
     When I provide a username of "BOB_ADAMS"
     And I try to log in with an incorrect password enough times to require a captcha
     Then I should have to pass a captcha test for that user
+
+  Scenario: LDAP is offline and the given user exists in the db and has a password
+    Given the following user exists in the database:
+        | username | password    | login_attempts |
+        | ROB_HOLT | rob_holt123 | 0              |
+    And I provide a username of "ROB_HOLT"
+    And I provide a password of "rob_holt123"
+    And the LDAP is offline
+    When I try to log in
+    Then I should not see an error message
+    And I should be allowed through
+    And I should have access to some information about that user
+    And that user account's failed login attempts should be at 0
+
+  Scenario: LDAP is offline and the given user exists in the db but has no password
+    Given the following user exists in the database:
+        | username | login_attempts |
+        | ROB_HOLT | 0              |
+    And I provide a username of "ROB_HOLT"
+    And I provide a password
+    But that user account does not have a password in the database
+    And the LDAP is offline
+    When I try to log in
+    Then I should see an error message about needing to set my password
+    And I should not be allowed through
+    And I should not have access to any information about that user
+    And that user account's failed login attempts should be at 0
