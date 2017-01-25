@@ -1,13 +1,8 @@
 #!/usr/bin/env bash
 
-echo '************************************************'
-echo 'This is not how tests are run. See the Makefile.'
-echo '************************************************'
-exit 1;
-
 # Try to install composer dev dependencies
 cd /data/vendor/simplesamlphp/simplesamlphp/modules/silauth
-composer install --prefer-dist --no-interaction --optimize-autoloader --dev
+COMPOSER_ROOT_VERSION=dev-develop composer install --no-interaction --optimize-autoloader --no-scripts
 
 # If that failed, exit.
 rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi
@@ -24,8 +19,11 @@ rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi
 # If they failed, exit.
 rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi
 
+# Switch back to the folder we were in.
+cd -
+
 # Run the unit tests
-cd src/tests
+cd /data/vendor/simplesamlphp/simplesamlphp/modules/silauth/src/tests
 ../../vendor/bin/phpunit .
 
 # If they failed, exit.
