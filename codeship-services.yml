@@ -8,6 +8,8 @@ db:
 
 web:
     image: silintl/ssp-base:latest
+    env_file:
+      - ./common.env
     links:
         - db
         - ldap
