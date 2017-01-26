@@ -2,6 +2,7 @@
 
 use Sil\SilAuth\auth\AuthError;
 use Sil\SilAuth\csrf\CsrfProtector;
+use Sil\SilAuth\log\Psr3SamlLogger;
 use Sil\SilAuth\models\User;
 use Sil\SilAuth\text\Text;
 
@@ -42,6 +43,7 @@ $remoteIp = Text::sanitizeInputString(INPUT_SERVER, 'REMOTE_ADDR');
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         
+        $logger = new Psr3SamlLogger();
         $csrfFromRequest = Text::sanitizeInputString(INPUT_POST, 'csrf-token'); 
         if ($csrfProtector->isTokenCorrect($csrfFromRequest)) {
             
@@ -51,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $gRecaptchaResponse = Text::sanitizeInputString(INPUT_POST, 'g-recaptcha-response');
 
             if (User::isCaptchaRequiredFor($username)) {
-                AuthError::logWarning(sprintf(
+                $logger->warning(sprintf(
                     'Required reCAPTCHA for user %s.',
                     var_export($username, true)
                 ));
@@ -59,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $recaptcha = new \ReCaptcha\ReCaptcha($recaptchaSecret);
                 $rcResponse = $recaptcha->verify($gRecaptchaResponse, $remoteIp);
                 if ( ! $rcResponse->isSuccess()) {
-                    AuthError::logError(sprintf(
+                    $logger->error(sprintf(
                         'Failed reCAPTCHA (user %s): %s',
                         var_export($username, true),
                         join(', ', $rcResponse->getErrorCodes())
@@ -84,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $password
             );
         } else {
-            AuthError::logWarning(sprintf(
+            $logger->error(sprintf(
                 'Failed CSRF (user %s).',
                 var_export($username, true)
             ));
