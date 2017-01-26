@@ -1,5 +1,5 @@
 <?php
-namespace Sil\SilAuth\tests\unit\models;
+namespace Sil\SilAuth\tests\unit\text;
 
 use Sil\SilAuth\text\Text;
 use PHPUnit\Framework\TestCase;
