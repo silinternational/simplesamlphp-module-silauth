@@ -3,19 +3,20 @@ namespace Sil\SilAuth\models;
 
 use Ramsey\Uuid\Uuid;
 use Sil\SilAuth\auth\Authenticator;
-use Sil\SilAuth\auth\AuthError;
 use Sil\SilAuth\time\UtcTime;
 use Sil\SilAuth\time\WaitTime;
 use yii\helpers\ArrayHelper;
 use Yii;
 
-class User extends UserBase
+class User extends UserBase implements \Psr\Log\LoggerAwareInterface
 {
     const ACTIVE_NO = 'No';
     const ACTIVE_YES = 'Yes';
     
     const LOCKED_NO = 'No';
     const LOCKED_YES = 'Yes';
+    
+    private $logger;
     
     /**
      * @inheritdoc
@@ -145,8 +146,8 @@ class User extends UserBase
         $this->login_attempts += 1;
         $successful = $this->save(true, ['login_attempts', 'block_until_utc']);
         if ( ! $successful) {
-            AuthError::logError(sprintf(
-                'Failed to update login attempts counter in database for %s.',
+            $this->logger->critical(sprintf(
+                'Failed to update login attempts counter in database for %s, so unable to prevent dictionary attacks.',
                 var_export($this->username, true)
             ));
         }
@@ -157,7 +158,7 @@ class User extends UserBase
         $this->login_attempts = 0;
         $successful = $this->save(true, ['login_attempts', 'block_until_utc']);
         if ( ! $successful) {
-            AuthError::logError(sprintf(
+            $this->logger->error(sprintf(
                 'Failed to reset login attempts counter in database for %s.',
                 $this->username
             ));
@@ -199,10 +200,41 @@ class User extends UserBase
             ],
         ], parent::rules());
     }
+
+    /**
+     * Set a logger for this User instance to use.
+     *
+     * @param \Psr\Log\LoggerInterface $logger A PSR-3 compliant logger.
+     * @return null
+     */
+    public function setLogger(\Psr\Log\LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
     
     public function setPassword($password)
     {
         $this->password_hash = password_hash($password, PASSWORD_DEFAULT);
+    }
+    
+    /**
+     * Try to save this user. If unsuccessful, log an error to the current
+     * logger (if set), prefixing it with the given error message prefix (but do
+     * not throw an exception or do anything else to disrupt program flow).
+     *
+     * @param string $errorPrefix The first part of the error message.
+     */
+    public function tryToSave($errorPrefix)
+    {
+        $saveFailed = !$this->save();
+        $loggerIsAvailable = !empty($this->logger);
+        
+        if ($saveFailed && $loggerIsAvailable) {
+            $this->logger->critical('{errorPrefix}: {userErrors}', [
+                'errorPrefix' => $errorPrefix,
+                'userErrors' => print_r($this->getErrors(), true),
+            ]);
+        }
     }
     
     /**
