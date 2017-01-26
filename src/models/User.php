@@ -9,13 +9,15 @@ use Sil\SilAuth\time\WaitTime;
 use yii\helpers\ArrayHelper;
 use Yii;
 
-class User extends UserBase
+class User extends UserBase implements \Psr\Log\LoggerAwareInterface
 {
     const ACTIVE_NO = 'No';
     const ACTIVE_YES = 'Yes';
     
     const LOCKED_NO = 'No';
     const LOCKED_YES = 'Yes';
+    
+    private $logger;
     
     /**
      * @inheritdoc
@@ -199,10 +201,41 @@ class User extends UserBase
             ],
         ], parent::rules());
     }
+
+    /**
+     * Set a logger for this User instance to use.
+     *
+     * @param \Psr\Log\LoggerInterface $logger A PSR-3 compliant logger.
+     * @return null
+     */
+    public function setLogger(\Psr\Log\LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
     
     public function setPassword($password)
     {
         $this->password_hash = password_hash($password, PASSWORD_DEFAULT);
+    }
+    
+    /**
+     * Try to save this user. If unsuccessful, log an error to the current
+     * logger (if set), prefixing it with the given error message prefix (but do
+     * not throw an exception or do anything else to disrupt program flow).
+     *
+     * @param string $errorPrefix The first part of the error message.
+     */
+    public function tryToSave($errorPrefix)
+    {
+        $saveFailed = !$this->save();
+        $loggerIsAvailable = !empty($this->logger);
+        
+        if ($saveFailed && $loggerIsAvailable) {
+            $this->logger->critical('{errorPrefix}: {userErrors}', [
+                'errorPrefix' => $errorPrefix,
+                'userErrors' => print_r($this->getErrors(), true),
+            ]);
+        }
     }
     
     /**

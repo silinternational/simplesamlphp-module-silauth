@@ -4,11 +4,13 @@ use Behat\Behat\Tester\Exception\PendingException;
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
+use Psr\Log\LoggerInterface;
 use Sil\PhpEnv\Env;
 use Sil\SilAuth\auth\Authenticator;
 use Sil\SilAuth\auth\AuthError;
 use Sil\SilAuth\config\ConfigManager;
 use Sil\SilAuth\ldap\Ldap;
+use Sil\SilAuth\log\Psr3ConsoleLogger;
 use Sil\SilAuth\models\User;
 use Sil\SilAuth\time\UtcTime;
 use yii\helpers\ArrayHelper;
@@ -23,6 +25,9 @@ class FeatureContext implements Context
 
     /** @var Ldap|null */
     private $ldap = null;
+
+    /** @var LoggerInterface */
+    private $logger;
     
     /** @var string|null */
     private $username = null;
@@ -41,6 +46,7 @@ class FeatureContext implements Context
     {
         $this->initializeDependencies();
         $this->ldap = new Ldap(ConfigManager::getSspConfigFor('ldap'));
+        $this->logger = new Psr3ConsoleLogger();
     }
     
     protected function initializeDependencies()
@@ -80,7 +86,8 @@ class FeatureContext implements Context
         $this->authenticator = new Authenticator(
             $this->username,
             $this->password,
-            $this->ldap
+            $this->ldap,
+            $this->logger
         );
     }
 
@@ -230,7 +237,8 @@ class FeatureContext implements Context
             $this->authenticator = new Authenticator(
                 $this->username,
                 $this->password,
-                $this->ldap
+                $this->ldap,
+                $this->logger
             );
         }
     }
@@ -437,7 +445,8 @@ class FeatureContext implements Context
             $this->authenticator = new Authenticator(
                 $this->username,
                 $this->password,
-                $this->ldap
+                $this->ldap,
+                $this->logger
             );
         }
     }

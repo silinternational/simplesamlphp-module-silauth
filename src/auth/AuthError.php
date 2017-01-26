@@ -58,14 +58,4 @@ class AuthError
     {
         return $this->messageParams;
     }
-    
-    public static function logError($message)
-    {
-        \Yii::error($message, 'silauth');
-    }
-    
-    public static function logWarning($message)
-    {
-        \Yii::warning($message, 'silauth');
-    }
 }
