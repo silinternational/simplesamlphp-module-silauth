@@ -3,7 +3,6 @@ namespace Sil\SilAuth\models;
 
 use Ramsey\Uuid\Uuid;
 use Sil\SilAuth\auth\Authenticator;
-use Sil\SilAuth\auth\AuthError;
 use Sil\SilAuth\time\UtcTime;
 use Sil\SilAuth\time\WaitTime;
 use yii\helpers\ArrayHelper;
@@ -147,8 +146,8 @@ class User extends UserBase implements \Psr\Log\LoggerAwareInterface
         $this->login_attempts += 1;
         $successful = $this->save(true, ['login_attempts', 'block_until_utc']);
         if ( ! $successful) {
-            AuthError::logError(sprintf(
-                'Failed to update login attempts counter in database for %s.',
+            $this->logger->critical(sprintf(
+                'Failed to update login attempts counter in database for %s, so unable to prevent dictionary attacks.',
                 var_export($this->username, true)
             ));
         }
@@ -159,7 +158,7 @@ class User extends UserBase implements \Psr\Log\LoggerAwareInterface
         $this->login_attempts = 0;
         $successful = $this->save(true, ['login_attempts', 'block_until_utc']);
         if ( ! $successful) {
-            AuthError::logError(sprintf(
+            $this->logger->error(sprintf(
                 'Failed to reset login attempts counter in database for %s.',
                 $this->username
             ));
