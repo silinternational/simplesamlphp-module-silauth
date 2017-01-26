@@ -3,6 +3,7 @@
 use Sil\SilAuth\auth\Authenticator;
 use Sil\SilAuth\config\ConfigManager;
 use Sil\SilAuth\ldap\Ldap;
+use Sil\SilAuth\log\Psr3SamlLogger;
 
 /**
  * Class sspmod_silauth_Auth_Source_SilAuth.
@@ -83,10 +84,15 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
     protected function login($username, $password)
     {
         $ldap = new Ldap($this->ldapConfig);
-        $authenticator = new Authenticator($username, $password, $ldap);
+        $logger = new Psr3SamlLogger();
+        $authenticator = new Authenticator($username, $password, $ldap, $logger);
         
         if ( ! $authenticator->isAuthenticated()) {
             $authError = $authenticator->getAuthError();
+            $logger->warning('Failed login attempt: {username}/{errorCode}', [
+                'username' => var_export($username, true),
+                'errorCode' => $authError->getCode(),
+            ]);
             throw new SimpleSAML_Error_Error([
                 'WRONGUSERPASS',
                 $authError->getFullSspErrorTag(),
