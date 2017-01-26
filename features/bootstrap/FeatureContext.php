@@ -2,7 +2,6 @@
 
 use Behat\Behat\Tester\Exception\PendingException;
 use Behat\Behat\Context\Context;
-use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
 use Psr\Log\LoggerInterface;
 use Sil\PhpEnv\Env;
@@ -23,8 +22,8 @@ class FeatureContext implements Context
     /** @var Authenticator|null */
     private $authenticator = null;
 
-    /** @var Ldap|null */
-    private $ldap = null;
+    /** @var Ldap */
+    private $ldap;
 
     /** @var LoggerInterface */
     private $logger;
