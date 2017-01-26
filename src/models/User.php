@@ -7,6 +7,7 @@ use Sil\SilAuth\time\UtcTime;
 use Sil\SilAuth\time\WaitTime;
 use yii\helpers\ArrayHelper;
 use Yii;
+use yii\behaviors\TimestampBehavior;
 
 class User extends UserBase implements \Psr\Log\LoggerAwareInterface
 {
@@ -28,6 +29,21 @@ class User extends UserBase implements \Psr\Log\LoggerAwareInterface
             'block_until_utc' => Yii::t('app', 'Block Until (UTC)'),
             'last_updated_utc' => Yii::t('app', 'Last Updated (UTC)'),
         ]);
+    }
+    
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => TimestampBehavior::className(),
+                'attributes' => [
+                    \yii\base\Model::EVENT_BEFORE_VALIDATE => 'last_updated_utc',
+                ],
+                'createdAtAttribute' => false,
+                'updatedAtAttribute' => 'last_updated_utc',
+                'value' => function() { return UtcTime::format(); },
+            ],
+        ];
     }
     
     public static function calculateBlockUntilUtc($failedLoginAttempts)
@@ -186,10 +202,6 @@ class User extends UserBase implements \Psr\Log\LoggerAwareInterface
             ], [
                 'email',
                 'email',
-            ], [
-                'last_updated_utc',
-                'default',
-                'value' => UtcTime::format(),
             ], [
                 'login_attempts',
                 'filter',
