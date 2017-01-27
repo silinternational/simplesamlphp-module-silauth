@@ -25,7 +25,8 @@
     "adldap2/adldap2": "^6.1",
     "fillup/fake-bower-assets": "^2.0",
     "google/recaptcha": "^1.1",
-    "psr/log": "^1.0"
+    "psr/log": "^1.0",
+    "monolog/monolog": "^1.22"
   },
   "require-dev": {
     "behat/behat": "^3.2",
