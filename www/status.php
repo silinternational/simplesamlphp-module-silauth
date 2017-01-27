@@ -17,7 +17,7 @@ try {
         'username' => Env::get('MYSQL_USER'),
         'password' => Env::get('MYSQL_PASSWORD'),
     ]]]);
-    $logger = new Psr3SyslogLogger('silauth');
+    $logger = new Psr3SyslogLogger('silauth', 'status');
     $system = new System($logger);
     $system->reportStatus();
     
