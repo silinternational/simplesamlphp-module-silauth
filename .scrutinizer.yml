@@ -12,11 +12,18 @@ filter:
     excluded_paths:
         - vendor/*
 
-########### [End of project-specific section] ############
-
 tools:
     php_code_sniffer:
         enabled: true
+        filter:
+            paths:
+                - development/*
+                - features/*
+                - lib/*
+                - src/*
+                - www/*
+            excluded_paths:
+                - vendor/*
         config:
             standard: PSR2
 
