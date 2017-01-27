@@ -27,6 +27,10 @@ clean:
 composer:
 	docker-compose run --rm tests bash -c "COMPOSER_ROOT_VERSION=dev-develop composer install --no-scripts"
 
+composerrequire:
+	docker-compose run --rm tests bash -c "COMPOSER_ROOT_VERSION=dev-develop composer require $(NAME) --no-scripts"
+# Example: `make composerrequire NAME=monolog/monolog`
+
 composerupdate:
 	docker-compose run --rm tests bash -c "COMPOSER_ROOT_VERSION=dev-develop composer update --no-scripts"
 

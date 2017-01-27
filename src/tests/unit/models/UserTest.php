@@ -220,6 +220,50 @@ class UserTest extends TestCase
         }
     }
     
+    public function testLastUpdatedUtc()
+    {
+        // Arrange:
+        $uniqId = uniqid();
+        $user = new User();
+        $user->attributes = [
+            'email' => $uniqId . '@example.com',
+            'employee_id' => $uniqId,
+            'first_name' => 'Test ' . $uniqId,
+            'last_name' => 'User',
+            'username' => 'user' . $uniqId,
+        ];
+        
+        // Pre-assert:
+        $this->assertTrue($user->save(), sprintf(
+            'Failed to create User record for test: %s',
+            print_r($user->getErrors(), true)
+        ));
+        $user->refresh();
+        $lastUpdatedPre = $user->last_updated_utc;
+        $this->assertNotNull($lastUpdatedPre);
+        $user->last_updated_utc = UtcTime::format('-2 seconds');
+        $this->assertTrue($user->save(false), sprintf(
+            'Failed to set last_updated_time to the past for test: %s',
+            print_r($user->getErrors(), true)
+        ));
+        $user->refresh();
+        $lastUpdatedMid = $user->last_updated_utc;
+        $this->assertNotSame($lastUpdatedPre, $lastUpdatedMid);
+        
+        // Act:
+        $user->last_name = 'Something Else';
+        
+        // Assert:
+        $this->assertTrue($user->save(), sprintf(
+            'Failed to update User record for test: %s',
+            print_r($user->getErrors(), true)
+        ));
+        $this->assertNotSame($lastUpdatedMid, $user->last_updated_utc, sprintf(
+            'The last_updated_utc value (%s) should have changed, but did not.',
+            var_export($user->last_updated_utc, true)
+        ));
+    }
+    
     public function testRecordLoginAttemptInDatabase()
     {
         // Arrange:
@@ -239,18 +283,18 @@ class UserTest extends TestCase
             print_r($user->getErrors(), true)
         ));
         $user->refresh();
-        $valueBefore = $user->login_attempts;
-        $this->assertNotNull($valueBefore);
+        $loginAttemptsPre = $user->login_attempts;
+        $this->assertNotNull($loginAttemptsPre);
         
         // Act:
         $user->recordLoginAttemptInDatabase();
         $user->refresh();
         
         // Assert:
-        $this->assertSame($valueBefore + 1, $user->login_attempts, sprintf(
+        $this->assertSame($loginAttemptsPre + 1, $user->login_attempts, sprintf(
             'The value after (%s) was not 1 more than the value before (%s).',
             var_export($user->login_attempts, true),
-            var_export($valueBefore, true)
+            var_export($loginAttemptsPre, true)
         ));
     }
 }

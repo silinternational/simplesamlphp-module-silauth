@@ -1,6 +1,7 @@
 <?php
 namespace Sil\SilAuth\auth;
 
+use Psr\Log\LoggerInterface;
 use Sil\SilAuth\auth\AuthError;
 use Sil\SilAuth\ldap\Ldap;
 use Sil\SilAuth\ldap\LdapConnectionException;
@@ -28,8 +29,9 @@ class Authenticator
      * @param string $username The username to check.
      * @param string $password The password to check.
      * @param Ldap $ldap An object for interacting with the LDAP server.
+     * @param LoggerInterface $logger A PSR-3 compliant logger.
      */
-    public function __construct($username, $password, $ldap)
+    public function __construct($username, $password, $ldap, $logger)
     {
         if (empty($username)) {
             $this->setErrorUsernameRequired();
@@ -40,11 +42,6 @@ class Authenticator
             $this->setErrorPasswordRequired();
             return;
         }
-        
-        /* @todo Make sure the CSRF has been validated. */
-        
-        /* @todo If enough failed logins have occurred that we require a
-         *       Captcha, make sure the Captcha is correct.  */
         
         $user = User::findByUsername($username);
         if ($user === null) {
@@ -62,6 +59,8 @@ class Authenticator
             $this->setErrorInvalidLogin();
             return;
         }
+        
+        $user->setLogger($logger);
         
         if ($user->isBlockedByRateLimit()) {
             $this->setErrorBlockedByRateLimit(
@@ -84,7 +83,7 @@ class Authenticator
             try {
                 $ldap->connect();
             } catch (LdapConnectionException $e) {
-                AuthError::logWarning(sprintf(
+                $logger->error(sprintf(
                     'Unable to connect to the LDAP (to check password for user %s). Error %s: %s',
                     var_export($username, true),
                     $e->getCode(),
@@ -96,15 +95,13 @@ class Authenticator
             
             if ($ldap->isPasswordCorrectForUser($username, $password)) {
                 $user->setPassword($password);
-                if ( ! $user->save()) {
-                    AuthError::logError(sprintf(
-                        'Failed to record password from LDAP into database for %s: %s',
-                        var_export($username, true),
-                        print_r($user->getErrors(), true)
-                    ));
-                    $this->setErrorGenericTryLater();
-                    return;
-                }
+                
+                /* Try to save the password, but let the user proceed even if
+                 * we can't (since we know the password is correct).  */
+                $user->tryToSave(sprintf(
+                    'Failed to record password from LDAP into database for %s',
+                    var_export($username, true)
+                ));
             }
         }
         
