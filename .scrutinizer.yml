@@ -2,12 +2,15 @@
 
 filter:
     paths:
-        - application/*
+        - development/*
+        - features/*
+        - lib/*
+        - src/*
+        - www/*
     dependency_paths:
-        - application/vendor/*
+        - vendor/*
     excluded_paths:
-        - application/vendor/*
-        - application/console/runtime/*
+        - vendor/*
 
 ########### [End of project-specific section] ############
 
