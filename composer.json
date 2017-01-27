@@ -34,7 +34,8 @@
   },
   "autoload": {
     "psr-4": {
-      "Sil\\SilAuth\\": "src/"
+      "Sil\\SilAuth\\": "src/",
+      "Sil\\SilAuth\\features\\": "features/"
     }
   }
 }

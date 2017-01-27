@@ -1,8 +1,9 @@
 <?php
+namespace Sil\SilAuth\features\context;
 
-use Behat\Behat\Tester\Exception\PendingException;
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\TableNode;
+use PHPUnit_Framework_Assert;
 use Psr\Log\LoggerInterface;
 use Sil\PhpEnv\Env;
 use Sil\SilAuth\auth\Authenticator;
