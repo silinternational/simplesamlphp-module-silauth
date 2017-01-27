@@ -75,7 +75,7 @@ class User extends UserBase implements \Psr\Log\LoggerAwareInterface
      */
     public static function findByUsername($username)
     {
-        return User::findOne(['username' => $username]);
+        return self::findOne(['username' => $username]);
     }
     
     /**
@@ -199,7 +199,7 @@ class User extends UserBase implements \Psr\Log\LoggerAwareInterface
                 'uuid',
                 'default',
                 'value' => function () {
-                    return self::generateUuid();
+                    return User::generateUuid();
                 },
                 'when' => function($model) {
                     return $model->isNewRecord;
@@ -265,7 +265,7 @@ class User extends UserBase implements \Psr\Log\LoggerAwareInterface
      */
     public function validateValueDidNotChange($attribute)
     {
-        $previousUserRecord = User::findOne(['id' => $this->id]);
+        $previousUserRecord = self::findOne(['id' => $this->id]);
         if ($this->$attribute !== $previousUserRecord->$attribute) {
             $this->addError($attribute, sprintf(
                 'The %s value may not change.',
