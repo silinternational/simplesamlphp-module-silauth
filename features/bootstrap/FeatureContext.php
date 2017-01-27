@@ -60,6 +60,18 @@ class FeatureContext implements Context
             'password' => Env::get('MYSQL_PASSWORD'),
         ]]]);
     }
+    
+    protected function loginXTimes($numberOfTimes)
+    {
+        for ($i = 0; $i < $numberOfTimes; $i++) {
+            $this->authenticator = new Authenticator(
+                $this->username,
+                $this->password,
+                $this->ldap,
+                $this->logger
+            );
+        }   
+    }
 
     /**
      * @Given I provide a password
@@ -232,14 +244,7 @@ class FeatureContext implements Context
         );
         
         // Try to log in one too many times (so that we'll see the "wait" message).
-        for ($i = 0; $i < ($blockAfterNthFailedLogin + 1) ; $i++) {
-            $this->authenticator = new Authenticator(
-                $this->username,
-                $this->password,
-                $this->ldap,
-                $this->logger
-            );
-        }
+        $this->loginXTimes($blockAfterNthFailedLogin + 1);
     }
 
     /**
@@ -440,14 +445,7 @@ class FeatureContext implements Context
         );
         
         // Act:
-        for ($i = 0; $i < Authenticator::REQUIRE_CAPTCHA_AFTER_NTH_FAILED_LOGIN; $i++) {
-            $this->authenticator = new Authenticator(
-                $this->username,
-                $this->password,
-                $this->ldap,
-                $this->logger
-            );
-        }
+        $this->loginXTimes(Authenticator::REQUIRE_CAPTCHA_AFTER_NTH_FAILED_LOGIN);
     }
 
     /**
