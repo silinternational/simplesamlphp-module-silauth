@@ -3,6 +3,7 @@
 use Sil\PhpEnv\Env;
 use Sil\SilAuth\config\ConfigManager;
 use Sil\SilAuth\system\System;
+use Sil\SilAuth\log\Psr3SyslogLogger;
 
 try {
     header('Content-Type: text/plain');
@@ -16,7 +17,8 @@ try {
         'username' => Env::get('MYSQL_USER'),
         'password' => Env::get('MYSQL_PASSWORD'),
     ]]]);
-    $system = new System();
+    $logger = new Psr3SyslogLogger('silauth', 'status');
+    $system = new System($logger);
     $system->reportStatus();
     
 } catch (\Throwable $e) {
