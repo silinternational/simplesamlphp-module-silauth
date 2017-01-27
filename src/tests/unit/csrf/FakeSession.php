@@ -14,6 +14,11 @@ class FakeSession extends \SimpleSAML_Session
         $this->dataStore = [];
     }
     
+    /**
+     * @param string $type
+     * @param string|null $id
+     * @return mixed
+     */
     public function getData($type, $id)
     {
         return $this->dataStore[$type][$id] ?? null;

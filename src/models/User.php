@@ -78,6 +78,11 @@ class User extends UserBase implements \Psr\Log\LoggerAwareInterface
         return User::findOne(['username' => $username]);
     }
     
+    /**
+     * Generate a UUID.
+     *
+     * @return string
+     */
     public static function generateUuid()
     {
         return Uuid::uuid4()->toString();
@@ -133,6 +138,12 @@ class User extends UserBase implements \Psr\Log\LoggerAwareInterface
         return ($this->getSecondsUntilUnblocked() > 0);
     }
     
+    /**
+     * Check the given password against the current password hash.
+     *
+     * @param string $password
+     * @return bool
+     */
     public function isPasswordCorrect($password)
     {
         return password_verify($password, $this->password_hash);
