@@ -20,7 +20,10 @@ $state = SimpleSAML_Auth_State::loadState($authStateId, sspmod_silauth_Auth_Sour
 
 $source = SimpleSAML_Auth_Source::getById($state[sspmod_silauth_Auth_Source_SilAuth::AUTHID]);
 if ($source === null) {
-    throw new Exception('Could not find authentication source with id ' . $state[sspmod_silauth_Auth_Source_SilAuth::AUTHID]);
+    throw new Exception(
+        'Could not find authentication source with id '
+        . $state[sspmod_silauth_Auth_Source_SilAuth::AUTHID]
+    );
 }
 
 $errorCode = null;
@@ -107,7 +110,7 @@ $t->data['username'] = $username;
 $t->data['errorcode'] = $errorCode;
 $t->data['errorparams'] = $errorParams;
 $t->data['forgotPasswordUrl'] = $forgotPasswordUrl;
-$t->data['csrfToken'] = $csrfProtector->getMasterToken();;
+$t->data['csrfToken'] = $csrfProtector->getMasterToken();
 if (( ! empty($username)) && User::isCaptchaRequiredFor($username)) {
     $t->data['recaptcha.siteKey'] = $recaptchaSiteKey;
 }
