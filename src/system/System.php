@@ -5,6 +5,7 @@ use Psr\Log\LoggerInterface;
 use Sil\SilAuth\config\ConfigManager;
 use Sil\SilAuth\ldap\Ldap;
 use Sil\SilAuth\models\User;
+use Throwable;
 
 class System
 {
@@ -26,8 +27,8 @@ class System
             $ldap = new Ldap(ConfigManager::getSspConfigFor('ldap'));
             $ldap->userExists(null);
             return true;
-        } catch (\Throwable $e) {
-            $this->logError($e->getMessage());
+        } catch (Throwable $t) {
+            $this->logError($t->getMessage());
             return false;
         }
     }
@@ -37,8 +38,8 @@ class System
         try {
             User::findByUsername(null);
             return true;
-        } catch (\Throwable $e) {
-            $this->logError($e->getMessage());
+        } catch (Throwable $t) {
+            $this->logError($t->getMessage());
             return false;
         }
     }
