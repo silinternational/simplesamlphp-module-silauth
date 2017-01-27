@@ -151,6 +151,18 @@ class Authenticator
         return $this->authError;
     }
     
+    /**
+     * Get the attributes about the authenticated user.
+     *
+     * @return array<string,array> The user attributes. Example:<pre>
+     *     [
+     *         // ...
+     *         'mail' => ['someone@example.com'],
+     *         // ...
+     *     ]
+     *     </pre>
+     * @throws \Exception
+     */
     public function getUserAttributes()
     {
         if ($this->userAttributes === null) {
