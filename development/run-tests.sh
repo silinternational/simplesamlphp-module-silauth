@@ -16,7 +16,7 @@ rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi
 rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi
 
 # Run the feature tests
-./vendor/bin/behat
+./vendor/bin/behat --config=features/behat.yml
 
 # If they failed, exit.
 rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi
