@@ -17,6 +17,8 @@ class User extends UserBase implements \Psr\Log\LoggerAwareInterface
     const LOCKED_NO = 'No';
     const LOCKED_YES = 'Yes';
     
+    const PASSWORD_HASH_DESIRED_COST = 12;
+    
     private $logger;
     
     /**
@@ -237,7 +239,11 @@ class User extends UserBase implements \Psr\Log\LoggerAwareInterface
     
     public function setPassword($password)
     {
-        $this->password_hash = password_hash($password, PASSWORD_DEFAULT);
+        $this->password_hash = password_hash(
+            $password,
+            PASSWORD_DEFAULT,
+            ['cost' => self::PASSWORD_HASH_DESIRED_COST]
+        );
     }
     
     /**
