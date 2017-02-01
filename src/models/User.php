@@ -176,7 +176,7 @@ class User extends UserBase implements \Psr\Log\LoggerAwareInterface
      *
      * @return bool
      */
-    public function passwordNeedsRehashed()
+    public function isPasswordRehashNeeded()
     {
         return password_needs_rehash(
             $this->password_hash,

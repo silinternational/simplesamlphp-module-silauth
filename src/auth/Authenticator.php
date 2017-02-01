@@ -123,7 +123,7 @@ class Authenticator
         
         $user->resetFailedLoginAttemptsInDatabase();
         
-        if ($user->passwordNeedsRehashed()) {
+        if ($user->isPasswordRehashNeeded()) {
             $savedNewPasswordHash = $user->saveNewPasswordHash($password);
             if ( ! $savedNewPasswordHash) {
                 $logger->error(sprintf(

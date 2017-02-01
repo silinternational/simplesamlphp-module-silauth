@@ -264,7 +264,7 @@ class UserTest extends TestCase
         ));
     }
     
-    public function testPasswordNeedsRehashed()
+    public function testIsPasswordRehashNeeded()
     {
         // Arrange:
         $testCases = [
@@ -281,7 +281,7 @@ class UserTest extends TestCase
             ]);
             
             // Act:
-            $actual = $user->passwordNeedsRehashed();
+            $actual = $user->isPasswordRehashNeeded();
 
             // Assert:
             $this->assertSame($testCase['expected'], $actual, sprintf(
