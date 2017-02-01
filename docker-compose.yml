@@ -13,6 +13,7 @@ services:
       - ./development/enable-debug.sh:/data/enable-debug.sh
       - ./development/ldap/dev-ldap.conf:/etc/ldap/ldap.conf
       - ./development/run-dev.sh:/data/run-dev.sh
+      - ./development/run-tests.sh:/data/run-tests.sh
       - ./development/symlink.sh:/data/symlink.sh
       - ./src:/data/src
     env_file:
