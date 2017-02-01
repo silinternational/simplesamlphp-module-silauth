@@ -170,6 +170,33 @@ class User extends UserBase implements \Psr\Log\LoggerAwareInterface
         return $user->isCaptchaRequired();
     }
     
+    /**
+     * See if the current password hash needs to be recreated to match the
+     * current password hashing settings.
+     *
+     * @return bool
+     */
+    public function passwordNeedsRehashed()
+    {
+        return password_needs_rehash(
+            $this->password_hash,
+            PASSWORD_DEFAULT,
+            ['cost' => self::PASSWORD_HASH_DESIRED_COST]
+        );
+    }
+    
+    /**
+     * Generate a new password hash from the given password and save it.
+     *
+     * @param string $password
+     * @return bool Whether the save was successful.
+     */
+    public function saveNewPasswordHash($password)
+    {
+        $this->setPassword($password);
+        return $this->save(true, ['password_hash']);
+    }
+    
     public function recordLoginAttemptInDatabase()
     {
         $this->login_attempts += 1;

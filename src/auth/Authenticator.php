@@ -123,6 +123,16 @@ class Authenticator
         
         $user->resetFailedLoginAttemptsInDatabase();
         
+        if ($user->passwordNeedsRehashed()) {
+            $savedNewPasswordHash = $user->saveNewPasswordHash($password);
+            if ( ! $savedNewPasswordHash) {
+                $logger->error(sprintf(
+                    'Unable to rehash password for a user: %s',
+                    print_r($user->getErrors(), true)
+                ));
+            }
+        }
+        
         $this->setUserAttributes([
             'eduPersonTargetID' => [$user->uuid],
             'sn' => [$user->last_name],
