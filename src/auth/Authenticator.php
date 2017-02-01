@@ -45,17 +45,7 @@ class Authenticator
         
         $user = User::findByUsername($username);
         if ($user === null) {
-
-            /* "Check" the given password even though we have no such user,
-             * to avoid exposing the existence of certain users (or absence
-             * thereof) through a timing attack. Technically, they could still
-             * deduce it since we don't rate-limit non-existent accounts (in
-             * order to protect our database from a DDoS attack), but this at
-             * least reduces the number of available side channels.  */
-            $dummyUser = new User();
-            $dummyUser->isPasswordCorrect($password);
-
-            // Now proceed with the appropriate error message.
+            $this->avoidNonExistentUserTimingAttack($password);
             $this->setErrorInvalidLogin();
             return;
         }
@@ -141,6 +131,22 @@ class Authenticator
             'username' => [$user->username],
             'employeeId' => [$user->employee_id],
         ]);
+    }
+    
+    /**
+     * "Check" the given password against a dummy use to avoid exposing the
+     * existence of certain users (or absence thereof) through a timing attack.
+     * Technically, they could still deduce it since we don't rate-limit
+     * non-existent accounts (in order to protect our database from a DDoS
+     * attack), but this at least reduces the number of available side
+     * channels.
+     *
+     * @param string $password
+     */
+    protected function avoidNonExistentUserTimingAttack($password)
+    {
+        $dummyUser = new User();
+        $dummyUser->isPasswordCorrect($password);
     }
     
     public static function calculateSecondsToDelay($failedLoginAttempts)
