@@ -59,12 +59,7 @@ class Authenticator
             return;
         }
         
-        if ( ! $user->isActive()) {
-            $this->setErrorInvalidLogin();
-            return;
-        }
-        
-        if ($user->isLocked()) {
+        if ($user->isLocked() || !$user->isActive()) {
             $this->setErrorInvalidLogin();
             return;
         }
