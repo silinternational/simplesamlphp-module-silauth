@@ -1,6 +1,7 @@
 <?php
 namespace Sil\SilAuth\models;
 
+use Psr\Log\NullLogger;
 use Ramsey\Uuid\Uuid;
 use Sil\SilAuth\auth\Authenticator;
 use Sil\SilAuth\time\UtcTime;
@@ -128,6 +129,14 @@ class User extends UserBase implements \Psr\Log\LoggerAwareInterface
     public function hasPasswordInDatabase()
     {
         return ($this->password_hash !== null);
+    }
+    
+    public function init()
+    {
+        if (empty($this->logger)) {
+            $this->logger = new NullLogger();
+        }
+        parent::init();
     }
     
     public function isActive()
