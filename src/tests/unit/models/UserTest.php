@@ -327,4 +327,21 @@ class UserTest extends TestCase
             var_export($loginAttemptsPre, true)
         ));
     }
+    
+    public function testSetPassword()
+    {
+        // Arrange:
+        $user = new User();
+        $password = 'dummy-password';
+        $user->setPassword($password);
+        
+        // Act:
+        $result = $user->isPasswordRehashNeeded();
+        
+        // Assert:
+        $this->assertFalse(
+            $result,
+            'Incorrectly said that a brand new password hash needs to be rehashed.'
+        );
+    }
 }
