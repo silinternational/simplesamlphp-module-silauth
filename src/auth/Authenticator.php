@@ -49,7 +49,6 @@ class Authenticator
             $this->setErrorInvalidLogin();
             return;
         }
-        
         $user->setLogger($logger);
         
         if ($user->isBlockedByRateLimit()) {
@@ -65,15 +64,7 @@ class Authenticator
         }
         
         if ( ! $user->hasPasswordInDatabase()) {
-            try {
-                $ldap->connect();
-            } catch (LdapConnectionException $e) {
-                $logger->error(sprintf(
-                    'Unable to connect to the LDAP (to check password for user %s). Error %s: %s',
-                    var_export($username, true),
-                    $e->getCode(),
-                    $e->getMessage()
-                ));
+            if ( ! $this->canConnectToLdap($ldap, $logger)) {
                 $this->setErrorNeedToSetAcctPassword();
                 return;
             }
@@ -150,6 +141,21 @@ class Authenticator
             $failedLoginAttempts * $failedLoginAttempts,
             self::MAX_SECONDS_TO_BLOCK
         );
+    }
+    
+    protected function canConnectToLdap($ldap, $logger)
+    {
+        try {
+            $ldap->connect();
+            return true;
+        } catch (LdapConnectionException $e) {
+            $logger->error(sprintf(
+                'Unable to connect to the LDAP. Error %s: %s',
+                $e->getCode(),
+                $e->getMessage()
+            ));
+            return false;
+        }
     }
     
     /**
