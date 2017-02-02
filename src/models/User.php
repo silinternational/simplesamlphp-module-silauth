@@ -195,15 +195,33 @@ class User extends UserBase implements \Psr\Log\LoggerAwareInterface
     }
     
     /**
-     * Generate a new password hash from the given password and save it.
+     * WARNING: You should ONLY give this a password that you know is correct.
+     * 
+     * Rehash the given password and try to save it. If unsuccessful, log an
+     * error message (if a logger is available), but do not do anything to
+     * interrupt program flow.
      *
-     * @param string $password
-     * @return bool Whether the save was successful.
+     * @param string $correctPassword The correct password (for generating a new
+     *     password hash).
      */
-    public function saveNewPasswordHash($password)
+    public function tryToSaveRehashedPassword($correctPassword)
     {
-        $this->setPassword($password);
-        return $this->save(true, ['password_hash']);
+        if ( ! $this->isPasswordCorrect($correctPassword)) {
+            $this->logger->critical(sprintf(
+                'Told to rehash and save an INCORRECT password (for user %s). This should never happen.',
+                var_export($this->username, true)
+            ));
+            return;
+        }
+        
+        $this->setPassword($correctPassword);
+        $savedNewPasswordHash = $this->save(true, ['password_hash']);
+        if ( ! $savedNewPasswordHash) {
+            $this->logger->error(sprintf(
+                'Unable to rehash password for a user: %s',
+                print_r($this->getErrors(), true)
+            ));
+        }
     }
     
     public function recordLoginAttemptInDatabase()

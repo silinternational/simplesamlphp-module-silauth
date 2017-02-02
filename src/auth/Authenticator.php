@@ -100,13 +100,7 @@ class Authenticator
         $user->resetFailedLoginAttemptsInDatabase();
         
         if ($user->isPasswordRehashNeeded()) {
-            $savedNewPasswordHash = $user->saveNewPasswordHash($password);
-            if ( ! $savedNewPasswordHash) {
-                $logger->error(sprintf(
-                    'Unable to rehash password for a user: %s',
-                    print_r($user->getErrors(), true)
-                ));
-            }
+            $user->tryToSaveRehashedPassword($password);
         }
         
         $this->setUserAttributes([
