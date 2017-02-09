@@ -309,10 +309,7 @@ class User extends UserBase implements \Psr\Log\LoggerAwareInterface
      */
     public function tryToSave($errorPrefix)
     {
-        $saveFailed = !$this->save();
-        $loggerIsAvailable = !empty($this->logger);
-        
-        if ($saveFailed && $loggerIsAvailable) {
+        if ( ! $this->save()) {
             $this->logger->critical('{errorPrefix}: {userErrors}', [
                 'errorPrefix' => $errorPrefix,
                 'userErrors' => print_r($this->getErrors(), true),
