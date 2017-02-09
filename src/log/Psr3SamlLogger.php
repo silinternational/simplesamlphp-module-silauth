@@ -52,7 +52,6 @@ class Psr3SamlLogger extends LoggerBase
                     'Unknown log level: ' . var_export($level, true),
                     1485455196
                 );
-                break;
         }
     }
 }

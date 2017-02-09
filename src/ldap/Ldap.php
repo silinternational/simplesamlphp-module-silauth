@@ -2,11 +2,11 @@
 namespace Sil\SilAuth\ldap;
 
 use Adldap\Adldap;
+use Adldap\Connections\Provider;
 use Adldap\Exceptions\Auth\BindException;
 use Adldap\Exceptions\Auth\PasswordRequiredException;
 use Adldap\Exceptions\Auth\UsernameRequiredException;
 use Adldap\Schemas\OpenLDAP;
-use Adldap\Connections\Provider;
 
 class Ldap
 {
@@ -78,12 +78,19 @@ class Ldap
             'dn', // Distinguished name
         ])->where(['cn' => $userCn])->get();
         foreach ($results as $ldapUser) {
-            /* @var $ldapUser Adldap\Models\User */
+            /* @var $ldapUser \Adldap\Models\User */
             return $ldapUser;
         }
         return null;
     }
     
+    /**
+     * See if the given credentials are correct (according to the LDAP).
+     *
+     * @param string $userCn
+     * @param string $password
+     * @return boolean
+     */
     public function isPasswordCorrectForUser($userCn, $password)
     {
         try {

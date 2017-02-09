@@ -4,6 +4,7 @@ use Sil\PhpEnv\Env;
 use Sil\SilAuth\config\ConfigManager;
 use Sil\SilAuth\system\System;
 use Sil\SilAuth\log\Psr3SyslogLogger;
+use Throwable;
 
 try {
     header('Content-Type: text/plain');
@@ -21,12 +22,12 @@ try {
     $system = new System($logger);
     $system->reportStatus();
     
-} catch (\Throwable $e) {
+} catch (Throwable $t) {
     
     echo sprintf(
         '%s (%s)',
-        $e->getMessage(),
-        $e->getCode()
+        $t->getMessage(),
+        $t->getCode()
     );
     \http_response_code(500);
 }

@@ -1,0 +1,7 @@
+default:
+    suites:
+        test:
+            paths:
+                - features
+            contexts:
+                - Sil\SilAuth\features\context\FeatureContext

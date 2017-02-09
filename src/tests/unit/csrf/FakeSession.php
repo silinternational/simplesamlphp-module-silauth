@@ -7,16 +7,21 @@ namespace Sil\SilAuth\tests\unit\csrf;
  */
 class FakeSession extends \SimpleSAML_Session
 {
-    private $dataStore;
+    private $inMemoryDataStore;
     
     private function __construct($transient = false)
     {
-        $this->dataStore = [];
+        $this->inMemoryDataStore = [];
     }
     
+    /**
+     * @param string $type
+     * @param string|null $id
+     * @return mixed
+     */
     public function getData($type, $id)
     {
-        return $this->dataStore[$type][$id] ?? null;
+        return $this->inMemoryDataStore[$type][$id] ?? null;
     }
     
     public static function getSession($sessionId = null)
@@ -27,9 +32,9 @@ class FakeSession extends \SimpleSAML_Session
     public function setData($type, $id, $data, $timeout = null)
     {
         // Make sure an array exists for that type of data.
-        $this->dataStore[$type] = $this->dataStore[$type] ?? [];
+        $this->inMemoryDataStore[$type] = $this->inMemoryDataStore[$type] ?? [];
         
         // Store the given data.
-        $this->dataStore[$type][$id] = $data;
+        $this->inMemoryDataStore[$type][$id] = $data;
     }
 }

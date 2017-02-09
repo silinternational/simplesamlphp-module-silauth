@@ -1,6 +1,7 @@
 <?php
 namespace Sil\SilAuth\models;
 
+use Psr\Log\NullLogger;
 use Ramsey\Uuid\Uuid;
 use Sil\SilAuth\auth\Authenticator;
 use Sil\SilAuth\time\UtcTime;
@@ -16,6 +17,8 @@ class User extends UserBase implements \Psr\Log\LoggerAwareInterface
     
     const LOCKED_NO = 'No';
     const LOCKED_YES = 'Yes';
+    
+    const PASSWORD_HASH_DESIRED_COST = 12;
     
     private $logger;
     
@@ -75,9 +78,14 @@ class User extends UserBase implements \Psr\Log\LoggerAwareInterface
      */
     public static function findByUsername($username)
     {
-        return User::findOne(['username' => $username]);
+        return self::findOne(['username' => $username]);
     }
     
+    /**
+     * Generate a UUID.
+     *
+     * @return string
+     */
     public static function generateUuid()
     {
         return Uuid::uuid4()->toString();
@@ -123,6 +131,14 @@ class User extends UserBase implements \Psr\Log\LoggerAwareInterface
         return ($this->password_hash !== null);
     }
     
+    public function init()
+    {
+        if (empty($this->logger)) {
+            $this->logger = new NullLogger();
+        }
+        parent::init();
+    }
+    
     public function isActive()
     {
         return (strcasecmp($this->active, self::ACTIVE_YES) === 0);
@@ -133,6 +149,12 @@ class User extends UserBase implements \Psr\Log\LoggerAwareInterface
         return ($this->getSecondsUntilUnblocked() > 0);
     }
     
+    /**
+     * Check the given password against the current password hash.
+     *
+     * @param string $password
+     * @return bool
+     */
     public function isPasswordCorrect($password)
     {
         return password_verify($password, $this->password_hash);
@@ -155,6 +177,51 @@ class User extends UserBase implements \Psr\Log\LoggerAwareInterface
             return false;
         }
         return $user->isCaptchaRequired();
+    }
+    
+    /**
+     * See if the current password hash needs to be recreated to match the
+     * current password hashing settings.
+     *
+     * @return bool
+     */
+    public function isPasswordRehashNeeded()
+    {
+        return password_needs_rehash(
+            $this->password_hash,
+            PASSWORD_DEFAULT,
+            ['cost' => self::PASSWORD_HASH_DESIRED_COST]
+        );
+    }
+    
+    /**
+     * WARNING: You should ONLY give this a password that you know is correct.
+     * 
+     * Rehash the given password and try to save it. If unsuccessful, log an
+     * error message (if a logger is available), but do not do anything to
+     * interrupt program flow.
+     *
+     * @param string $correctPassword The correct password (for generating a new
+     *     password hash).
+     */
+    public function tryToSaveRehashedPassword($correctPassword)
+    {
+        if ( ! $this->isPasswordCorrect($correctPassword)) {
+            $this->logger->critical(sprintf(
+                'Told to rehash and save an INCORRECT password (for user %s). This should never happen.',
+                var_export($this->username, true)
+            ));
+            return;
+        }
+        
+        $this->setPassword($correctPassword);
+        $savedNewPasswordHash = $this->save(true, ['password_hash']);
+        if ( ! $savedNewPasswordHash) {
+            $this->logger->error(sprintf(
+                'Unable to rehash password for a user: %s',
+                print_r($this->getErrors(), true)
+            ));
+        }
     }
     
     public function recordLoginAttemptInDatabase()
@@ -188,7 +255,7 @@ class User extends UserBase implements \Psr\Log\LoggerAwareInterface
                 'uuid',
                 'default',
                 'value' => function () {
-                    return self::generateUuid();
+                    return User::generateUuid();
                 },
                 'when' => function($model) {
                     return $model->isNewRecord;
@@ -226,7 +293,11 @@ class User extends UserBase implements \Psr\Log\LoggerAwareInterface
     
     public function setPassword($password)
     {
-        $this->password_hash = password_hash($password, PASSWORD_DEFAULT);
+        $this->password_hash = password_hash(
+            $password,
+            PASSWORD_DEFAULT,
+            ['cost' => self::PASSWORD_HASH_DESIRED_COST]
+        );
     }
     
     /**
@@ -238,10 +309,7 @@ class User extends UserBase implements \Psr\Log\LoggerAwareInterface
      */
     public function tryToSave($errorPrefix)
     {
-        $saveFailed = !$this->save();
-        $loggerIsAvailable = !empty($this->logger);
-        
-        if ($saveFailed && $loggerIsAvailable) {
+        if ( ! $this->save()) {
             $this->logger->critical('{errorPrefix}: {userErrors}', [
                 'errorPrefix' => $errorPrefix,
                 'userErrors' => print_r($this->getErrors(), true),
@@ -254,7 +322,7 @@ class User extends UserBase implements \Psr\Log\LoggerAwareInterface
      */
     public function validateValueDidNotChange($attribute)
     {
-        $previousUserRecord = User::findOne(['id' => $this->id]);
+        $previousUserRecord = self::findOne(['id' => $this->id]);
         if ($this->$attribute !== $previousUserRecord->$attribute) {
             $this->addError($attribute, sprintf(
                 'The %s value may not change.',
