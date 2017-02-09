@@ -2,11 +2,11 @@
 namespace Sil\SilAuth\ldap;
 
 use Adldap\Adldap;
+use Adldap\Connections\Provider;
 use Adldap\Exceptions\Auth\BindException;
 use Adldap\Exceptions\Auth\PasswordRequiredException;
 use Adldap\Exceptions\Auth\UsernameRequiredException;
 use Adldap\Schemas\OpenLDAP;
-use Adldap\Connections\Provider;
 
 class Ldap
 {
