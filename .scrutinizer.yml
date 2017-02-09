@@ -122,8 +122,8 @@ coding_style:
 
 build_failure_conditions:
 
-    # No classes/methods with a rating of D or worse.
-    - 'elements.rating(<= D).exists' 
+    # No more classes/methods with a rating of D or worse.
+    - 'elements.rating(<= D).count > 1' 
 
     # No more than two new classes/methods with a rating of C.
     - 'elements.rating(<= C).new.count > 2'
