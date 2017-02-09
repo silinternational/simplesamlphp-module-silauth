@@ -19,6 +19,12 @@ class AuthError
     private $code = null;
     private $messageParams = [];
     
+    /**
+     * Constructor.
+     *
+     * @param string $code One of the AuthError::CODE_* constants.
+     * @param array $messageParams The error message parameters.
+     */
     public function __construct($code, $messageParams = [])
     {
         $this->code = $code;
@@ -33,6 +39,11 @@ class AuthError
         ], true);
     }
     
+    /**
+     * Get the error code, which will be one of the AuthError::CODE_* constants.
+     *
+     * @return string
+     */
     public function getCode()
     {
         return $this->code;

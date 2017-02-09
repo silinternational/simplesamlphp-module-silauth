@@ -3,11 +3,6 @@ namespace Sil\SilAuth\text;
 
 class Text
 {
-//    public static function contains(string $haystack, string $needle)
-//    {
-//        return mb_strpos($haystack, $needle) !== false;
-//    }
-    
     /**
      * Retrieve input data (see `filter_input(...)` for details) and sanitize
      * it (see Text::sanitizeString).

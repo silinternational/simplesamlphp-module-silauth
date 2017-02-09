@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "9ca5a489c976e7bfa63e0e4b7d3d3757",
+    "content-hash": "30a0a560af327fb2dfbbf493f53afeae",
     "packages": [
         {
             "name": "adldap2/adldap2",
@@ -917,12 +917,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/silinternational/simplesamlphp-module-material.git",
-                "reference": "b65c73784d76d70c9df112772bf94853538ae399"
+                "reference": "fb3bc083eda3708b19878840fde46a3fc696eb3f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/silinternational/simplesamlphp-module-material/zipball/b65c73784d76d70c9df112772bf94853538ae399",
-                "reference": "b65c73784d76d70c9df112772bf94853538ae399",
+                "url": "https://api.github.com/repos/silinternational/simplesamlphp-module-material/zipball/fb3bc083eda3708b19878840fde46a3fc696eb3f",
+                "reference": "fb3bc083eda3708b19878840fde46a3fc696eb3f",
                 "shasum": ""
             },
             "require": {
@@ -943,7 +943,7 @@
                 }
             ],
             "description": "Material Design theme for IdP Hub based on SimpleSAMLphp",
-            "time": "2017-01-25 14:29:26"
+            "time": "2017-01-26 15:24:43"
         },
         {
             "name": "silinternational/simplesamlphp-module-sildisco",
@@ -951,12 +951,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/silinternational/simplesamlphp-module-sildisco.git",
-                "reference": "07d7462c6ec3c2be02cb5be1adc3934c1431fb44"
+                "reference": "627dea6c53dc82950e9ed3f3332430e7e5c1399a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/silinternational/simplesamlphp-module-sildisco/zipball/07d7462c6ec3c2be02cb5be1adc3934c1431fb44",
-                "reference": "07d7462c6ec3c2be02cb5be1adc3934c1431fb44",
+                "url": "https://api.github.com/repos/silinternational/simplesamlphp-module-sildisco/zipball/627dea6c53dc82950e9ed3f3332430e7e5c1399a",
+                "reference": "627dea6c53dc82950e9ed3f3332430e7e5c1399a",
                 "shasum": ""
             },
             "require": {
@@ -982,7 +982,7 @@
                 }
             ],
             "description": "IdP Discovery module for simpleSAMLphp with extra business logic",
-            "time": "2016-12-22 13:54:00"
+            "time": "2017-01-26 21:01:50"
         },
         {
             "name": "silinternational/ssp-deps",
@@ -1725,16 +1725,16 @@
         },
         {
             "name": "myclabs/deep-copy",
-            "version": "1.5.5",
+            "version": "1.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/myclabs/DeepCopy.git",
-                "reference": "399c1f9781e222f6eb6cc238796f5200d1b7f108"
+                "reference": "5a5a9fc8025a08d8919be87d6884d5a92520cefe"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/399c1f9781e222f6eb6cc238796f5200d1b7f108",
-                "reference": "399c1f9781e222f6eb6cc238796f5200d1b7f108",
+                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/5a5a9fc8025a08d8919be87d6884d5a92520cefe",
+                "reference": "5a5a9fc8025a08d8919be87d6884d5a92520cefe",
                 "shasum": ""
             },
             "require": {
@@ -1763,7 +1763,7 @@
                 "object",
                 "object graph"
             ],
-            "time": "2016-10-31T17:19:45+00:00"
+            "time": "2017-01-26T22:05:40+00:00"
         },
         {
             "name": "phpdocumentor/reflection-common",
@@ -2220,16 +2220,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "5.7.7",
+            "version": "5.7.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "e52551bbc229c6cee26c7a00deef80c2108c5b15"
+                "reference": "69f832b87c731d5cacad7f91948778fe98335fdd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/e52551bbc229c6cee26c7a00deef80c2108c5b15",
-                "reference": "e52551bbc229c6cee26c7a00deef80c2108c5b15",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/69f832b87c731d5cacad7f91948778fe98335fdd",
+                "reference": "69f832b87c731d5cacad7f91948778fe98335fdd",
                 "shasum": ""
             },
             "require": {
@@ -2298,7 +2298,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2017-01-25T19:19:41+00:00"
+            "time": "2017-01-28T06:14:33+00:00"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
@@ -2406,16 +2406,16 @@
         },
         {
             "name": "sebastian/comparator",
-            "version": "1.2.2",
+            "version": "1.2.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/comparator.git",
-                "reference": "6a1ed12e8b2409076ab22e3897126211ff8b1f7f"
+                "reference": "2b7424b55f5047b47ac6e5ccb20b2aea4011d9be"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/comparator/zipball/6a1ed12e8b2409076ab22e3897126211ff8b1f7f",
-                "reference": "6a1ed12e8b2409076ab22e3897126211ff8b1f7f",
+                "url": "https://api.github.com/repos/sebastianbergmann/comparator/zipball/2b7424b55f5047b47ac6e5ccb20b2aea4011d9be",
+                "reference": "2b7424b55f5047b47ac6e5ccb20b2aea4011d9be",
                 "shasum": ""
             },
             "require": {
@@ -2466,7 +2466,7 @@
                 "compare",
                 "equality"
             ],
-            "time": "2016-11-19T09:18:40+00:00"
+            "time": "2017-01-29T09:50:25+00:00"
         },
         {
             "name": "sebastian/diff",
@@ -3517,7 +3517,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=5.6"
+        "php": ">=7.0"
     },
     "platform-dev": []
 }

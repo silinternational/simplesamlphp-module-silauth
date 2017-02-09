@@ -12,10 +12,10 @@ bashtests:
 	docker-compose run --rm tests bash
 
 behat:
-	docker-compose run --rm tests bash -c "vendor/bin/behat"
+	docker-compose run --rm tests bash -c "vendor/bin/behat --config=features/behat.yml"
 
 behatappend:
-	docker-compose run --rm tests bash -c "vendor/bin/behat --append-snippets"
+	docker-compose run --rm tests bash -c "vendor/bin/behat --config=features/behat.yml --append-snippets"
 
 bounce:
 	docker-compose up -d web

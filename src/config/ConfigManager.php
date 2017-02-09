@@ -7,16 +7,40 @@ class ConfigManager
 {
     const SEPARATOR = '.';
     
+    /**
+     * Get the SimpleSamlPHP config.
+     *
+     * @return array
+     */
     public static function getSspConfig()
     {
         return require __DIR__ . '/ssp-config.php';
     }
     
+    /**
+     * Just get the SimpleSamlPHP config data for the specified category
+     * (eg. 'ldap').
+     *
+     * @param string $category The category.
+     * @return array The config entries for that category. NOTE: The config
+     *     prefix will have been removed, so 'mysql.database' will be returned
+     *     as 'database', etc.
+     */
     public static function getSspConfigFor($category)
     {
         return self::getConfigFor($category, self::getSspConfig());
     }
     
+    /**
+     * Get only the config data for the specified category (eg. 'ldap'),
+     * extracting it from the given config.
+     *
+     * @param string $category The category.
+     * @param array $config The config to extract the data from.
+     * @return array The config entries for that category. NOTE: The config
+     *     prefix will have been removed, so 'mysql.database' will be returned
+     *     as 'database', etc.
+     */
     public static function getConfigFor($category, $config)
     {
         $categoryPrefix = $category . self::SEPARATOR;
@@ -30,6 +54,12 @@ class ConfigManager
         return $categoryConfig;
     }
     
+    /**
+     * Get the Yii2 config, merging in the given custom config data.
+     *
+     * @param array $customConfig
+     * @return array
+     */
     public static function getMergedYii2Config($customConfig)
     {
         $defaultConfig = require __DIR__ . '/yii2-config.php';

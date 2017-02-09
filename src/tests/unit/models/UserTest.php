@@ -264,6 +264,36 @@ class UserTest extends TestCase
         ));
     }
     
+    public function testIsPasswordRehashNeeded()
+    {
+        // Arrange:
+        $testCases = [
+            ['expected' => true, 'cost' => User::PASSWORD_HASH_DESIRED_COST - 3],
+            ['expected' => true, 'cost' => User::PASSWORD_HASH_DESIRED_COST - 2],
+            ['expected' => true, 'cost' => User::PASSWORD_HASH_DESIRED_COST - 1],
+            ['expected' => false, 'cost' => User::PASSWORD_HASH_DESIRED_COST],
+            ['expected' => true, 'cost' => User::PASSWORD_HASH_DESIRED_COST + 1],
+        ];
+        foreach ($testCases as $testCase) {
+            $user = new User();
+            $user->password_hash = password_hash('abc', PASSWORD_DEFAULT, [
+                'cost' => $testCase['cost'],
+            ]);
+            
+            // Act:
+            $actual = $user->isPasswordRehashNeeded();
+
+            // Assert:
+            $this->assertSame($testCase['expected'], $actual, sprintf(
+                'Expected password hash with a cost of %s would%s need '
+                . 'rehashed when the desired cost is %s.',
+                $testCase['cost'],
+                ($testCase['expected'] ? '' : ' not'),
+                User::PASSWORD_HASH_DESIRED_COST
+            ));
+        }
+    }
+    
     public function testRecordLoginAttemptInDatabase()
     {
         // Arrange:
@@ -296,5 +326,22 @@ class UserTest extends TestCase
             var_export($user->login_attempts, true),
             var_export($loginAttemptsPre, true)
         ));
+    }
+    
+    public function testSetPassword()
+    {
+        // Arrange:
+        $user = new User();
+        $password = 'dummy-password';
+        $user->setPassword($password);
+        
+        // Act:
+        $result = $user->isPasswordRehashNeeded();
+        
+        // Assert:
+        $this->assertFalse(
+            $result,
+            'Incorrectly said that a brand new password hash needs to be rehashed.'
+        );
     }
 }

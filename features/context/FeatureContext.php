@@ -1,8 +1,9 @@
 <?php
+namespace Sil\SilAuth\features\context;
 
-use Behat\Behat\Tester\Exception\PendingException;
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\TableNode;
+use PHPUnit_Framework_Assert;
 use Psr\Log\LoggerInterface;
 use Sil\PhpEnv\Env;
 use Sil\SilAuth\auth\Authenticator;
@@ -59,6 +60,18 @@ class FeatureContext implements Context
             'username' => Env::get('MYSQL_USER'),
             'password' => Env::get('MYSQL_PASSWORD'),
         ]]]);
+    }
+    
+    protected function loginXTimes($numberOfTimes)
+    {
+        for ($i = 0; $i < $numberOfTimes; $i++) {
+            $this->authenticator = new Authenticator(
+                $this->username,
+                $this->password,
+                $this->ldap,
+                $this->logger
+            );
+        }   
     }
 
     /**
@@ -232,14 +245,7 @@ class FeatureContext implements Context
         );
         
         // Try to log in one too many times (so that we'll see the "wait" message).
-        for ($i = 0; $i < ($blockAfterNthFailedLogin + 1) ; $i++) {
-            $this->authenticator = new Authenticator(
-                $this->username,
-                $this->password,
-                $this->ldap,
-                $this->logger
-            );
-        }
+        $this->loginXTimes($blockAfterNthFailedLogin + 1);
     }
 
     /**
@@ -440,14 +446,7 @@ class FeatureContext implements Context
         );
         
         // Act:
-        for ($i = 0; $i < Authenticator::REQUIRE_CAPTCHA_AFTER_NTH_FAILED_LOGIN; $i++) {
-            $this->authenticator = new Authenticator(
-                $this->username,
-                $this->password,
-                $this->ldap,
-                $this->logger
-            );
-        }
+        $this->loginXTimes(Authenticator::REQUIRE_CAPTCHA_AFTER_NTH_FAILED_LOGIN);
     }
 
     /**

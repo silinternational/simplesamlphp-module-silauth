@@ -14,7 +14,7 @@ class CsrfProtector
     /**
      * Constructor.
      *
-     * @param SimpleSAML_Session $session The session object.
+     * @param \SimpleSAML_Session $session The session object.
      */
     public function __construct(\SimpleSAML_Session $session)
     {
