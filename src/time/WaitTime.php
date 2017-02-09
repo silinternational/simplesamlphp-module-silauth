@@ -28,10 +28,10 @@ class WaitTime
             $this->friendlyNumber = 5;
             $this->unit = self::UNIT_SECOND;
         } elseif ($secondsToWait <= 30) {
-            $this->friendlyNumber = (int) ceil($secondsToWait / 10) * 10;
+            $this->friendlyNumber = (int)ceil($secondsToWait / 10) * 10;
             $this->unit = self::UNIT_SECOND;
         } else {
-            $this->friendlyNumber = (int) ceil($secondsToWait / 60);
+            $this->friendlyNumber = (int)ceil($secondsToWait / 60);
             $this->unit = self::UNIT_MINUTE;
         }
     }
