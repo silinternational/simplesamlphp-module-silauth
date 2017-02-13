@@ -4,206 +4,127 @@ Feature: User login
   I need to be able to provide a username and password
 
   Rules:
-  - Username and password are both required
-  - The user is only allowed through if the username and password are both correct
+  - Username and password are both required.
+  - The user is only allowed through if all of the necessary checks pass.
+
+  Scenario: Not providing a CSRF token
+    Given I provide a username
+      And I provide a password
+      But I do not provide a CSRF token
+    When I try to log in
+    Then I should not be allowed through
+
+  Scenario: Providing an incorrect CSRF token
+    Given I provide a username
+      And I provide a password
+      But I provide an incorrect CSRF token
+    When I try to log in
+    Then I should not be allowed through
 
   Scenario: Failing to provide a username
     Given I provide a password
-    But I do not provide a username
+      But I do not provide a username
     When I try to log in
-    Then I should see an error message
-    And I should not have access to any information about that user
-    And I should not be allowed through
+    Then I should see an error message with "username" in it
+      And I should not be allowed through
 
   Scenario: Failing to provide a password
     Given I provide a username
-    But I do not provide a password
+      But I do not provide a password
     When I try to log in
-    Then I should see an error message
-    And I should not have access to any information about that user
-    And I should not be allowed through
+    Then I should see an error message with "password" in it
+      And I should not be allowed through
 
-  Scenario: Providing an incorrect username-password combination
-    Given the following user exists in the database:
-        | username  | password     | login_attempts |
-        | BOB_ADAMS | bob_adams123 | 0              |
-    And I provide a username of "BOB_ADAMS"
-    But I provide a password of "something_else"
+  Scenario: Failing to pass the captcha when it's required
+    Given I provide a username
+      And I provide a password
+      And a captcha is required for that username
+      But I fail the captcha
     When I try to log in
-    Then I should see an error message
-    And I should not have access to any information about that user
-    And I should not be allowed through
-    And that user account's failed login attempts should be at 1
+    Then I should see a generic invalid-login error message
+      And I should not be allowed through
+
+  Scenario: Trying to log in with a rate-limited username
+    Given the username "BOB_ADAMS" has triggered the rate limit
+      And I provide a username of "bob_adams"
+      And I provide a password
+    When I try to log in
+    Then I should see an error message telling me to wait
+      And that user account should be blocked for awhile
+      And I should not be allowed through
+
+  Scenario: Providing unacceptable credentials
+    Given I provide a username of "bob_adams"
+      But I provide an incorrect password
+    When I try to log in
+    Then I should see a generic invalid-login error message
+      And I should not be allowed through
+
+  Scenario: Providing unacceptable credentials that trigger a rate limit
+    Given I provide a username of "bob_adams"
+      And that username will be rate limited after one more failed attempt
+      And I provide an incorrect password
+    When I try to log in
+    Then I should see an error message telling me to wait
+      And that user account should be blocked for awhile
+      And I should not be allowed through
 
   Scenario: Providing a correct username-password combination
-    Given the following user exists in the database:
-        | username  | password     |
-        | BOB_ADAMS | bob_adams123 |
-    And I provide a username of "BOB_ADAMS"
-    And I provide a password of "bob_adams123"
+    Given I provide a username of "bob_adams"
+      And I provide the correct password for that username
     When I try to log in
     Then I should not see an error message
-    And I should have access to some information about that user
-    And I should be allowed through
+      And I should be allowed through
 
   Scenario: Providing a correct password but using the wrong upper/lowercase username
-    Given the following user exists in the database:
-        | username  | password     |
-        | BOB_ADAMS | bob_adams123 |
-    And I provide a username of "bob_adams"
-    And I provide a password of "bob_adams123"
+    Given I provide a username of "boB_aDaMs"
+      And I provide the correct password for that username
     When I try to log in
     Then I should not see an error message
-    And I should have access to some information about that user
-    And I should be allowed through
+      And I should be allowed through
 
   Scenario: Providing too many incorrect username-password combinations
-    Given the following user exists in the database:
-        | username  | password     | login_attempts |
-        | BOB_ADAMS | bob_adams123 | 0              |
-    When I try to log in using "BOB_ADAMS" and "aWrongPassword" too many times
+    Given I provide a username of "bob_adams"
+      And I provide an incorrect password
+    When I try to log in using enough times to trigger the rate limit
     Then I should see an error message telling me to wait
-    And that user account should be blocked for awhile
-    And I should not have access to any information about that user
-    And I should not be allowed through
+      And that user account should be blocked for awhile
+      And I should not be allowed through
 
   Scenario: Providing correct credentials after one failed login attempt
-    Given the following user exists in the database:
-        | username  | password     | login_attempts |
-        | BOB_ADAMS | bob_adams123 | 0              |
-    And I provide a username of "BOB_ADAMS"
-    But I provide a password of "bob_adams789"
-    And I try to log in
-    Then I provide a username of "BOB_ADAMS"
-    And I provide a password of "bob_adams123"
+    Given I provide a username of "bob_adams"
+      And I provide an incorrect password
+      And I try to log in
+      But I then provide the correct password for that username
     When I try to log in
     Then I should not see an error message
-    And I should have access to some information about that user
-    And I should be allowed through
-    And that user account's failed login attempts should be at 0
-
-  Scenario: Providing correct credentials to a locked account
-    Given the following user exists in the database:
-        | username  | password     | locked |
-        | BOB_ADAMS | bob_adams123 | Yes    |
-    And I provide a username of "BOB_ADAMS"
-    And I provide a password of "bob_adams123"
-    When I try to log in
-    Then I should see a generic invalid-login error message
-    And I should not have access to any information about that user
-    And I should not be allowed through
-
-  Scenario: Providing correct credentials to an inactive account
-    Given the following user exists in the database:
-        | username  | password     | active |
-        | BOB_ADAMS | bob_adams123 | No     |
-    And I provide a username of "BOB_ADAMS"
-    And I provide a password of "bob_adams123"
-    When I try to log in
-    Then I should see a generic invalid-login error message
-    And I should not have access to any information about that user
-    And I should not be allowed through
+      And I should be allowed through
+      And that user account's failed login attempts should be at 0
 
   Scenario: Being told about how long to wait (due to rate limiting bad logins)
-    Given the following user exists in the database:
-        | username  | password     | login_attempts |
-        | BOB_ADAMS | bob_adams123 | 5              |
-    And I provide a username of "BOB_ADAMS"
-    And I provide a password of "bob_adams123"
+    Given the username "bob_adams" has 5 failed logins in the last hour
+      And I provide a username of "bob_adams"
+      And I provide the correct password for that username
     When I try to log in
     Then I should see an error message with "30" and "seconds" in it
-    And that user account should still be blocked for awhile
-    And I should not have access to any information about that user
-    And I should not be allowed through
+      And that user account should still be blocked for awhile
+      And I should not be allowed through
 
   Scenario: Logging in after a rate limit has expired
-    Given the following user exists in the database:
-        | username  | password     | login_attempts |
-        | BOB_ADAMS | bob_adams123 | 5              |
-    And I provide a username of "BOB_ADAMS"
-    And I provide a password of "bob_adams123"
-    And that user account's block-until time is in the past
+    Given the username "bob_adams" had 5 failed logins more than an hour ago
+      And I provide a username of "BOB_ADAMS"
+      And I provide the correct password for that username
     When I try to log in
     Then I should not see an error message
-    And I should have access to some information about that user
-    And I should be allowed through
-    And that user account's failed login attempts should be at 0
-
-  Scenario: Providing credentials to an account in the ldap but not in the db
-    Given there is no user with a username of "BOB_ADAMS" in the database
-    But there is a "BOB_ADAMS" user in the ldap with a password of "bob_adams123"
-    And I provide a username of "BOB_ADAMS"
-    And I provide a password of "bob_adams123"
-    When I try to log in
-    Then I should see a generic invalid-login error message
-    And I should not have access to any information about that user
-    And I should not be allowed through
-
-  Scenario: Incorrect password for an account with no password in the db, just in ldap
-    Given the following user exists in the database:
-        | username  | login_attempts |
-        | BOB_ADAMS | 0              |
-    And there is a "BOB_ADAMS" user in the ldap
-    And I provide a username of "BOB_ADAMS"
-    And I provide a password of "ThisIsWrong"
-    When I try to log in
-    Then I should see a generic invalid-login error message
-    And I should not have access to any information about that user
-    And I should not be allowed through
-    And that user account's failed login attempts should be at 1
-
-  Scenario: Correct password for an account with no password in the db, just in ldap
-    Given the following user exists in the database:
-        | username | login_attempts |
-        | ROB_HOLT | 0              |
-    And there is a "ROB_HOLT" user in the ldap with a password of "rob_holt123"
-    And I provide a username of "ROB_HOLT"
-    And I provide a password of "rob_holt123"
-    When I try to log in
-    Then I should not see an error message
-    And I should be allowed through
-    And I should have access to some information about that user
-    And that user account should have a password in the database
-    And that user account's failed login attempts should be at 0
+      And I should be allowed through
+      And that user account's failed login attempts should be at 0
 
   Scenario: No failed logins (and thus no captcha requirement)
-    Given the following user exists in the database:
-        | username  | password     | login_attempts |
-        | BOB_ADAMS | bob_adams123 | 0              |
-    When I provide a username of "BOB_ADAMS"
+    Given the username "bob_adams" had 0 failed logins in the last hour
+    When I provide a username of "bob_adams"
     Then I should not have to pass a captcha test for that user
 
   Scenario: Enough failed logins to require a captcha
-    Given the following user exists in the database:
-        | username  | password     |
-        | BOB_ADAMS | bob_adams123 |
-    When I provide a username of "BOB_ADAMS"
-    And I try to log in with an incorrect password enough times to require a captcha
+    Given I provide a username of "bob_adams"
+    When I try to log in with an incorrect password enough times to require a captcha
     Then I should have to pass a captcha test for that user
-
-  Scenario: LDAP is offline and the given user exists in the db and has a password
-    Given the following user exists in the database:
-        | username | password    | login_attempts |
-        | ROB_HOLT | rob_holt123 | 0              |
-    And I provide a username of "ROB_HOLT"
-    And I provide a password of "rob_holt123"
-    And the LDAP is offline
-    When I try to log in
-    Then I should not see an error message
-    And I should be allowed through
-    And I should have access to some information about that user
-    And that user account's failed login attempts should be at 0
-
-  Scenario: LDAP is offline and the given user exists in the db but has no password
-    Given the following user exists in the database:
-        | username | login_attempts |
-        | ROB_HOLT | 0              |
-    And I provide a username of "ROB_HOLT"
-    And I provide a password
-    But that user account does not have a password in the database
-    And the LDAP is offline
-    When I try to log in
-    Then I should see an error message about needing to set my password
-    And I should not be allowed through
-    And I should not have access to any information about that user
-    And that user account's failed login attempts should be at 0

@@ -121,6 +121,12 @@ class FeatureContext implements Context
         PHPUnit_Framework_Assert::assertFalse(
             $this->authenticator->isAuthenticated()
         );
+        try {
+            $this->authenticator->getUserAttributes();
+            PHPUnit_Framework_Assert::fail();
+        } catch (\Exception $e) {
+            PHPUnit_Framework_Assert::assertNotEmpty($e->getMessage());
+        }
     }
 
     /**
@@ -167,6 +173,8 @@ class FeatureContext implements Context
         PHPUnit_Framework_Assert::assertTrue(
             $this->authenticator->isAuthenticated()
         );
+        $userInfo = $this->authenticator->getUserAttributes();
+        PHPUnit_Framework_Assert::assertNotEmpty($userInfo);
     }
 
     /**
