@@ -12,3 +12,11 @@ To create another database migration file, run the following (replacing
 CamelCase):
 
     make migration NAME=YourMigrationName
+
+## IP address based rate limiting
+Since this application enforces rate limits based on the number of recent 
+failed login attempts by both username and IP address, and since it looks at 
+both the REMOTE_ADDR and the X-Forwarded-For header for IP addresses, you will 
+want to list any IP addresses that should NOT be rate limited (such as your 
+load balancer) in the TRUSTED_IP_ADDRESSES environment variable (see 
+`local.env.dist`).
