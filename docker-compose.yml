@@ -11,7 +11,6 @@ services:
       - ./:/silauth
       - ./auth.json:/root/.composer/auth.json
       - ./development/enable-debug.sh:/data/enable-debug.sh
-      - ./development/ldap/dev-ldap.conf:/etc/ldap/ldap.conf
       - ./development/run-dev.sh:/data/run-dev.sh
       - ./development/run-tests.sh:/data/run-tests.sh
       - ./development/symlink.sh:/data/symlink.sh
@@ -26,7 +25,6 @@ services:
       MYSQL_PASSWORD: silauth
     links:
       - db
-      - ldap
     command: ["/data/run-dev.sh"]
 
   tests:
@@ -49,7 +47,6 @@ services:
       MYSQL_PASSWORD: silauth
     links:
       - testdb
-      - ldap
     working_dir: /data
     command: ["/data/run-tests.sh"]
 
@@ -79,46 +76,3 @@ services:
       - "8080:80"
     environment:
       MYSQL_HOST: db
-
-  ldap:
-    build:
-      context: ./development/ldap
-      dockerfile: Dockerfile
-    ports:
-      - "389"
-    env_file:
-      - ./common.env
-    working_dir: /data
-    environment:
-      DEBUG_LEVEL: 320
-
-  ldapload:
-    build:
-      context: ./development/ldap
-      dockerfile: Dockerfile
-    working_dir: /data
-    env_file:
-      - ./common.env
-    environment:
-      DEBUG_LEVEL: 320
-    links:
-      - ldap
-    volumes:
-      - ./development/ldap/fakepeople.ldif:/root/fakepeople.ldif
-      - ./development/ldap/fakerep.ldif:/root/fakerep.ldif
-    command: bash -c "sleep 10 && /data/load_ldap.sh"
-
-  ldapadmin:
-    image: silintl/phpldapadmin:latest
-    links:
-      - ldap
-    ports:
-      - "8000:80"
-    env_file:
-      - ./common.env
-    environment:
-      DISPLAY_NAME: Password Store
-      HOST: ldap
-      PORT: 389
-      BASE: dc=acme,dc=org
-

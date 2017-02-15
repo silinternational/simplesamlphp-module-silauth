@@ -1,9 +1,6 @@
 
 # Set up the default (i.e. - first) make entry.
-start: web ldapload addtestusers
-
-addtestusers: migratedb
-	docker-compose run --rm web bash -c "/data/symlink.sh && /data/src/add-test-users"
+start: web
 
 bash:
 	docker-compose run --rm web bash
@@ -43,15 +40,6 @@ enabledebug:
 generatemodels: migratedb
 	docker-compose run --rm web bash -c "/data/symlink.sh && /data/src/rebuildbasemodels.sh"
 
-ldap:
-	docker-compose up -d ldap
-
-ldapadmin: ldap
-	docker-compose up -d ldapadmin
-
-ldapload: ldap
-	docker-compose run --rm ldapload
-
 migratedb: db
 	docker-compose run --rm web bash -c "/data/symlink.sh && whenavail db 3306 60 /data/src/yii migrate --interactive=0"
 
@@ -71,15 +59,11 @@ rmdb:
 	docker-compose kill db
 	docker-compose rm -f db
 
-rmldap:
-	docker-compose kill ldap
-	docker-compose rm -f ldap
-
 rmtestdb:
 	docker-compose kill testdb
 	docker-compose rm -f testdb
 
-test: composer rmtestdb rmldap testdb ldap migratetestdb ldapload behat phpunit
+test: composer rmtestdb testdb migratetestdb behat phpunit
 
 testdb:
 	docker-compose up -d testdb
