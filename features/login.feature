@@ -3,7 +3,7 @@ Feature: User login
   As a user
   I need to be able to provide a username and password
 
-  Rules:
+  Rules
   - Username and password are both required.
   - The user is only allowed through if all of the necessary checks pass.
 
@@ -35,14 +35,19 @@ Feature: User login
     Then I should see an error message with "password" in it
       And I should not be allowed through
 
-  Scenario: Failing to pass the captcha when it's required
-    Given I provide a username
-      And I provide a password
-      And a captcha is required for that username
-      But I fail the captcha
+  Scenario: Enough failed logins to require a captcha for a username
+    Given I provide a username of "bob_adams"
+      But that username has enough failed logins to require a captcha
     When I try to log in
-    Then I should see a generic invalid-login error message
-      And I should not be allowed through
+    Then I should have to pass a captcha test
+
+  Scenario: Enough failed logins to require a captcha for an IP address
+    Given I provide a username
+      And that username has no recent failed login attempts
+      But my request comes from the IP address "11.22.33.44"
+      And that IP address has enough failed logins to require a captcha
+    When I try to log in
+    Then I should have to pass a captcha test
 
   Scenario: Trying to log in with a rate-limited username
     Given the username "BOB_ADAMS" has triggered the rate limit
@@ -50,7 +55,17 @@ Feature: User login
       And I provide a password
     When I try to log in
     Then I should see an error message telling me to wait
-      And that user account should be blocked for awhile
+      And that username should be blocked for awhile
+      And I should not be allowed through
+
+  Scenario: Trying to log in with a rate-limited IP address
+    Given I provide a username
+      And I provide a password
+      And my request comes from IP address "11.22.33.44"
+      And that IP address has triggered the rate limit
+    When I try to log in
+    Then I should see an error message telling me to wait
+      And that IP address should be blocked for awhile
       And I should not be allowed through
 
   Scenario: Providing unacceptable credentials
@@ -66,7 +81,7 @@ Feature: User login
       And I provide an incorrect password
     When I try to log in
     Then I should see an error message telling me to wait
-      And that user account should be blocked for awhile
+      And that username should be blocked for awhile
       And I should not be allowed through
 
   Scenario: Providing a correct username-password combination
@@ -88,7 +103,7 @@ Feature: User login
       And I provide an incorrect password
     When I try to log in using enough times to trigger the rate limit
     Then I should see an error message telling me to wait
-      And that user account should be blocked for awhile
+      And that username should be blocked for awhile
       And I should not be allowed through
 
   Scenario: Providing correct credentials after one failed login attempt
@@ -99,7 +114,7 @@ Feature: User login
     When I try to log in
     Then I should not see an error message
       And I should be allowed through
-      And that user account's failed login attempts should be at 0
+      And that username's failed login attempts should be at 0
 
   Scenario: Being told about how long to wait (due to rate limiting bad logins)
     Given the username "bob_adams" has 5 failed logins in the last hour
@@ -107,7 +122,7 @@ Feature: User login
       And I provide the correct password for that username
     When I try to log in
     Then I should see an error message with "30" and "seconds" in it
-      And that user account should still be blocked for awhile
+      And that username should be blocked for awhile
       And I should not be allowed through
 
   Scenario: Logging in after a rate limit has expired
@@ -117,14 +132,9 @@ Feature: User login
     When I try to log in
     Then I should not see an error message
       And I should be allowed through
-      And that user account's failed login attempts should be at 0
+      And that username's failed login attempts should be at 0
 
   Scenario: No failed logins (and thus no captcha requirement)
     Given the username "bob_adams" had 0 failed logins in the last hour
     When I provide a username of "bob_adams"
     Then I should not have to pass a captcha test for that user
-
-  Scenario: Enough failed logins to require a captcha
-    Given I provide a username of "bob_adams"
-    When I try to log in with an incorrect password enough times to require a captcha
-    Then I should have to pass a captcha test for that user

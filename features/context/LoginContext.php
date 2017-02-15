@@ -365,4 +365,84 @@ class LoginContext implements Context
             User::isCaptchaRequiredFor($this->username)
         );
     }
+
+    /**
+     * @Given that username has enough failed logins to require a captcha
+     */
+    public function thatUsernameHasEnoughFailedLoginsToRequireACaptcha()
+    {
+        throw new PendingException();
+    }
+
+    /**
+     * @Then I should have to pass a captcha test
+     */
+    public function iShouldHaveToPassACaptchaTest()
+    {
+        throw new PendingException();
+    }
+
+    /**
+     * @Given that username has no recent failed login attempts
+     */
+    public function thatUsernameHasNoRecentFailedLoginAttempts()
+    {
+        throw new PendingException();
+    }
+
+    /**
+     * @Given my request comes from the IP address :arg1
+     */
+    public function myRequestComesFromTheIpAddress($arg1)
+    {
+        throw new PendingException();
+    }
+
+    /**
+     * @Given that IP address has enough failed logins to require a captcha
+     */
+    public function thatIpAddressHasEnoughFailedLoginsToRequireACaptcha()
+    {
+        throw new PendingException();
+    }
+
+    /**
+     * @Then that username should be blocked for awhile
+     */
+    public function thatUsernameShouldBeBlockedForAwhile()
+    {
+        throw new PendingException();
+    }
+
+    /**
+     * @Given my request comes from IP address :arg1
+     */
+    public function myRequestComesFromIpAddress($arg1)
+    {
+        throw new PendingException();
+    }
+
+    /**
+     * @Given that IP address has triggered the rate limit
+     */
+    public function thatIpAddressHasTriggeredTheRateLimit()
+    {
+        throw new PendingException();
+    }
+
+    /**
+     * @Then that IP address should be blocked for awhile
+     */
+    public function thatIpAddressShouldBeBlockedForAwhile()
+    {
+        throw new PendingException();
+    }
+
+    /**
+     * @Then that username's failed login attempts should be at :arg1
+     */
+    public function thatUsernameSFailedLoginAttemptsShouldBeAt($arg1)
+    {
+        throw new PendingException();
+    }
 }
