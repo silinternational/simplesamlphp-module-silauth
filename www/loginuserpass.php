@@ -52,15 +52,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             $username = Text::sanitizeInputString(INPUT_POST, 'username');
             $password = Text::sanitizeInputString(INPUT_POST, 'password');
-
+            
             $gRecaptchaResponse = Text::sanitizeInputString(INPUT_POST, 'g-recaptcha-response');
-
+            
             if (User::isCaptchaRequiredFor($username)) {
                 $logger->warning(sprintf(
                     'Required reCAPTCHA for user %s.',
                     var_export($username, true)
                 ));
-
+                
                 $recaptcha = new \ReCaptcha\ReCaptcha($recaptchaSecret);
                 $rcResponse = $recaptcha->verify($gRecaptchaResponse, $remoteIp);
                 if ( ! $rcResponse->isSuccess()) {
@@ -69,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         var_export($username, true),
                         join(', ', $rcResponse->getErrorCodes())
                     ));
-
+                    
                     /* If they entered a username that has enough failed login
                      * attempts that we need to require captcha, act like they
                      * simply mistyped the password (so that they will re-type
@@ -82,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ]);
                 }
             }
-
+            
             sspmod_silauth_Auth_Source_SilAuth::handleLogin(
                 $authStateId,
                 $username,
