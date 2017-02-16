@@ -6,14 +6,14 @@ use Psr\Log\NullLogger;
 
 trait LoggerAwareTrait
 {
-    private $logger;
+    /** @var LoggerInterface */
+    protected $logger;
     
-    public function init()
+    public function initializeLogger()
     {
         if (empty($this->logger)) {
             $this->logger = new NullLogger();
         }
-        parent::init();
     }
     
     /**

@@ -34,6 +34,12 @@ class FailedLoginIpAddress extends FailedLoginIpAddressBase implements LoggerAwa
         ];
     }
     
+    public function init()
+    {
+        $this->initializeLogger();
+        parent::init();
+    }
+    
     public static function isCaptchaRequiredFor($ipAddress)
     {
         throw new \Exception(__CLASS__ . '.' . __FUNCTION__ . ' not yet implemented.');

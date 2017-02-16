@@ -73,6 +73,12 @@ class FailedLoginUsername extends FailedLoginUsernameBase implements LoggerAware
         return new WaitTime($secondsUntilUnblocked);
     }
     
+    public function init()
+    {
+        $this->initializeLogger();
+        parent::init();
+    }
+    
     public function isBlockedByRateLimit()
     {
         return ($this->getSecondsUntilUnblocked() > 0);
