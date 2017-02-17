@@ -3,7 +3,7 @@ namespace Sil\SilAuth\features\context;
 
 use Behat\Behat\Tester\Exception\PendingException;
 use Behat\Behat\Context\Context;
-use PHPUnit_Framework_Assert;
+use PHPUnit_Framework_Assert as Assert;
 use Psr\Log\LoggerInterface;
 use Sil\PhpEnv\Env;
 use Sil\SilAuth\auth\Authenticator;
@@ -109,14 +109,14 @@ class LoginContext implements Context
      */
     public function iShouldNotBeAllowedThrough()
     {
-        PHPUnit_Framework_Assert::assertFalse(
+        Assert::assertFalse(
             $this->authenticator->isAuthenticated()
         );
         try {
             $this->authenticator->getUserAttributes();
-            PHPUnit_Framework_Assert::fail();
+            Assert::fail();
         } catch (\Exception $e) {
-            PHPUnit_Framework_Assert::assertNotEmpty($e->getMessage());
+            Assert::assertNotEmpty($e->getMessage());
         }
     }
 
@@ -142,8 +142,8 @@ class LoginContext implements Context
     public function iShouldSeeAnErrorMessageWithInIt($text)
     {
         $authError = $this->authenticator->getAuthError();
-        PHPUnit_Framework_Assert::assertNotEmpty($authError);
-        PHPUnit_Framework_Assert::assertContains($text, (string)$authError);
+        Assert::assertNotEmpty($authError);
+        Assert::assertContains($text, (string)$authError);
     }
 
     /**
@@ -159,8 +159,8 @@ class LoginContext implements Context
      */
     public function aCaptchaIsRequiredForThatUsername()
     {
-        PHPUnit_Framework_Assert::assertNotEmpty($this->username);
-        PHPUnit_Framework_Assert::assertTrue(
+        Assert::assertNotEmpty($this->username);
+        Assert::assertTrue(
             User::isCaptchaRequiredFor($this->username)
         );
     }
@@ -179,8 +179,8 @@ class LoginContext implements Context
     public function iShouldSeeAGenericInvalidLoginErrorMessage()
     {
         $authError = $this->authenticator->getAuthError();
-        PHPUnit_Framework_Assert::assertNotEmpty($authError);
-        PHPUnit_Framework_Assert::assertContains('invalid_login', (string)$authError);
+        Assert::assertNotEmpty($authError);
+        Assert::assertContains('invalid_login', (string)$authError);
     }
 
     /**
@@ -205,8 +205,8 @@ class LoginContext implements Context
     public function iShouldSeeAnErrorMessageTellingMeToWait()
     {
         $authError = $this->authenticator->getAuthError();
-        PHPUnit_Framework_Assert::assertNotEmpty($authError);
-        PHPUnit_Framework_Assert::assertContains('rate_limit', (string)$authError);
+        Assert::assertNotEmpty($authError);
+        Assert::assertContains('rate_limit', (string)$authError);
     }
 
     /**
@@ -215,7 +215,7 @@ class LoginContext implements Context
     public function thatUserAccountShouldBeBlockedForAwhile()
     {
         $user = User::findByUsername($this->username);
-        PHPUnit_Framework_Assert::assertTrue(
+        Assert::assertTrue(
             $user->isBlockedByRateLimit()
         );
     }
@@ -241,7 +241,7 @@ class LoginContext implements Context
      */
     public function iProvideTheCorrectPasswordForThatUsername()
     {
-        PHPUnit_Framework_Assert::assertNotEmpty($this->username);
+        Assert::assertNotEmpty($this->username);
         $this->password = $this->username . '123'; // Scheme for dummy data for tests.
     }
 
@@ -251,7 +251,7 @@ class LoginContext implements Context
     public function iShouldNotSeeAnErrorMessage()
     {
         $authError = $this->authenticator->getAuthError();
-        PHPUnit_Framework_Assert::assertEmpty(
+        Assert::assertEmpty(
             $authError,
             "Unexpected error: \n- " . $authError
         );
@@ -262,11 +262,11 @@ class LoginContext implements Context
      */
     public function iShouldBeAllowedThrough()
     {
-        PHPUnit_Framework_Assert::assertTrue(
+        Assert::assertTrue(
             $this->authenticator->isAuthenticated()
         );
         $userInfo = $this->authenticator->getUserAttributes();
-        PHPUnit_Framework_Assert::assertNotEmpty($userInfo);
+        Assert::assertNotEmpty($userInfo);
     }
 
     /**
@@ -283,7 +283,7 @@ class LoginContext implements Context
     public function thatUserAccountSFailedLoginAttemptsShouldBeAt($number)
     {
         $user = User::findByUsername($this->username);
-        PHPUnit_Framework_Assert::assertEquals($number, $user->login_attempts);
+        Assert::assertEquals($number, $user->login_attempts);
     }
 
     /**
@@ -300,10 +300,10 @@ class LoginContext implements Context
     public function iShouldSeeAnErrorMessageWithAndInIt($text1, $text2)
     {
         $authError = $this->authenticator->getAuthError();
-        PHPUnit_Framework_Assert::assertNotEmpty($authError);
+        Assert::assertNotEmpty($authError);
         $authErrorString = (string)$authError;
-        PHPUnit_Framework_Assert::assertContains($text1, $authErrorString);
-        PHPUnit_Framework_Assert::assertContains($text2, $authErrorString);
+        Assert::assertContains($text1, $authErrorString);
+        Assert::assertContains($text2, $authErrorString);
     }
 
     /**
@@ -327,8 +327,8 @@ class LoginContext implements Context
      */
     public function iShouldNotHaveToPassACaptchaTestForThatUser()
     {
-        PHPUnit_Framework_Assert::assertNotEmpty($this->username);
-        PHPUnit_Framework_Assert::assertFalse(
+        Assert::assertNotEmpty($this->username);
+        Assert::assertFalse(
             User::isCaptchaRequiredFor($this->username)
         );
     }
@@ -343,11 +343,11 @@ class LoginContext implements Context
         $user = User::findByUsername($this->username);
         
         // Pre-assert:
-        PHPUnit_Framework_Assert::assertNotNull($user, sprintf(
+        Assert::assertNotNull($user, sprintf(
             'Unable to find a user with that username (%s).',
             var_export($this->username, true)
         ));
-        PHPUnit_Framework_Assert::assertFalse(
+        Assert::assertFalse(
             $user->isPasswordCorrect($this->password)
         );
         
@@ -360,8 +360,8 @@ class LoginContext implements Context
      */
     public function iShouldHaveToPassACaptchaTestForThatUser()
     {
-        PHPUnit_Framework_Assert::assertNotEmpty($this->username);
-        PHPUnit_Framework_Assert::assertTrue(
+        Assert::assertNotEmpty($this->username);
+        Assert::assertTrue(
             User::isCaptchaRequiredFor($this->username)
         );
     }
