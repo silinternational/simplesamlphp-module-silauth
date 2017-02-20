@@ -117,4 +117,15 @@ class Request
     {
         return Text::sanitizeString(filter_input($inputType, $variableName));
     }
+    
+    public function trustIpAddress($ipAddress)
+    {
+        if ( ! self::isValidIpAddress($ipAddress)) {
+            throw new \InvalidArgumentException(sprintf(
+                '%s is not a valid IP address.',
+                var_export($ipAddress, true)
+            ));
+        }
+        $this->trustedIpAddresses[] = $ipAddress;
+    }
 }
