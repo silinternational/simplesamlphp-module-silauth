@@ -42,15 +42,18 @@ class WaitTime
     }
     
     /**
-     * Get a WaitTime representing the longer of the two durations specified.
+     * Get a WaitTime representing the longest of the given durations.
      *
-     * @param int $secondsA The first duration (in seconds).
-     * @param int $secondsB The second duration (in seconds).
+     * @param int[] $durationsInSeconds A list of (at least one) duration(s), in
+     *     seconds.
      * @return WaitTime
      */
-    public static function getLongerWaitTime(int $secondsA, int $secondsB)
+    public static function getLongestWaitTime(array $durationsInSeconds)
     {
-        return new WaitTime(max($secondsA, $secondsB));
+        if (empty($durationsInSeconds)) {
+            throw new \InvalidArgumentException('No durations given.', 1487605801);
+        }
+        return new WaitTime(max($durationsInSeconds));
     }
     
     public function getUnit()
