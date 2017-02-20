@@ -35,24 +35,25 @@ Feature: User login
     Then I should see an error message with "password" in it
       And I should not be allowed through
 
-#  Scenario: Enough failed logins to require a captcha for a username
-#    Given I provide a username
-#      And I provide the correct password for that username
-#      But that username has enough failed logins to require a captcha
-#      And I do not provide a captcha token
-#    When I try to log in
-#    Then I should see a generic invalid-login error message
-#      And I should not be allowed through
-#
-#  Scenario: Enough failed logins to require a captcha for an IP address
-#    Given I provide a username
-#      And I provide the correct password for that username
-#      And that username does not have enough failed logins to require a captcha
-#      But my IP address has enough failed logins to require a captcha
-#      And I do not provide a captcha token
-#    When I try to log in
-#    Then I should see a generic invalid-login error message
-#      And I should not be allowed through
+  Scenario: Enough failed logins to require a captcha for a username
+    Given I provide a username
+      And I provide the correct password for that username
+      But that username has enough failed logins to require a captcha
+      And I fail the captcha
+    When I try to log in
+    Then I should see a generic invalid-login error message
+      And I should not be allowed through
+
+  Scenario: Enough failed logins to require a captcha for an IP address
+    Given my request comes from IP address "11.22.33.44"
+      And I provide a username
+      And I provide the correct password for that username
+      And that username does not have enough failed logins to require a captcha
+      But my IP address has enough failed logins to require a captcha
+      And I fail the captcha
+    When I try to log in
+    Then I should see a generic invalid-login error message
+      And I should not be allowed through
 
   Scenario: Trying to log in with a rate-limited username
     Given the username "BOB_ADAMS" has triggered the rate limit
