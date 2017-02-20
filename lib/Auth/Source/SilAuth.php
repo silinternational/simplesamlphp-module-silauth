@@ -2,7 +2,6 @@
 
 use Sil\SilAuth\auth\Authenticator;
 use Sil\SilAuth\config\ConfigManager;
-use Sil\SilAuth\ldap\Ldap;
 use Sil\SilAuth\log\Psr3SamlLogger;
 
 /**
@@ -15,7 +14,6 @@ use Sil\SilAuth\log\Psr3SamlLogger;
  */
 class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
 {
-    protected $ldapConfig;
     protected $mysqlConfig;
     protected $recaptchaConfig;
     
@@ -32,7 +30,6 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
     {
         parent::__construct($info, $config);
         
-        $this->ldapConfig = ConfigManager::getConfigFor('ldap', $config);
         $this->mysqlConfig = ConfigManager::getConfigFor('mysql', $config);
         $this->recaptchaConfig = ConfigManager::getConfigFor('recaptcha', $config);
         
@@ -83,7 +80,6 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
     
     protected function login($username, $password)
     {
-        $ldap = new Ldap($this->ldapConfig);
         $logger = new Psr3SamlLogger();
         $authenticator = new Authenticator($username, $password, $ldap, $logger);
         

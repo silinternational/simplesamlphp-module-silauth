@@ -3,8 +3,6 @@ namespace Sil\SilAuth\auth;
 
 use Psr\Log\LoggerInterface;
 use Sil\SilAuth\auth\AuthError;
-use Sil\SilAuth\ldap\Ldap;
-use Sil\SilAuth\ldap\LdapConnectionException;
 use Sil\SilAuth\time\WaitTime;
 use Sil\SilAuth\models\User;
 
@@ -135,21 +133,6 @@ class Authenticator
             $failedLoginAttempts * $failedLoginAttempts,
             self::MAX_SECONDS_TO_BLOCK
         );
-    }
-    
-    protected function canConnectToLdap($ldap, $logger)
-    {
-        try {
-            $ldap->connect();
-            return true;
-        } catch (LdapConnectionException $e) {
-            $logger->error(sprintf(
-                'Unable to connect to the LDAP. Error %s: %s',
-                $e->getCode(),
-                $e->getMessage()
-            ));
-            return false;
-        }
     }
     
     /**
