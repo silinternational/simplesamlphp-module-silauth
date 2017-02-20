@@ -40,6 +40,22 @@ class UtcTime
         return (string)(new UtcTime($dateTimeString));
     }
     
+    /**
+     * Get the number of seconds we have to go back to get from this UTC time to
+     * the given UTC time. A positive number will be returned if the given UTC
+     * time occurred before this UTC time. If they are the same, zero will be
+     * returned. Otherwise, a negative number will be returned.
+     *
+     * @param \Sil\SilAuth\time\UtcTime $otherUtcTime The other UTC time
+     *     (presumably in the past, though not necessarily).
+     * @return int The number of seconds
+     */
+    public function getSecondsSince(UtcTime $otherUtcTime)
+    {
+        return $this->getTimestamp() - $otherUtcTime->getTimestamp();
+    }
+    
+    
     public function getSecondsUntil(UtcTime $otherUtcTime)
     {
         return $otherUtcTime->getTimestamp() - $this->getTimestamp();
