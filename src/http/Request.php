@@ -26,7 +26,7 @@ class Request
      *
      * @return string[] A list of IP addresses.
      */
-    public function getIpAddresses()
+    protected function getIpAddresses()
     {
         $ipAddresses = [];
         
