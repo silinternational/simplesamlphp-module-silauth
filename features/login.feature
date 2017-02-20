@@ -56,9 +56,9 @@ Feature: User login
       And I should not be allowed through
 
   Scenario: Trying to log in with a rate-limited username
-    Given the username "BOB_ADAMS" has triggered the rate limit
-      And I provide a username of "bob_adams"
+    Given I provide a username of "bob_adams"
       And I provide a password
+      But that username has enough failed logins to be blocked by the rate limit
     When I try to log in
     Then I should see an error message telling me to wait
       And that username should be blocked for awhile
