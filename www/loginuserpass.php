@@ -4,6 +4,7 @@ use Sil\SilAuth\auth\AuthError;
 use Sil\SilAuth\csrf\CsrfProtector;
 use Sil\SilAuth\log\Psr3SamlLogger;
 use Sil\SilAuth\models\User;
+use Sil\SilAuth\http\Request;
 use Sil\SilAuth\text\Text;
 
 /**
@@ -41,19 +42,19 @@ $recaptchaSiteKey = $silAuthConfig->getString('recaptcha.siteKey', null);
 $recaptchaSecret = $silAuthConfig->getString('recaptcha.secret', null);
 $forgotPasswordUrl = $silAuthConfig->getString('link.forgotPassword', null);
 
-$remoteIp = Text::sanitizeInputString(INPUT_SERVER, 'REMOTE_ADDR');
+$remoteIp = Request::sanitizeInputString(INPUT_SERVER, 'REMOTE_ADDR');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         
         $logger = new Psr3SamlLogger();
-        $csrfFromRequest = Text::sanitizeInputString(INPUT_POST, 'csrf-token'); 
+        $csrfFromRequest = Request::sanitizeInputString(INPUT_POST, 'csrf-token'); 
         if ($csrfProtector->isTokenCorrect($csrfFromRequest)) {
             
-            $username = Text::sanitizeInputString(INPUT_POST, 'username');
-            $password = Text::sanitizeInputString(INPUT_POST, 'password');
+            $username = Request::sanitizeInputString(INPUT_POST, 'username');
+            $password = Request::sanitizeInputString(INPUT_POST, 'password');
             
-            $gRecaptchaResponse = Text::sanitizeInputString(INPUT_POST, 'g-recaptcha-response');
+            $gRecaptchaResponse = Request::sanitizeInputString(INPUT_POST, 'g-recaptcha-response');
             
             if (User::isCaptchaRequiredFor($username)) {
                 $logger->warning(sprintf(
