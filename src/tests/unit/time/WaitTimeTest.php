@@ -37,4 +37,32 @@ class WaitTimeTest extends TestCase
             ));
         }
     }
+    
+    public function testGetLongerWaitTime()
+    {
+        // Arrange:
+        $testCases = [
+            ['a' => 0, 'b' => 0, 'expected' => new WaitTime(0)],
+            ['a' => 0, 'b' => 1, 'expected' => new WaitTime(1)],
+            ['a' => 1, 'b' => 0, 'expected' => new WaitTime(1)],
+            ['a' => 5, 'b' => 6, 'expected' => new WaitTime(6)],
+            ['a' => 6, 'b' => 5, 'expected' => new WaitTime(6)],
+            ['a' => 0, 'b' => 17, 'expected' => new WaitTime(17)],
+            ['a' => 17, 'b' => 5, 'expected' => new WaitTime(17)],
+        ];
+        foreach ($testCases as $testCase) {
+            
+            // Act:
+            $actual = WaitTime::getLongerWaitTime($testCase['a'], $testCase['b']);
+            
+            // Assert:
+            $this->assertEquals($testCase['expected'], $actual, sprintf(
+                'Expected the longer of %s and %s second(s) to be a wait time of %s, not %s.',
+                var_export($testCase['a'], true),
+                var_export($testCase['b'], true),
+                $testCase['expected'],
+                $actual
+            ));
+        }
+    }
 }

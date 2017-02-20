@@ -41,6 +41,18 @@ class WaitTime
         return $this->friendlyNumber;
     }
     
+    /**
+     * Get a WaitTime representing the longer of the two durations specified.
+     *
+     * @param int $secondsA The first duration (in seconds).
+     * @param int $secondsB The second duration (in seconds).
+     * @return WaitTime
+     */
+    public static function getLongerWaitTime(int $secondsA, int $secondsB)
+    {
+        return new WaitTime(max($secondsA, $secondsB));
+    }
+    
     public function getUnit()
     {
         return $this->unit;
