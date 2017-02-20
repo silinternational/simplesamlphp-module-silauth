@@ -9,7 +9,7 @@ bashtests:
 	docker-compose run --rm tests bash
 
 behat:
-	docker-compose run --rm tests bash -c "vendor/bin/behat --config=features/behat.yml"
+	docker-compose run --rm tests bash -c "vendor/bin/behat --config=features/behat.yml --stop-on-failure"
 
 behatappend:
 	docker-compose run --rm tests bash -c "vendor/bin/behat --config=features/behat.yml --append-snippets"
