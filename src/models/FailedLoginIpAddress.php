@@ -3,6 +3,7 @@ namespace Sil\SilAuth\models;
 
 use Psr\Log\LoggerAwareInterface;
 use Sil\SilAuth\behaviors\CreatedAtUtcBehavior;
+use Sil\SilAuth\http\Request;
 use Sil\SilAuth\time\UtcTime;
 use yii\base\Model;
 use yii\helpers\ArrayHelper;
@@ -42,6 +43,18 @@ class FailedLoginIpAddress extends FailedLoginIpAddressBase implements LoggerAwa
         ])->andWhere([
             '>=', 'occurred_at_utc', UtcTime::format('-60 minutes')
         ])->count();
+    }
+    
+    public static function getFailedLoginsFor($ipAddress)
+    {
+        if ( ! Request::isValidIpAddress($ipAddress)) {
+            throw new \InvalidArgumentException(sprintf(
+                '%s is not a valid IP address.',
+                var_export($ipAddress, true)
+            ));
+        }
+        
+        return self::findAll(['ip_address' => $ipAddress]);
     }
     
     public function init()
