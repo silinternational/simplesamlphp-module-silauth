@@ -15,6 +15,8 @@ class UtcTime
      * @param string $dateTimeString (Optional:) A string describing some
      *     date/time. If not given, 'now' will be used. For more information,
      *     see <http://php.net/manual/en/datetime.formats.php>.
+     * @throws Exception If an invalid date/time string is provided, an
+     *     \Exception will be thrown.
      */
     public function __construct(string $dateTimeString = 'now')
     {
@@ -34,6 +36,8 @@ class UtcTime
      * @param string $dateTimeString (Optional:) The date/time to use. If not
      *     given, 'now' will be used.
      * @return string
+     * @throws Exception If an invalid date/time string is provided, an
+     *     \Exception will be thrown.
      */
     public static function format(string $dateTimeString = 'now')
     {
@@ -60,6 +64,8 @@ class UtcTime
      *
      * @param string $dateTimeString A date/time string.
      * @return int The number of seconds that have elapsed since that date/time.
+     * @throws Exception If an invalid date/time string is provided, an
+     *     \Exception will be thrown.
      */
     public static function getSecondsSinceDateTime($dateTimeString)
     {
