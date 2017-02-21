@@ -1,5 +1,5 @@
 <?php
-namespace Sil\SilAuth\tests\unit\models;
+namespace Sil\SilAuth\tests\unit\time;
 
 use Sil\SilAuth\time\UtcTime;
 use PHPUnit\Framework\TestCase;
