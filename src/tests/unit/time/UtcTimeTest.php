@@ -148,4 +148,16 @@ class UtcTimeTest extends TestCase
         // Assert:
         $this->assertSame($timestamp, $result);
     }
+    
+    public function testNow()
+    {
+        // Arrange:
+        $expected = gmdate(UtcTime::DATE_TIME_FORMAT, time());
+        
+        // Act:
+        $actual = UtcTime::now();
+        
+        // Assert:
+        $this->assertSame($expected, $actual);
+    }
 }

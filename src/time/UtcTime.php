@@ -107,4 +107,14 @@ class UtcTime
     {
         return $this->dateTime->getTimestamp();
     }
+    
+    /**
+     * Get the current date/time (UTC) as a formatted string
+     * 
+     * @return string
+     */
+    public static function now()
+    {
+        return self::format('now');
+    }
 }
