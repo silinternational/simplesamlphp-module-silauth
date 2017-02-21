@@ -8,44 +8,6 @@ use PHPUnit\Framework\TestCase;
 
 class UserTest extends TestCase
 {
-    public function testChangingAnExistingUuid()
-    {
-        // Arrange:
-        $uniqId = uniqid();
-        $user = new User();
-        $user->attributes = [
-            'email' => $uniqId . '@example.com',
-            'employee_id' => $uniqId,
-            'first_name' => 'Test ' . $uniqId,
-            'last_name' => 'User',
-            'username' => 'user' . $uniqId,
-        ];
-        
-        // Pre-assert:
-        $this->assertTrue($user->save(), sprintf(
-            'Failed to create User for test: %s',
-            print_r($user->getErrors(), true)
-        ));
-        $this->assertTrue($user->refresh());
-        
-        // Act:
-        $user->uuid = User::generateUuid();
-        
-        // Assert:
-        $this->assertFalse($user->validate(['uuid']));
-    }
-    
-    public function testGenerateUuid()
-    {
-        // Arrange: (n/a)
-        
-        // Act:
-        $uuid = User::generateUuid();
-        
-        // Assert:
-        $this->assertNotEmpty($uuid);
-    }
-    
     public function testGetSecondsUntilUnblocked()
     {
         // Arrange:
@@ -63,43 +25,6 @@ class UserTest extends TestCase
             
             // Assert:
             $this->assertSame($testCase['expected'], $actual);
-        }
-    }
-    
-    public function testIsActive()
-    {
-        // Arrange:
-        $testCases = [
-            ['value' => User::ACTIVE_YES, 'expected' => true],
-            ['value' => 'YES', 'expected' => true],
-            ['value' => 'Yes', 'expected' => true],
-            ['value' => 'yes', 'expected' => true],
-            ['value' => User::ACTIVE_NO, 'expected' => false],
-            ['value' => 'NO', 'expected' => false],
-            ['value' => 'No', 'expected' => false],
-            ['value' => 'no', 'expected' => false],
-            // Handle invalid types/values securely:
-            ['value' => true, 'expected' => false],
-            ['value' => 1, 'expected' => false],
-            ['value' => false, 'expected' => false],
-            ['value' => 0, 'expected' => false],
-            ['value' => 'other', 'expected' => false],
-            ['value' => '', 'expected' => false],
-            ['value' => null, 'expected' => false],
-        ];
-        foreach ($testCases as $testCase) {
-            $user = new User();
-            $user->active = $testCase['value'];
-            
-            // Act:
-            $actual = $user->isActive();
-            
-            // Assert:
-            $this->assertSame($testCase['expected'], $actual, sprintf(
-                'A User with an "active" value of %s should%s be considered active.',
-                var_export($user->active, true),
-                ($testCase['expected'] ? '' : ' not')
-            ));
         }
     }
     
