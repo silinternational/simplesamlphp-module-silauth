@@ -22,16 +22,15 @@ class FailedLoginUsernameTest extends TestCase
         $username = 'john_smith';
         $fixtures = [[
             'username' => $username,
-            'occurred_at_utc' => UtcTime::format('-61 minutes'),
+            'occurred_at_utc' => UtcTime::format('-61 minutes'), // Not recent.
         ], [
             'username' => $username,
-            'occurred_at_utc' => UtcTime::format('-59 minutes'),
+            'occurred_at_utc' => UtcTime::format('-59 minutes'), // Recent.
         ], [
             'username' => $username,
-            'occurred_at_utc' => UtcTime::format(),
+            'occurred_at_utc' => UtcTime::format(), // Now (thus, recent).
         ]];
         $this->setDbFixture($fixtures);
-        
         
         // Pre-assert:
         $this->assertCount(
