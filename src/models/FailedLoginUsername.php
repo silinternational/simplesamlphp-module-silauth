@@ -2,6 +2,7 @@
 namespace Sil\SilAuth\models;
 
 use Psr\Log\LoggerAwareInterface;
+use Sil\SilAuth\time\UtcTime;
 use yii\base\Model;
 use yii\helpers\ArrayHelper;
 use Yii;
@@ -30,6 +31,15 @@ class FailedLoginUsername extends FailedLoginUsernameBase implements LoggerAware
                 ],
             ],
         ];
+    }
+    
+    public static function countRecentFailedLoginsFor($username)
+    {
+        return self::find()->where([
+            'username' => $username,
+        ])->andWhere([
+            '>=', 'occurred_at_utc', UtcTime::format('-60 minutes')
+        ])->count();
     }
     
     /**

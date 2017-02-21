@@ -3,6 +3,7 @@ namespace Sil\SilAuth\models;
 
 use Psr\Log\LoggerAwareInterface;
 use Sil\SilAuth\behaviors\CreatedAtUtcBehavior;
+use Sil\SilAuth\time\UtcTime;
 use yii\base\Model;
 use yii\helpers\ArrayHelper;
 use Yii;
@@ -32,6 +33,15 @@ class FailedLoginIpAddress extends FailedLoginIpAddressBase implements LoggerAwa
                 ],
             ],
         ];
+    }
+    
+    public static function countRecentFailedLoginsFor($ipAddress)
+    {
+        return self::find()->where([
+            'ip_address' => $ipAddress,
+        ])->andWhere([
+            '>=', 'occurred_at_utc', UtcTime::format('-60 minutes')
+        ])->count();
     }
     
     public function init()
