@@ -83,9 +83,16 @@ class UtcTime
      * @return int The number of seconds that have elapsed since that date/time.
      * @throws Exception If an invalid date/time string is provided, an
      *     \Exception will be thrown.
+     * @throws \InvalidArgumentException
      */
-    public static function getSecondsSinceDateTime($dateTimeString)
+    public static function getSecondsSinceDateTime(string $dateTimeString)
     {
+        if (empty($dateTimeString)) {
+            throw new \InvalidArgumentException(sprintf(
+                'The given value (%s) is not a date/time string.',
+                var_export($dateTimeString, true)
+            ));
+        }
         $nowUtc = new UtcTime();
         $dateTimeUtc = new UtcTime($dateTimeString);
         return $nowUtc->getSecondsSince($dateTimeUtc);

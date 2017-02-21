@@ -102,6 +102,24 @@ class UtcTimeTest extends TestCase
         }
     }
     
+    public function testGetSecondsSinceDateTimeEmptyString()
+    {
+        $this->expectException('\InvalidArgumentException');
+        UtcTime::getSecondsSinceDateTime('');
+    }
+    
+    public function testGetSecondsSinceDateTimeInvalidDateTimeString()
+    {
+        $this->expectException('\Exception');
+        UtcTime::getSecondsSinceDateTime('asdf');
+    }
+    
+    public function testGetSecondsSinceDateTimeNull()
+    {
+        $this->expectException('\TypeError');
+        UtcTime::getSecondsSinceDateTime(null);
+    }
+    
     public function testGetSecondsUntil()
     {
         // Arrange:
