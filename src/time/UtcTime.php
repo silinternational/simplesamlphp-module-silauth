@@ -45,6 +45,23 @@ class UtcTime
     }
     
     /**
+     * Given a total number of seconds and an elapsed number of seconds, get the
+     * remaining seconds until that total has passed. If the total has already
+     * passed (i.e. if elapsed is equal to or greater than total), zero will be
+     * returned.
+     *
+     * @param int $totalSeconds The total number of seconds.
+     * @param int $elapsedSeconds The number of seconds that have already
+     *     passed.
+     * @return int The number of seconds remaining.
+     */
+    public static function getRemainingSeconds(int $totalSeconds, int $elapsedSeconds)
+    {
+        $remainingSeconds = $totalSeconds - $elapsedSeconds;
+        return max($remainingSeconds, 0);
+    }
+    
+    /**
      * Get the number of seconds we have to go back to get from this UTC time to
      * the given UTC time. A positive number will be returned if the given UTC
      * time occurred before this UTC time. If they are the same, zero will be

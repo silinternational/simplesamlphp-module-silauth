@@ -28,6 +28,56 @@ class UtcTimeTest extends TestCase
         }
     }
     
+    public function testGetRemainingSeconds()
+    {
+        // Arrange:
+        $testCases = [
+            ['total' => 1, 'elapsed' => null, 'expectException' => '\TypeError'],
+            ['total' => null, 'elapsed' => 1, 'expectException' => '\TypeError'],
+            ['total' => 1, 'elapsed' => '1', 'expectException' => '\TypeError'],
+            ['total' => '1', 'elapsed' => 1, 'expectException' => '\TypeError'],
+            ['total' => -1, 'elapsed' => 1, 'expected' => 0],
+            ['total' => -1, 'elapsed' => 0, 'expected' => 0],
+            ['total' => 0, 'elapsed' => 0, 'expected' => 0],
+            ['total' => 0, 'elapsed' => 5, 'expected' => 0],
+            ['total' => 5, 'elapsed' => 0, 'expected' => 5],
+            ['total' => 5, 'elapsed' => 5, 'expected' => 0],
+            ['total' => 8, 'elapsed' => 5, 'expected' => 3],
+            ['total' => 60, 'elapsed' => 45, 'expected' => 15],
+        ];
+        foreach ($testCases as $testCase) {
+            $total = $testCase['total'];
+            $elapsed = $testCase['elapsed'];
+            $expected = $testCase['expected'] ?? null;
+            $expectException = $testCase['expectException'] ?? null;
+            
+            // Pre-assert:
+            if ($expectException !== null) {
+                $this->expectException($expectException);
+            }
+            
+            // Act:
+            $actual = UtcTime::getRemainingSeconds($total, $elapsed);
+            
+            // Assert:
+            if ($expectException !== null) {
+                $this->fail(sprintf(
+                    'Expected a %s to be thrown for (total: %s, elapsed: %s).',
+                    $expectException,
+                    var_export($total, true),
+                    var_export($elapsed, true)
+                ));
+            }
+            $this->assertSame($expected, $actual, sprintf(
+                'Expected (total: %s, elapsed: %s) to result in %s, not %s.',
+                var_export($total, true),
+                var_export($elapsed, true),
+                var_export($expected, true),
+                var_export($actual, true)
+            ));
+        }
+    }
+    
     public function testGetSecondsSinceDateTime()
     {
         // Arrange:
