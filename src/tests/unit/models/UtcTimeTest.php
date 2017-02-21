@@ -28,6 +28,30 @@ class UtcTimeTest extends TestCase
         }
     }
     
+    public function testGetSecondsSinceDateTime()
+    {
+        // Arrange:
+        $testCases = [
+            ['value' => '1970-01-01 00:00:00', 'expected' => time()],
+            ['value' => UtcTime::format(), 'expected' => 0],
+            ['value' => UtcTime::format('-10 seconds'), 'expected' => 10],
+            ['value' => UtcTime::format('-2 hours'), 'expected' => 7200],
+        ];
+        foreach ($testCases as $testCase) {
+            
+            // Act:
+            $actual = UtcTime::getSecondsSinceDateTime($testCase['value']);
+            
+            // Assert:
+            $this->assertEquals($testCase['expected'], $actual, sprintf(
+                'Expected %s to result in %s, not %s.',
+                var_export($testCase['value'], true),
+                var_export($testCase['expected'], true),
+                var_export($actual, true)
+            ), 1);
+        }
+    }
+    
     public function testGetSecondsUntil()
     {
         // Arrange:

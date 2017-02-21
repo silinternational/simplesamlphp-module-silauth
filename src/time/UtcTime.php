@@ -55,6 +55,18 @@ class UtcTime
         return $this->getTimestamp() - $otherUtcTime->getTimestamp();
     }
     
+    /**
+     * Get the number of seconds since the given date/time string.
+     *
+     * @param string $dateTimeString A date/time string.
+     * @return int The number of seconds that have elapsed since that date/time.
+     */
+    public static function getSecondsSinceDateTime($dateTimeString)
+    {
+        $nowUtc = new UtcTime();
+        $dateTimeUtc = new UtcTime($dateTimeString);
+        return $nowUtc->getSecondsSince($dateTimeUtc);
+    }
     
     public function getSecondsUntil(UtcTime $otherUtcTime)
     {
