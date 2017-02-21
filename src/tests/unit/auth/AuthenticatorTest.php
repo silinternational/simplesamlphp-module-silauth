@@ -2,10 +2,60 @@
 namespace Sil\SilAuth\tests\unit\auth;
 
 use Sil\SilAuth\auth\Authenticator;
+use Sil\SilAuth\time\UtcTime;
 use PHPUnit\Framework\TestCase;
 
 class AuthenticatorTest extends TestCase
 {
+    public function testCalculateBlockUntilUtc()
+    {
+        // Arrange:
+        $testCases = [
+            [
+                'afterNthFailedLogin' => 0,
+                'blockUntilShouldBeNull' => true,
+            ], [
+                'afterNthFailedLogin' => Authenticator::BLOCK_AFTER_NTH_FAILED_LOGIN - 1,
+                'blockUntilShouldBeNull' => true,
+            ], [
+                'afterNthFailedLogin' => Authenticator::BLOCK_AFTER_NTH_FAILED_LOGIN,
+                'blockUntilShouldBeNull' => false,
+            ], [
+                'afterNthFailedLogin' => Authenticator::BLOCK_AFTER_NTH_FAILED_LOGIN + 1,
+                'blockUntilShouldBeNull' => false,
+            ],
+        ];
+        foreach ($testCases as $testCase) {
+            
+            // Act:
+            $actual = Authenticator::calculateBlockUntilUtc(
+                $testCase['afterNthFailedLogin']
+            );
+            
+            // Assert:
+            $this->assertSame($testCase['blockUntilShouldBeNull'], is_null($actual));
+        }
+    }
+    
+    public function testCalculateBlockUntilUtcMaxDelay()
+    {
+        // Arrange:
+        $expected = Authenticator::MAX_SECONDS_TO_BLOCK;
+        $nowUtc = new UtcTime();
+        
+        // Act:
+        $blockUntilUtcString = Authenticator::calculateBlockUntilUtc(100);
+        $blockUntilUtcTime = new UtcTime($blockUntilUtcString);
+        $actual = $nowUtc->getSecondsUntil($blockUntilUtcTime);
+        
+        // Assert:
+        $this->assertEquals($expected, $actual, sprintf(
+            'Maximum delay should be no more than %s seconds (not %s).',
+            $expected,
+            $actual
+        ), 1);
+    }
+    
     public function testCalculateSecondsToDelay()
     {
         // Arrange:
