@@ -1,7 +1,6 @@
 <?php
 namespace Sil\SilAuth\features\context;
 
-use Behat\Behat\Tester\Exception\PendingException;
 use Behat\Behat\Context\Context;
 use PHPUnit_Framework_Assert as Assert;
 use Psr\Log\LoggerInterface;
@@ -186,14 +185,6 @@ class LoginContext implements Context
     }
 
     /**
-     * @Given the username :username has triggered the rate limit
-     */
-    public function theUsernameHasTriggeredTheRateLimit($username)
-    {
-        throw new PendingException();
-    }
-
-    /**
      * @Given I provide a username of :username
      */
     public function iProvideAUsernameOf($username)
@@ -209,14 +200,6 @@ class LoginContext implements Context
         $authError = $this->authenticator->getAuthError();
         Assert::assertNotEmpty($authError);
         Assert::assertContains('rate_limit', (string)$authError);
-    }
-
-    /**
-     * @Then that user account should (still) be blocked for awhile
-     */
-    public function thatUserAccountShouldBeBlockedForAwhile()
-    {
-        throw new PendingException();
     }
 
     /**
@@ -331,14 +314,6 @@ class LoginContext implements Context
     }
 
     /**
-     * @Given the username :username had :number failed logins in the last hour
-     */
-    public function theUsernameHadFailedLoginsInTheLastHour($username, $number)
-    {
-        throw new PendingException();
-    }
-
-    /**
      * @Given that username has enough failed logins to require a captcha
      */
     public function thatUsernameHasEnoughFailedLoginsToRequireACaptcha()
@@ -361,15 +336,7 @@ class LoginContext implements Context
             FailedLoginUsername::countRecentFailedLoginsFor($this->username)
         );
     }
-
-    /**
-     * @Then I should have to pass a captcha test
-     */
-    public function iShouldHaveToPassACaptchaTest()
-    {
-        throw new PendingException();
-    }
-
+    
     /**
      * @Given that username has no recent failed login attempts
      */
