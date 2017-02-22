@@ -208,6 +208,33 @@ class Authenticator
         return $this->userAttributes;
     }
     
+    /**
+     * Get a (user friendly) wait time representing how long the user must wait
+     * until they will no longer be blocked by a rate limit (regardless of
+     * whether it is their username and/or IP address that is blocked).
+     *
+     * NOTE: This will always return a WaitTime, even if the given username and
+     *       IP addresses aren't blocked (in which case the shortest available
+     *       WaitTime will be returned, such as a 5-second wait time).
+     *
+     * @param string $username The username in question.
+     * @param array $ipAddresses The list of relevant IP addresses (related to
+     *     this request).
+     * @return WaitTime
+     */
+    protected function getWaitTimeUntilUnblocked($username, array $ipAddresses)
+    {
+        $durationsInSeconds = [
+            FailedLoginUsername::getSecondsUntilUnblocked($username),
+        ];
+        
+        foreach ($ipAddresses as $ipAddress) {
+            $durationsInSeconds[] = FailedLoginIpAddress::getSecondsUntilUnblocked($ipAddress);
+        }
+        
+        return WaitTime::getLongestWaitTime($durationsInSeconds);
+    }
+    
     protected function hasError()
     {
         return ($this->authError !== null);
