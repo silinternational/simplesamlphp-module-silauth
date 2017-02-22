@@ -3,6 +3,8 @@ namespace Sil\SilAuth\models;
 
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
+use Sil\SilAuth\auth\Authenticator;
+use Sil\SilAuth\behaviors\CreatedAtUtcBehavior;
 use Sil\SilAuth\time\UtcTime;
 use yii\base\Model;
 use yii\helpers\ArrayHelper;
