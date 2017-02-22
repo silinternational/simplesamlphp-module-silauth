@@ -36,9 +36,6 @@ class LoginContext implements Context
     /** @var Captcha */
     private $captcha;
     
-    /** @var string|null */
-    private $csrfToken = null;
-    
     /** @var IdBroker */
     private $idBroker;
     
@@ -121,14 +118,6 @@ class LoginContext implements Context
     }
 
     /**
-     * @Given I do not provide a CSRF token
-     */
-    public function iDoNotProvideACsrfToken()
-    {
-        $this->csrfToken = '';
-    }
-
-    /**
      * @When I try to log in
      */
     public function iTryToLogIn()
@@ -150,14 +139,6 @@ class LoginContext implements Context
         } catch (\Exception $e) {
             Assert::assertNotEmpty($e->getMessage());
         }
-    }
-
-    /**
-     * @Given I provide an incorrect CSRF token
-     */
-    public function iProvideAnIncorrectCsrfToken()
-    {
-        $this->csrfToken = 'thisIsWrongAsdfasdfasdf';
     }
 
     /**
