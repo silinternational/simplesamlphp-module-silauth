@@ -1,7 +1,10 @@
 <?php
 
 use Sil\SilAuth\auth\Authenticator;
+use Sil\SilAuth\auth\IdBroker;
+use Sil\SilAuth\captcha\Captcha;
 use Sil\SilAuth\config\ConfigManager;
+use Sil\SilAuth\http\Request;
 use Sil\SilAuth\log\Psr3SamlLogger;
 
 /**
@@ -95,8 +98,18 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
     
     protected function login($username, $password)
     {
+        $captcha = new Captcha($this->recaptchaConfig['secret'] ?? null);
+        $idBroker = new IdBroker();
+        $request = new Request($this->getTrustedIpAddresses());
         $logger = new Psr3SamlLogger();
-        $authenticator = new Authenticator($username, $password, $ldap, $logger);
+        $authenticator = new Authenticator(
+            $username,
+            $password,
+            $request,
+            $captcha,
+            $idBroker,
+            $logger
+        );
         
         if ( ! $authenticator->isAuthenticated()) {
             $authError = $authenticator->getAuthError();
