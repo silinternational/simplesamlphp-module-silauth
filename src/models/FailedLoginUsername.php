@@ -39,7 +39,7 @@ class FailedLoginUsername extends FailedLoginUsernameBase implements LoggerAware
     public static function countRecentFailedLoginsFor($username)
     {
         return self::find()->where([
-            'username' => $username,
+            'username' => strtolower($username),
         ])->andWhere([
             '>=', 'occurred_at_utc', UtcTime::format('-60 minutes')
         ])->count();
@@ -53,7 +53,7 @@ class FailedLoginUsername extends FailedLoginUsernameBase implements LoggerAware
      */
     public static function getFailedLoginsFor($username)
     {
-        return self::findAll(['username' => $username]);
+        return self::findAll(['username' => strtolower($username)]);
     }
     
     /**
@@ -66,7 +66,7 @@ class FailedLoginUsername extends FailedLoginUsernameBase implements LoggerAware
     public static function getMostRecentFailedLoginFor($username)
     {
         return self::find()->where([
-            'username' => $username,
+            'username' => strtolower($username),
         ])->orderBy([
             'occurred_at_utc' => SORT_DESC,
         ])->one();
@@ -120,7 +120,7 @@ class FailedLoginUsername extends FailedLoginUsernameBase implements LoggerAware
         $username,
         LoggerInterface $logger
     ) {
-        $newRecord = new FailedLoginUsername(['username' => $username]);
+        $newRecord = new FailedLoginUsername(['username' => strtolower($username)]);
         if ( ! $newRecord->save()) {
             $logger->critical(sprintf(
                 'Failed to update login attempts counter in database for %s, '
@@ -134,6 +134,6 @@ class FailedLoginUsername extends FailedLoginUsernameBase implements LoggerAware
     
     public static function resetFailedLoginsBy($username)
     {
-        self::deleteAll(['username' => $username]);
+        self::deleteAll(['username' => strtolower($username)]);
     }
 }
