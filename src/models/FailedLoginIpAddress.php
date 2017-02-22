@@ -102,4 +102,9 @@ class FailedLoginIpAddress extends FailedLoginIpAddressBase implements LoggerAwa
     {
         throw new \Exception(__CLASS__ . '.' . __FUNCTION__ . ' not yet implemented.');
     }
+    
+    public static function resetFailedLoginsBy(array $ipAddresses)
+    {
+        self::deleteAll(['ip_address' => $ipAddresses]);
+    }
 }
