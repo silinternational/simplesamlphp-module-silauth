@@ -224,6 +224,12 @@ class Authenticator
         return ( ! $this->hasError());
     }
     
+    protected function isCaptchaRequired($username, array $ipAddresses)
+    {
+        return FailedLoginUsername::isCaptchaRequiredFor($username) ||
+               FailedLoginIpAddress::isCaptchaRequiredForAnyOfThese($ipAddresses);
+    }
+    
     public static function isEnoughFailedLoginsToBlock($numFailedLogins)
     {
         return ($numFailedLogins >= self::BLOCK_AFTER_NTH_FAILED_LOGIN);
