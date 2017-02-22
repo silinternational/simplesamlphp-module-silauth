@@ -57,6 +57,22 @@ class FailedLoginIpAddress extends FailedLoginIpAddressBase implements LoggerAwa
         return self::findAll(['ip_address' => $ipAddress]);
     }
     
+    /**
+     * Get the most recent failed-login record for the given IP address, or null
+     * if none is found.
+     *
+     * @param string $ipAddress The IP address.
+     * @return FailedLoginIpAddress|null
+     */
+    public static function getMostRecentFailedLoginFor($ipAddress)
+    {
+        return self::find()->where([
+            'ip_address' => $ipAddress,
+        ])->orderBy([
+            'occurred_at_utc' => SORT_DESC,
+        ])->one();
+    }
+    
     public function init()
     {
         $this->initializeLogger();
