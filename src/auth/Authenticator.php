@@ -229,6 +229,11 @@ class Authenticator
         return ($numFailedLogins >= self::BLOCK_AFTER_NTH_FAILED_LOGIN);
     }
     
+    public static function isEnoughFailedLoginsToRequireCaptcha($numFailedLogins)
+    {
+        return ($numFailedLogins >= self::REQUIRE_CAPTCHA_AFTER_NTH_FAILED_LOGIN);
+    }
+    
     protected function setError($code, $messageParams = [])
     {
         $this->authError = new AuthError($code, $messageParams);
