@@ -90,17 +90,6 @@ class FailedLoginUsername extends FailedLoginUsernameBase implements LoggerAware
         );
     }
     
-    /**
-     * Get a human-friendly wait time.
-     *
-     * @return WaitTime
-     */
-    public function getWaitTimeUntilUnblocked()
-    {
-        $secondsUntilUnblocked = $this->getSecondsUntilUnblocked();
-        return new WaitTime($secondsUntilUnblocked);
-    }
-    
     public function init()
     {
         $this->initializeLogger();
