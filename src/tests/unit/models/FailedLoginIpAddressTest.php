@@ -17,6 +17,35 @@ class FailedLoginIpAddressTest extends TestCase
         }
     }
     
+    public function testCountRecentFailedLoginsFor()
+    {
+        // Arrange:
+        $ipAddress = '100.110.120.130';
+        $fixtures = [[
+            'ip_address' => $ipAddress,
+            'occurred_at_utc' => UtcTime::format('-61 minutes'), // Not recent.
+        ], [
+            'ip_address' => $ipAddress,
+            'occurred_at_utc' => UtcTime::format('-59 minutes'), // Recent.
+        ], [
+            'ip_address' => $ipAddress,
+            'occurred_at_utc' => UtcTime::format(), // Now (thus, recent).
+        ]];
+        $this->setDbFixture($fixtures);
+        
+        // Pre-assert:
+        $this->assertCount(
+            count($fixtures),
+            FailedLoginIpAddress::getFailedLoginsFor($ipAddress)
+        );
+
+        // Act:
+        $result = FailedLoginIpAddress::countRecentFailedLoginsFor($ipAddress);
+
+        // Assert:
+        $this->assertEquals(2, $result);
+    }
+    
     public function testGetMostRecentFailedLoginFor()
     {
         // Arrange:
@@ -69,4 +98,55 @@ class FailedLoginIpAddressTest extends TestCase
         }
     }
     
+    public function testRecordFailedLoginBy()
+    {
+        // Arrange:
+        $ipAddress = '101.102.103.104';
+        $dbFixture = [
+            ['ip_address' => $ipAddress, 'occurred_at_utc' => UtcTime::format()]
+        ];
+        $this->setDbFixture($dbFixture);
+        $logger = new Psr3ConsoleLogger();
+        $expectedPre = count($dbFixture);
+        $expectedPost = $expectedPre + 1;
+        
+        // Pre-assert:
+        $this->assertCount(
+            $expectedPre,
+            FailedLoginIpAddress::getFailedLoginsFor($ipAddress)
+        );
+        
+        // Act:
+        FailedLoginIpAddress::recordFailedLoginBy([$ipAddress], $logger);
+        
+        // Assert:
+        $this->assertCount(
+            $expectedPost,
+            FailedLoginIpAddress::getFailedLoginsFor($ipAddress)
+        );
+    }
+    
+    public function testResetFailedLoginsBy()
+    {
+        // Arrange:
+        $ipAddress = '101.102.103.104';
+        $otherIpAddress = '201.202.203.204';
+        $logger = new Psr3ConsoleLogger();
+        FailedLoginIpAddress::deleteAll();
+        FailedLoginIpAddress::recordFailedLoginBy(
+            [$ipAddress, $otherIpAddress],
+            $logger
+        );
+        
+        // Pre-assert:
+        $this->assertCount(1, FailedLoginIpAddress::getFailedLoginsFor($ipAddress));
+        $this->assertCount(1, FailedLoginIpAddress::getFailedLoginsFor($otherIpAddress));
+        
+        // Act:
+        FailedLoginIpAddress::resetFailedLoginsBy([$ipAddress]);
+        
+        // Assert:
+        $this->assertCount(0, FailedLoginIpAddress::getFailedLoginsFor($ipAddress));
+        $this->assertCount(1, FailedLoginIpAddress::getFailedLoginsFor($otherIpAddress));
+    }
 }
