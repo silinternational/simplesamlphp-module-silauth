@@ -98,10 +98,10 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
     
     protected function login($username, $password)
     {
-        $captcha = new Captcha($this->recaptchaConfig['secret'] ?? null);
-        $idBroker = new IdBroker();
-        $request = new Request($this->getTrustedIpAddresses());
         $logger = new Psr3SamlLogger();
+        $captcha = new Captcha($this->recaptchaConfig['secret'] ?? null);
+        $idBroker = new IdBroker($logger);
+        $request = new Request($this->getTrustedIpAddresses());
         $authenticator = new Authenticator(
             $username,
             $password,
