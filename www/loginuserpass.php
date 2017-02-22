@@ -3,9 +3,9 @@
 use Sil\SilAuth\auth\AuthError;
 use Sil\SilAuth\csrf\CsrfProtector;
 use Sil\SilAuth\log\Psr3SamlLogger;
-use Sil\SilAuth\models\User;
 use Sil\SilAuth\http\Request;
 use Sil\SilAuth\text\Text;
+use Sil\SilAuth\models\FailedLoginUsername;
 
 /**
  * This page shows a username/password login form, and passes information from it
@@ -111,8 +111,10 @@ $t->data['errorcode'] = $errorCode;
 $t->data['errorparams'] = $errorParams;
 $t->data['forgotPasswordUrl'] = $forgotPasswordUrl;
 $t->data['csrfToken'] = $csrfProtector->getMasterToken();
-if (( ! empty($username)) && User::isCaptchaRequiredFor($username)) {
-    $t->data['recaptcha.siteKey'] = $recaptchaSiteKey;
+if ( ! empty($username)) {
+    if (FailedLoginUsername::isCaptchaRequiredFor($username)) {
+        $t->data['recaptcha.siteKey'] = $recaptchaSiteKey;
+    }
 }
 
 if (isset($state['SPMetadata'])) {
