@@ -74,4 +74,32 @@ class FailedLoginUsernameTest extends TestCase
         }
     }
     
+    public function testRecordFailedLoginBy()
+    {
+        // Arrange:
+        $username = 'dummy_username';
+        $dbFixture = [
+            ['username' => $username, 'occurred_at_utc' => UtcTime::format()]
+        ];
+        $this->setDbFixture($dbFixture);
+        $logger = new Psr3ConsoleLogger();
+        $expectedPre = count($dbFixture);
+        $expectedPost = $expectedPre + 1;
+        
+        // Pre-assert:
+        $this->assertCount(
+            $expectedPre,
+            FailedLoginUsername::getFailedLoginsFor($username)
+        );
+        
+        // Act:
+        FailedLoginUsername::recordFailedLoginBy($username, $logger);
+        
+        // Assert:
+        $this->assertCount(
+            $expectedPost,
+            FailedLoginUsername::getFailedLoginsFor($username)
+        );
+    }
+    
 }

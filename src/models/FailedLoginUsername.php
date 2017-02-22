@@ -2,6 +2,7 @@
 namespace Sil\SilAuth\models;
 
 use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerInterface;
 use Sil\SilAuth\time\UtcTime;
 use yii\base\Model;
 use yii\helpers\ArrayHelper;
@@ -109,4 +110,19 @@ class FailedLoginUsername extends FailedLoginUsernameBase implements LoggerAware
         //return ($this->login_attempts >= Authenticator::REQUIRE_CAPTCHA_AFTER_NTH_FAILED_LOGIN);
     }
     
+    public static function recordFailedLoginBy(
+        $username,
+        LoggerInterface $logger
+    ) {
+        $newRecord = new FailedLoginUsername(['username' => $username]);
+        if ( ! $newRecord->save()) {
+            $logger->critical(sprintf(
+                'Failed to update login attempts counter in database for %s, '
+                . 'so unable to prevent dictionary attacks by that username. '
+                . 'Errors: %s',
+                var_export($username, true),
+                json_encode($newRecord->getErrors())
+            ));
+        }
+    }
 }
