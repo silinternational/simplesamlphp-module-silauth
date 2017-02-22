@@ -41,7 +41,7 @@ class FailedLoginIpAddress extends FailedLoginIpAddressBase implements LoggerAwa
     public static function countRecentFailedLoginsFor($ipAddress)
     {
         return self::find()->where([
-            'ip_address' => $ipAddress,
+            'ip_address' => strtolower($ipAddress),
         ])->andWhere([
             '>=', 'occurred_at_utc', UtcTime::format('-60 minutes')
         ])->count();
@@ -56,7 +56,7 @@ class FailedLoginIpAddress extends FailedLoginIpAddressBase implements LoggerAwa
             ));
         }
         
-        return self::findAll(['ip_address' => $ipAddress]);
+        return self::findAll(['ip_address' => strtolower($ipAddress)]);
     }
     
     /**
@@ -69,7 +69,7 @@ class FailedLoginIpAddress extends FailedLoginIpAddressBase implements LoggerAwa
     public static function getMostRecentFailedLoginFor($ipAddress)
     {
         return self::find()->where([
-            'ip_address' => $ipAddress,
+            'ip_address' => strtolower($ipAddress),
         ])->orderBy([
             'occurred_at_utc' => SORT_DESC,
         ])->one();
@@ -138,7 +138,7 @@ class FailedLoginIpAddress extends FailedLoginIpAddressBase implements LoggerAwa
         LoggerInterface $logger
     ) {
         foreach ($ipAddresses as $ipAddress) {
-            $newRecord = new FailedLoginIpAddress(['ip_address' => $ipAddress]);
+            $newRecord = new FailedLoginIpAddress(['ip_address' => strtolower($ipAddress)]);
             
             if ( ! $newRecord->save()) {
                 $logger->critical(sprintf(
@@ -154,6 +154,6 @@ class FailedLoginIpAddress extends FailedLoginIpAddressBase implements LoggerAwa
     
     public static function resetFailedLoginsBy(array $ipAddresses)
     {
-        self::deleteAll(['ip_address' => $ipAddresses]);
+        self::deleteAll(['ip_address' => strtolower($ipAddresses)]);
     }
 }
