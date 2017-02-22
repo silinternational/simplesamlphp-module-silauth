@@ -106,6 +106,16 @@ class FailedLoginIpAddress extends FailedLoginIpAddressBase implements LoggerAwa
         );
     }
     
+    public static function isCaptchaRequiredForAnyOfThese(array $ipAddresses)
+    {
+        foreach ($ipAddresses as $ipAddress) {
+            if (FailedLoginIpAddress::isCaptchaRequiredFor($ipAddress)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     public static function isRateLimitBlocking($ipAddress)
     {
         return Authenticator::isEnoughFailedLoginsToBlock(
