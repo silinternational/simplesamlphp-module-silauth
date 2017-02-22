@@ -4,6 +4,7 @@ namespace Sil\SilAuth\system;
 use Psr\Log\LoggerInterface;
 use Sil\SilAuth\config\ConfigManager;
 use Sil\SilAuth\models\User;
+use Psr\Log\NullLogger;
 use Throwable;
 
 class System
@@ -17,7 +18,7 @@ class System
      */
     public function __construct($logger = null)
     {
-        $this->logger = $logger;
+        $this->logger = $logger ?? new NullLogger();
     }
     
     protected function isDatabaseOkay()
@@ -74,9 +75,7 @@ class System
      */
     protected function logError($message)
     {
-        if ($this->logger !== null) {
-            $this->logger->error($message);
-        }
+        $this->logger->error($message);
     }
     
     /**
