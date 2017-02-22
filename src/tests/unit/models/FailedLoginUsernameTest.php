@@ -102,4 +102,26 @@ class FailedLoginUsernameTest extends TestCase
         );
     }
     
+    public function testResetFailedLoginsBy()
+    {
+        // Arrange:
+        $username = 'dummy_username';
+        $otherUsername = 'dummy_other_username';
+        $dbFixture = [
+            ['username' => $username, 'occurred_at_utc' => UtcTime::format()],
+            ['username' => $otherUsername, 'occurred_at_utc' => UtcTime::format()],
+        ];
+        $this->setDbFixture($dbFixture);
+        
+        // Pre-assert:
+        $this->assertCount(1, FailedLoginUsername::getFailedLoginsFor($username));
+        $this->assertCount(1, FailedLoginUsername::getFailedLoginsFor($otherUsername));
+        
+        // Act:
+        FailedLoginUsername::resetFailedLoginsBy($username);
+        
+        // Assert:
+        $this->assertCount(0, FailedLoginUsername::getFailedLoginsFor($username));
+        $this->assertCount(1, FailedLoginUsername::getFailedLoginsFor($otherUsername));
+    }
 }

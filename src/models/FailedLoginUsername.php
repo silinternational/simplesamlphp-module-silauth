@@ -125,4 +125,9 @@ class FailedLoginUsername extends FailedLoginUsernameBase implements LoggerAware
             ));
         }
     }
+    
+    public static function resetFailedLoginsBy($username)
+    {
+        self::deleteAll(['username' => $username]);
+    }
 }
