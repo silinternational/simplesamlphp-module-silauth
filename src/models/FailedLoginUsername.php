@@ -105,9 +105,9 @@ class FailedLoginUsername extends FailedLoginUsernameBase implements LoggerAware
     
     public static function isCaptchaRequiredFor($username)
     {
-        throw new \Exception(__CLASS__ . '.' . __FUNCTION__ . ' not yet implemented.');
-        
-        //return ($this->login_attempts >= Authenticator::REQUIRE_CAPTCHA_AFTER_NTH_FAILED_LOGIN);
+        return Authenticator::isEnoughFailedLoginsToRequireCaptcha(
+            self::countRecentFailedLoginsFor($username)
+        );
     }
     
     public static function recordFailedLoginBy(
