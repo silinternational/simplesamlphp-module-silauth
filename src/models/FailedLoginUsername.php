@@ -55,22 +55,21 @@ class FailedLoginUsername extends FailedLoginUsernameBase implements LoggerAware
     }
     
     /**
-     * Get the number of seconds remaining until the block_until_utc datetime is
-     * reached. Returns zero if the user is not blocked.
+     * Get the number of seconds remaining until the specified username is
+     * no longer blocked by a rate-limit. Returns zero if the user is not
+     * currently blocked.
      * 
-     * @return int
+     * @param string $username The username in question
+     * @return int The number of seconds
      */
-    public function getSecondsUntilUnblocked()
+    public static function getSecondsUntilUnblocked($username)
     {
-        if ($this->block_until_utc === null) {
-            return 0;
-        }
+        $failedLogin = self::getMostRecentFailedLoginFor($username);
         
-        $nowUtc = new UtcTime();
-        $blockUntilUtc = new UtcTime($this->block_until_utc);
-        $remainingSeconds = $nowUtc->getSecondsUntil($blockUntilUtc);
-        
-        return max($remainingSeconds, 0);
+        return Authenticator::getSecondsUntilUnblocked(
+            self::countRecentFailedLoginsFor($username),
+            $failedLogin->occurred_at_utc ?? null
+        );
     }
     
     /**
