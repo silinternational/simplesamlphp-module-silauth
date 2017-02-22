@@ -75,6 +75,21 @@ class LoginContext implements Context
         $this->resetDatabase();
     }
     
+    protected function addXFailedLoginUsernames(int $number, $username)
+    {
+        Assert::assertNotEmpty($username);
+        
+        for ($i = 0; $i < $number; $i++) {
+            $newRecord = new FailedLoginUsername(['username' => $username]);
+            Assert::assertTrue($newRecord->save());
+        }
+        
+        Assert::assertCount(
+            $number,
+            FailedLoginUsername::getFailedLoginsFor($username)
+        );
+    }
+    
     protected function login()
     {
         $this->authenticator = new Authenticator(
@@ -216,22 +231,11 @@ class LoginContext implements Context
      */
     public function thatUsernameWillBeRateLimitedAfterOneMoreFailedAttempt()
     {
-        Assert::assertNotEmpty($this->username);
-        FailedLoginUsername::deleteAll();
-        Assert::assertEmpty(FailedLoginUsername::getFailedLoginsFor($this->username));
+        FailedLoginUsername::resetFailedLoginsBy($this->username);
         
-        $desiredCount = Authenticator::BLOCK_AFTER_NTH_FAILED_LOGIN - 1;
-        
-        for ($i = 0; $i < $desiredCount; $i++) {
-            $failedLoginUsername = new FailedLoginUsername([
-                'username' => $this->username,
-            ]);
-            Assert::assertTrue($failedLoginUsername->save());
-        }
-        
-        Assert::assertEquals(
-            $desiredCount,
-            FailedLoginUsername::countRecentFailedLoginsFor($this->username)
+        $this->addXFailedLoginUsernames(
+            Authenticator::BLOCK_AFTER_NTH_FAILED_LOGIN - 1,
+            $this->username
         );
     }
 
@@ -284,21 +288,11 @@ class LoginContext implements Context
      */
     public function thatUsernameHasRecentFailedLogins($number)
     {
-        Assert::assertNotEmpty($this->username);
         Assert::assertTrue(is_numeric($number));
-        FailedLoginUsername::deleteAll();
         
-        for ($i = 0; $i < $number; $i++) {
-            $failedLoginUsername = new FailedLoginUsername([
-                'username' => $this->username,
-            ]);
-            Assert::assertTrue($failedLoginUsername->save());
-        }
+        FailedLoginUsername::resetFailedLoginsBy($this->username);
         
-        Assert::assertEquals(
-            $number,
-            FailedLoginUsername::countRecentFailedLoginsFor($this->username)
-        );
+        $this->addXFailedLoginUsernames($number, $this->username);
     }
 
     /**
@@ -318,22 +312,11 @@ class LoginContext implements Context
      */
     public function thatUsernameHasEnoughFailedLoginsToRequireACaptcha()
     {
-        Assert::assertNotEmpty($this->username);
-        FailedLoginUsername::deleteAll();
-        Assert::assertEmpty(FailedLoginUsername::getFailedLoginsFor($this->username));
+        FailedLoginUsername::resetFailedLoginsBy($this->username);
         
-        $desiredCount = Authenticator::REQUIRE_CAPTCHA_AFTER_NTH_FAILED_LOGIN;
-        
-        for ($i = 0; $i < $desiredCount; $i++) {
-            $failedLoginUsername = new FailedLoginUsername([
-                'username' => $this->username,
-            ]);
-            Assert::assertTrue($failedLoginUsername->save());
-        }
-        
-        Assert::assertEquals(
+        $this->addXFailedLoginUsernames(
             Authenticator::REQUIRE_CAPTCHA_AFTER_NTH_FAILED_LOGIN,
-            FailedLoginUsername::countRecentFailedLoginsFor($this->username)
+            $this->username
         );
     }
     
@@ -439,22 +422,11 @@ class LoginContext implements Context
      */
     public function thatUsernameHasEnoughFailedLoginsToBeBlockedByTheRateLimit()
     {
-        Assert::assertNotEmpty($this->username);
-        FailedLoginUsername::deleteAll();
-        Assert::assertEmpty(FailedLoginUsername::getFailedLoginsFor($this->username));
+        FailedLoginUsername::resetFailedLoginsBy($this->username);
         
-        $desiredCount = Authenticator::BLOCK_AFTER_NTH_FAILED_LOGIN;
-        
-        for ($i = 0; $i < $desiredCount; $i++) {
-            $failedLoginUsername = new FailedLoginUsername([
-                'username' => $this->username,
-            ]);
-            Assert::assertTrue($failedLoginUsername->save());
-        }
-        
-        Assert::assertEquals(
+        $this->addXFailedLoginUsernames(
             Authenticator::BLOCK_AFTER_NTH_FAILED_LOGIN,
-            FailedLoginUsername::countRecentFailedLoginsFor($this->username)
+            $this->username
         );
     }
 
