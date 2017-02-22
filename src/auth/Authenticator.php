@@ -150,6 +150,41 @@ class Authenticator
     }
     
     /**
+     * Get the number of seconds to continue blocking, based on the given number
+     * of recent failures and the given date/time of the most recent failed
+     * login attempt.
+     *
+     * @param int $numRecentFailures The number of recent failed login attempts.
+     * @param string|null $mostRecentFailureAt A date/time string for when the
+     *     most recent failed login attempt occurred. If null (meaning there
+     *     have been no recent failures), then zero (0) will be returned.
+     * @return int The number of seconds
+     * @throws Exception If an invalid (but non-null) date/time string is given
+     *     for `$mostRecentFailureAt`.
+     */
+    public static function getSecondsUntilUnblocked(
+        int $numRecentFailures,
+        $mostRecentFailureAt
+    ) {
+        if ($mostRecentFailureAt === null) {
+            return 0;
+        }
+        
+        $totalSecondsToBlock = Authenticator::calculateSecondsToDelay(
+            $numRecentFailures
+        );
+        
+        $secondsSinceLastFailure = UtcTime::getSecondsSinceDateTime(
+            $mostRecentFailureAt
+        );
+        
+        return UtcTime::getRemainingSeconds(
+            $totalSecondsToBlock,
+            $secondsSinceLastFailure
+        );
+    }
+    
+    /**
      * Get the attributes about the authenticated user.
      *
      * @return array<string,array> The user attributes. Example:<pre>

@@ -90,6 +90,35 @@ class AuthenticatorTest extends TestCase
         }
     }
     
+    public function testGetSecondsUntilUnblocked()
+    {
+        // Arrange:
+        $testCases = [[
+            'numRecentFailures' => 0,
+            'mostRecentFailureAt' => null,
+            'expected' => 0,
+        ], [
+            'numRecentFailures' => Authenticator::BLOCK_AFTER_NTH_FAILED_LOGIN - 1, // no delay yet
+            'mostRecentFailureAt' => UtcTime::format('-5 seconds'),
+            'expected' => 0,
+        ], [
+            'numRecentFailures' => 5, // a 25-second delay
+            'mostRecentFailureAt' => UtcTime::format('-5 seconds'),
+            'expected' => 20,
+        ]];
+        foreach ($testCases as $testCase) {
+            
+            // Act:
+            $actual = Authenticator::getSecondsUntilUnblocked(
+                $testCase['numRecentFailures'],
+                $testCase['mostRecentFailureAt']
+            );
+            
+            // Assert:
+            $this->assertSame($testCase['expected'], $actual);
+        }
+    }
+    
     public function testIsEnoughFailedLoginsToBlock()
     {
         // Arrange:
