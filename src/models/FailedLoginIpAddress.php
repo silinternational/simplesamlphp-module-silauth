@@ -154,6 +154,8 @@ class FailedLoginIpAddress extends FailedLoginIpAddressBase implements LoggerAwa
     
     public static function resetFailedLoginsBy(array $ipAddresses)
     {
-        self::deleteAll(['ip_address' => strtolower($ipAddresses)]);
+        foreach ($ipAddresses as $ipAddress) {
+            self::deleteAll(['ip_address' => strtolower($ipAddress)]);
+        }
     }
 }
