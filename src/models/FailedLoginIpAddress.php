@@ -101,7 +101,9 @@ class FailedLoginIpAddress extends FailedLoginIpAddressBase implements LoggerAwa
     
     public static function isCaptchaRequiredFor($ipAddress)
     {
-        throw new \Exception(__CLASS__ . '.' . __FUNCTION__ . ' not yet implemented.');
+        return Authenticator::isEnoughFailedLoginsToRequireCaptcha(
+            self::countRecentFailedLoginsFor($ipAddress)
+        );
     }
     
     public static function recordFailedLoginBy(

@@ -41,4 +41,32 @@ class FailedLoginIpAddressTest extends TestCase
         $this->assertSame($nowDateTimeString, $fliaRecord->occurred_at_utc);
     }
     
+    public function testIsCaptchaRequiredFor()
+    {
+        // Arrange:
+        $testCases = [[
+            'dbFixture' => [
+                ['ip_address' => '11.11.11.11', 'occurred_at_utc' => UtcTime::now()],
+                ['ip_address' => '11.11.11.11', 'occurred_at_utc' => UtcTime::now()],
+            ],
+            'ipAddress' => '11.11.11.11',
+            'expected' => true,
+        ], [
+            'dbFixture' => [
+                ['ip_address' => '22.22.22.22', 'occurred_at_utc' => UtcTime::now()],
+            ],
+            'ipAddress' => '22.22.22.22',
+            'expected' => false,
+        ]];
+        foreach ($testCases as $testCase) {
+            $this->setDbFixture($testCase['dbFixture']);
+
+            // Act:
+            $actual = FailedLoginIpAddress::isCaptchaRequiredFor($testCase['ipAddress']);
+
+            // Assert:
+            $this->assertSame($testCase['expected'], $actual);
+        }
+    }
+    
 }
