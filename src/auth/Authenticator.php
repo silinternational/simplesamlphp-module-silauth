@@ -109,22 +109,6 @@ class Authenticator
     }
     
     /**
-     * "Check" the given password against a dummy use to avoid exposing the
-     * existence of certain users (or absence thereof) through a timing attack.
-     * Technically, they could still deduce it since we don't rate-limit
-     * non-existent accounts (in order to protect our database from a DDoS
-     * attack), but this at least reduces the number of available side
-     * channels.
-     *
-     * @param string $password
-     */
-    protected function avoidNonExistentUserTimingAttack($password)
-    {
-        $dummyUser = new User();
-        $dummyUser->isPasswordCorrect($password);
-    }
-    
-    /**
      * Calculate how many seconds of delay should be required for the given
      * number of recent failed login attempts.
      *
