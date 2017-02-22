@@ -234,6 +234,18 @@ class Authenticator
         return ($numFailedLogins >= self::REQUIRE_CAPTCHA_AFTER_NTH_FAILED_LOGIN);
     }
     
+    protected function recordFailedLoginBy($username, array $ipAddresses)
+    {
+        FailedLoginUsername::recordFailedLoginBy($username, $this->logger);
+        FailedLoginIpAddress::recordFailedLoginBy($ipAddresses, $this->logger);
+    }
+    
+    protected function resetFailedLoginsBy($username, array $ipAddresses)
+    {
+        FailedLoginUsername::resetFailedLoginsBy($username);
+        FailedLoginIpAddress::resetFailedLoginsBy($ipAddresses);
+    }
+    
     protected function setError($code, $messageParams = [])
     {
         $this->authError = new AuthError($code, $messageParams);
