@@ -159,7 +159,7 @@ class Authenticator
             return 0;
         }
         
-        $totalSecondsToBlock = Authenticator::calculateSecondsToDelay(
+        $totalSecondsToBlock = self::calculateSecondsToDelay(
             $numRecentFailures
         );
         

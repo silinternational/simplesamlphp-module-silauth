@@ -109,7 +109,7 @@ class FailedLoginIpAddress extends FailedLoginIpAddressBase implements LoggerAwa
     public static function isCaptchaRequiredForAnyOfThese(array $ipAddresses)
     {
         foreach ($ipAddresses as $ipAddress) {
-            if (FailedLoginIpAddress::isCaptchaRequiredFor($ipAddress)) {
+            if (self::isCaptchaRequiredFor($ipAddress)) {
                 return true;
             }
         }
@@ -126,7 +126,7 @@ class FailedLoginIpAddress extends FailedLoginIpAddressBase implements LoggerAwa
     public static function isRateLimitBlockingAnyOfThese($ipAddresses)
     {
         foreach ($ipAddresses as $ipAddress) {
-            if (FailedLoginIpAddress::isRateLimitBlocking($ipAddress)) {
+            if (self::isRateLimitBlocking($ipAddress)) {
                 return true;
             }
         }
