@@ -14,3 +14,5 @@ mkdir -p /data/vendor/simplesamlphp/simplesamlphp/modules/sildisco
 touch /data/vendor/simplesamlphp/simplesamlphp/modules/sildisco/default-enable
 
 apachectl -k graceful
+
+sed -i "s/^<?php$/<?php defined('YII_DEBUG') || define('YII_DEBUG', true);/" /data/vendor/simplesamlphp/simplesamlphp/www/_include.php
