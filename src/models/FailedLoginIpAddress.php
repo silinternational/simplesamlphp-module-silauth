@@ -2,6 +2,7 @@
 namespace Sil\SilAuth\models;
 
 use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerInterface;
 use Sil\SilAuth\auth\Authenticator;
 use Sil\SilAuth\behaviors\CreatedAtUtcBehavior;
 use Sil\SilAuth\http\Request;
@@ -101,6 +102,25 @@ class FailedLoginIpAddress extends FailedLoginIpAddressBase implements LoggerAwa
     public static function isCaptchaRequiredFor($ipAddress)
     {
         throw new \Exception(__CLASS__ . '.' . __FUNCTION__ . ' not yet implemented.');
+    }
+    
+    public static function recordFailedLoginBy(
+        array $ipAddresses,
+        LoggerInterface $logger
+    ) {
+        foreach ($ipAddresses as $ipAddress) {
+            $newRecord = new FailedLoginIpAddress(['ip_address' => $ipAddress]);
+            
+            if ( ! $newRecord->save()) {
+                $logger->critical(sprintf(
+                    'Failed to update login attempts counter in database for %s, '
+                    . 'so unable to prevent dictionary attacks by that IP address. '
+                    . 'Errors: %s',
+                    var_export($ipAddress, true),
+                    json_encode($newRecord->getErrors())
+                ));
+            }
+        }
     }
     
     public static function resetFailedLoginsBy(array $ipAddresses)
