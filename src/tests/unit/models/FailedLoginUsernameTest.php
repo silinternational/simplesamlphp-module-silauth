@@ -44,4 +44,34 @@ class FailedLoginUsernameTest extends TestCase
         // Assert:
         $this->assertEquals(2, $result);
     }
+    public function testIsRateLimitBlocking()
+    {
+        // Arrange:
+        $testCases = [[
+            'dbFixture' => [
+                ['username' => 'dummy_username', 'occurred_at_utc' => UtcTime::now()],
+                ['username' => 'dummy_username', 'occurred_at_utc' => UtcTime::now()],
+                ['username' => 'dummy_username', 'occurred_at_utc' => UtcTime::now()],
+            ],
+            'username' => 'dummy_username',
+            'expected' => true,
+        ], [
+            'dbFixture' => [
+                ['username' => 'dummy_other_username', 'occurred_at_utc' => UtcTime::now()],
+                ['username' => 'dummy_other_username', 'occurred_at_utc' => UtcTime::now()],
+            ],
+            'username' => 'dummy_other_username',
+            'expected' => false,
+        ]];
+        foreach ($testCases as $testCase) {
+            $this->setDbFixture($testCase['dbFixture']);
+
+            // Act:
+            $actual = FailedLoginUsername::isRateLimitBlocking($testCase['username']);
+
+            // Assert:
+            $this->assertSame($testCase['expected'], $actual);
+        }
+    }
+    
 }

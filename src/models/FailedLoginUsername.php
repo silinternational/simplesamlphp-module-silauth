@@ -89,9 +89,17 @@ class FailedLoginUsername extends FailedLoginUsernameBase implements LoggerAware
         parent::init();
     }
     
-    public function isBlockedByRateLimit()
+    /**
+     * Find out whether a rate limit is blocking the specified username.
+     *
+     * @param string $username The username
+     * @return bool
+     */
+    public static function isRateLimitBlocking($username)
     {
-        return ($this->getSecondsUntilUnblocked() > 0);
+        return Authenticator::isEnoughFailedLoginsToBlock(
+            self::countRecentFailedLoginsFor($username)
+        );
     }
     
     public static function isCaptchaRequiredFor($username)
