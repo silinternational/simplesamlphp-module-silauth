@@ -5,11 +5,13 @@ use Sil\SilAuth\text\Text;
 
 class Request
 {
-    private $trustedIpAddresses;
+    private $trustedIpAddresses = [];
     
-    public function __construct(array $trustedIpAddresses = [])
+    public function __construct(array $ipAddressesToTrust = [])
     {
-        $this->trustedIpAddresses = $trustedIpAddresses;
+        foreach ($ipAddressesToTrust as $ipAddress) {
+            $this->trustIpAddress($ipAddress);
+        }
     }
     
     public function getCaptchaResponse()
