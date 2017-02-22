@@ -224,9 +224,9 @@ class Authenticator
         return ( ! $this->hasError());
     }
     
-    public static function isEnoughFailedLoginsToBlock($failedLoginAttempts)
+    public static function isEnoughFailedLoginsToBlock($numFailedLogins)
     {
-        return ($failedLoginAttempts >= self::BLOCK_AFTER_NTH_FAILED_LOGIN);
+        return ($numFailedLogins >= self::BLOCK_AFTER_NTH_FAILED_LOGIN);
     }
     
     protected function setError($code, $messageParams = [])
