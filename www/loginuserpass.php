@@ -1,10 +1,8 @@
 <?php
 
-use Sil\SilAuth\auth\AuthError;
 use Sil\SilAuth\csrf\CsrfProtector;
-use Sil\SilAuth\log\Psr3SamlLogger;
 use Sil\SilAuth\http\Request;
-use Sil\SilAuth\text\Text;
+use Sil\SilAuth\log\Psr3SamlLogger;
 use Sil\SilAuth\models\FailedLoginUsername;
 
 /**
@@ -41,8 +39,6 @@ $silAuthConfig = $authSourcesConfig->getConfigItem('silauth');
 $recaptchaSiteKey = $silAuthConfig->getString('recaptcha.siteKey', null);
 $forgotPasswordUrl = $silAuthConfig->getString('link.forgotPassword', null);
 
-$remoteIp = Request::sanitizeInputString(INPUT_SERVER, 'REMOTE_ADDR');
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         
@@ -52,36 +48,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             $username = Request::sanitizeInputString(INPUT_POST, 'username');
             $password = Request::sanitizeInputString(INPUT_POST, 'password');
-            
-            $gRecaptchaResponse = Request::sanitizeInputString(INPUT_POST, 'g-recaptcha-response');
-            
-            if (User::isCaptchaRequiredFor($username)) {
-                $logger->warning(sprintf(
-                    'Required reCAPTCHA for user %s.',
-                    var_export($username, true)
-                ));
-                
-                $recaptcha = new \ReCaptcha\ReCaptcha($recaptchaSecret);
-                $rcResponse = $recaptcha->verify($gRecaptchaResponse, $remoteIp);
-                if ( ! $rcResponse->isSuccess()) {
-                    $logger->error(sprintf(
-                        'Failed reCAPTCHA (user %s): %s',
-                        var_export($username, true),
-                        join(', ', $rcResponse->getErrorCodes())
-                    ));
-                    
-                    /* If they entered a username that has enough failed login
-                     * attempts that we need to require captcha, act like they
-                     * simply mistyped the password (so that they will re-type
-                     * their credentials now that we're using a captcha).  */
-                    $authError = new AuthError(AuthError::CODE_INVALID_LOGIN);
-                    throw new SimpleSAML_Error_Error([
-                        'WRONGUSERPASS',
-                        $authError->getFullSspErrorTag(),
-                        $authError->getMessageParams()
-                    ]);
-                }
-            }
             
             sspmod_silauth_Auth_Source_SilAuth::handleLogin(
                 $authStateId,
