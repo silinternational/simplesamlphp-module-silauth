@@ -2,6 +2,7 @@
 namespace Sil\SilAuth\models;
 
 use Psr\Log\LoggerAwareInterface;
+use Sil\SilAuth\auth\Authenticator;
 use Sil\SilAuth\behaviors\CreatedAtUtcBehavior;
 use Sil\SilAuth\http\Request;
 use Sil\SilAuth\time\UtcTime;
@@ -71,6 +72,24 @@ class FailedLoginIpAddress extends FailedLoginIpAddressBase implements LoggerAwa
         ])->orderBy([
             'occurred_at_utc' => SORT_DESC,
         ])->one();
+    }
+    
+    /**
+     * Get the number of seconds remaining until the specified IP address is
+     * no longer blocked by a rate-limit. Returns zero if it is not currently
+     * blocked.
+     * 
+     * @param string $ipAddress The IP address in question
+     * @return int The number of seconds
+     */
+    public static function getSecondsUntilUnblocked($ipAddress)
+    {
+        $failedLogin = self::getMostRecentFailedLoginFor($ipAddress);
+        
+        return Authenticator::getSecondsUntilUnblocked(
+            self::countRecentFailedLoginsFor($ipAddress),
+            $failedLogin->occurred_at_utc ?? null
+        );
     }
     
     public function init()
