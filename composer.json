@@ -17,7 +17,6 @@
     "silinternational/php-env": "^0.2.0",
     "silinternational/ssp-deps": "dev-develop",
     "silinternational/ssp-utilities": "dev-develop",
-    "silinternational/simplesamlphp-module-material": "dev-develop",
     "silinternational/simplesamlphp-module-sildisco": "dev-develop",
     "simplesamlphp/simplesamlphp": "^1.14.10",
     "yiisoft/yii2": "^2.0",
