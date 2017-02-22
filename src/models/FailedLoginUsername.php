@@ -48,7 +48,7 @@ class FailedLoginUsername extends FailedLoginUsernameBase implements LoggerAware
      * @param string $username The username.
      * @return FailedLoginUsername[] An array of any matching records.
      */
-    public static function findAllByUsername($username)
+    public static function getFailedLoginsFor($username)
     {
         return self::findAll(['username' => $username]);
     }
