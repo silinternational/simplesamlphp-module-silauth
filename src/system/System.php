@@ -2,9 +2,8 @@
 namespace Sil\SilAuth\system;
 
 use Psr\Log\LoggerInterface;
-use Sil\SilAuth\config\ConfigManager;
-use Sil\SilAuth\models\User;
 use Psr\Log\NullLogger;
+use Sil\SilAuth\models\FailedLoginIpAddress;
 use Throwable;
 
 class System
@@ -24,7 +23,7 @@ class System
     protected function isDatabaseOkay()
     {
         try {
-            User::findByUsername(null);
+            FailedLoginIpAddress::getMostRecentFailedLoginFor('');
             return true;
         } catch (Throwable $t) {
             $this->logError($t->getMessage());
