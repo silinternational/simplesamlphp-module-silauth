@@ -7,10 +7,19 @@ use PHPUnit_Framework_Assert as Assert;
 use Psr\Log\LoggerInterface;
 use Sil\PhpEnv\Env;
 use Sil\SilAuth\auth\Authenticator;
+use Sil\SilAuth\auth\IdBroker;
+use Sil\SilAuth\captcha\Captcha;
 use Sil\SilAuth\config\ConfigManager;
+use Sil\SilAuth\http\Request;
 use Sil\SilAuth\log\Psr3ConsoleLogger;
-use Sil\SilAuth\models\User;
-//use Sil\SilAuth\time\UtcTime;
+use Sil\SilAuth\models\FailedLoginIpAddress;
+use Sil\SilAuth\models\FailedLoginUsername;
+use Sil\SilAuth\tests\unit\auth\DummyFailedIdBroker;
+use Sil\SilAuth\tests\unit\auth\DummySuccessfulIdBroker;
+use Sil\SilAuth\tests\unit\captcha\DummyFailedCaptcha;
+use Sil\SilAuth\tests\unit\captcha\DummySuccessfulCaptcha;
+use Sil\SilAuth\tests\unit\http\DummyRequest;
+use Sil\SilAuth\time\UtcTime;
 //use yii\helpers\ArrayHelper;
 
 /**
@@ -24,11 +33,20 @@ class LoginContext implements Context
     /** @var LoggerInterface */
     private $logger;
 
+    /** @var Captcha */
+    private $captcha;
+    
     /** @var string|null */
     private $csrfToken = null;
     
+    /** @var IdBroker */
+    private $idBroker;
+    
     /** @var string|null */
     private $password = null;
+    
+    /** @var Request */
+    private $request;
     
     /** @var string|null */
     private $username = null;
@@ -53,18 +71,37 @@ class LoginContext implements Context
         ]]]);
         
         $this->logger = new Psr3ConsoleLogger();
+        
+        $this->captcha = new Captcha();
+        $this->idBroker = new IdBroker($this->logger);
+        $this->request = new Request();
+        
+        $this->resetDatabase();
+    }
+    
+    protected function login()
+    {
+        $this->authenticator = new Authenticator(
+            $this->username,
+            $this->password,
+            $this->request,
+            $this->captcha,
+            $this->idBroker,
+            $this->logger
+        );
     }
     
     protected function loginXTimes($numberOfTimes)
     {
         for ($i = 0; $i < $numberOfTimes; $i++) {
-            $this->authenticator = new Authenticator(
-                $this->username,
-                $this->password,
-                null,
-                $this->logger
-            );
+            $this->login();
         }   
+    }
+    
+    protected function resetDatabase()
+    {
+        FailedLoginIpAddress::deleteAll();
+        FailedLoginUsername::deleteAll();
     }
     
     /**
@@ -96,12 +133,7 @@ class LoginContext implements Context
      */
     public function iTryToLogIn()
     {
-        $this->authenticator = new Authenticator(
-            $this->username,
-            $this->password,
-            null,
-            $this->logger
-        );
+        $this->login();
     }
 
     /**
@@ -155,22 +187,11 @@ class LoginContext implements Context
     }
 
     /**
-     * @Given a captcha is required for that username
-     */
-    public function aCaptchaIsRequiredForThatUsername()
-    {
-        Assert::assertNotEmpty($this->username);
-        Assert::assertTrue(
-            User::isCaptchaRequiredFor($this->username)
-        );
-    }
-
-    /**
      * @Given I fail the captcha
      */
     public function iFailTheCaptcha()
     {
-        throw new PendingException();
+        $this->captcha = new DummyFailedCaptcha();
     }
 
     /**
@@ -214,10 +235,7 @@ class LoginContext implements Context
      */
     public function thatUserAccountShouldBeBlockedForAwhile()
     {
-        $user = User::findByUsername($this->username);
-        Assert::assertTrue(
-            $user->isBlockedByRateLimit()
-        );
+        throw new PendingException();
     }
 
     /**
@@ -225,7 +243,8 @@ class LoginContext implements Context
      */
     public function iProvideAnIncorrectPassword()
     {
-        $this->password = 'ThisIsWrong';
+        $this->password = 'dummy incorrect password';
+        $this->idBroker = new DummyFailedIdBroker($this->logger);
     }
 
     /**
@@ -233,7 +252,23 @@ class LoginContext implements Context
      */
     public function thatUsernameWillBeRateLimitedAfterOneMoreFailedAttempt()
     {
-        throw new PendingException();
+        Assert::assertNotEmpty($this->username);
+        FailedLoginUsername::deleteAll();
+        Assert::assertEmpty(FailedLoginUsername::getFailedLoginsFor($this->username));
+        
+        $desiredCount = Authenticator::BLOCK_AFTER_NTH_FAILED_LOGIN - 1;
+        
+        for ($i = 0; $i < $desiredCount; $i++) {
+            $failedLoginUsername = new FailedLoginUsername([
+                'username' => $this->username,
+            ]);
+            Assert::assertTrue($failedLoginUsername->save());
+        }
+        
+        Assert::assertEquals(
+            $desiredCount,
+            FailedLoginUsername::countRecentFailedLoginsFor($this->username)
+        );
     }
 
     /**
@@ -242,7 +277,8 @@ class LoginContext implements Context
     public function iProvideTheCorrectPasswordForThatUsername()
     {
         Assert::assertNotEmpty($this->username);
-        $this->password = $this->username . '123'; // Scheme for dummy data for tests.
+        $this->password = 'dummy correct password';
+        $this->idBroker = new DummySuccessfulIdBroker($this->logger);
     }
 
     /**
@@ -270,28 +306,35 @@ class LoginContext implements Context
     }
 
     /**
-     * @When I try to log in using enough times to trigger the rate limit
+     * @When I try to log in enough times to trigger the rate limit
      */
-    public function iTryToLogInUsingEnoughTimesToTriggerTheRateLimit()
+    public function iTryToLogInEnoughTimesToTriggerTheRateLimit()
     {
-        throw new PendingException();
+        $this->loginXTimes(
+            Authenticator::BLOCK_AFTER_NTH_FAILED_LOGIN
+        );
     }
 
     /**
-     * @Then that user account's failed login attempts should be at :number
+     * @Given that username has :number recent failed logins
      */
-    public function thatUserAccountSFailedLoginAttemptsShouldBeAt($number)
+    public function thatUsernameHasRecentFailedLogins($number)
     {
-        $user = User::findByUsername($this->username);
-        Assert::assertEquals($number, $user->login_attempts);
-    }
-
-    /**
-     * @Given the username :username has :number failed logins in the last hour
-     */
-    public function theUsernameHasFailedLoginsInTheLastHour($username, $number)
-    {
-        throw new PendingException();
+        Assert::assertNotEmpty($this->username);
+        Assert::assertTrue(is_numeric($number));
+        FailedLoginUsername::deleteAll();
+        
+        for ($i = 0; $i < $number; $i++) {
+            $failedLoginUsername = new FailedLoginUsername([
+                'username' => $this->username,
+            ]);
+            Assert::assertTrue($failedLoginUsername->save());
+        }
+        
+        Assert::assertEquals(
+            $number,
+            FailedLoginUsername::countRecentFailedLoginsFor($this->username)
+        );
     }
 
     /**
@@ -307,63 +350,11 @@ class LoginContext implements Context
     }
 
     /**
-     * @Given the username :username had :number failed logins more than an hour ago
-     */
-    public function theUsernameHadFailedLoginsMoreThanAnHourAgo($username, $number)
-    {
-        throw new PendingException();
-    }
-
-    /**
      * @Given the username :username had :number failed logins in the last hour
      */
     public function theUsernameHadFailedLoginsInTheLastHour($username, $number)
     {
         throw new PendingException();
-    }
-    
-    /**
-     * @Then I should not have to pass a captcha test for that user
-     */
-    public function iShouldNotHaveToPassACaptchaTestForThatUser()
-    {
-        Assert::assertNotEmpty($this->username);
-        Assert::assertFalse(
-            User::isCaptchaRequiredFor($this->username)
-        );
-    }
-
-    /**
-     * @When I try to log in with an incorrect password enough times to require a captcha
-     */
-    public function iTryToLogInWithAnIncorrectPasswordEnoughTimesToRequireACaptcha()
-    {
-        // Arrange:
-        $this->password = 'ThisIsWrong';
-        $user = User::findByUsername($this->username);
-        
-        // Pre-assert:
-        Assert::assertNotNull($user, sprintf(
-            'Unable to find a user with that username (%s).',
-            var_export($this->username, true)
-        ));
-        Assert::assertFalse(
-            $user->isPasswordCorrect($this->password)
-        );
-        
-        // Act:
-        $this->loginXTimes(Authenticator::REQUIRE_CAPTCHA_AFTER_NTH_FAILED_LOGIN);
-    }
-
-    /**
-     * @Then I should have to pass a captcha test for that user
-     */
-    public function iShouldHaveToPassACaptchaTestForThatUser()
-    {
-        Assert::assertNotEmpty($this->username);
-        Assert::assertTrue(
-            User::isCaptchaRequiredFor($this->username)
-        );
     }
 
     /**
@@ -371,7 +362,23 @@ class LoginContext implements Context
      */
     public function thatUsernameHasEnoughFailedLoginsToRequireACaptcha()
     {
-        throw new PendingException();
+        Assert::assertNotEmpty($this->username);
+        FailedLoginUsername::deleteAll();
+        Assert::assertEmpty(FailedLoginUsername::getFailedLoginsFor($this->username));
+        
+        $desiredCount = Authenticator::REQUIRE_CAPTCHA_AFTER_NTH_FAILED_LOGIN;
+        
+        for ($i = 0; $i < $desiredCount; $i++) {
+            $failedLoginUsername = new FailedLoginUsername([
+                'username' => $this->username,
+            ]);
+            Assert::assertTrue($failedLoginUsername->save());
+        }
+        
+        Assert::assertEquals(
+            Authenticator::REQUIRE_CAPTCHA_AFTER_NTH_FAILED_LOGIN,
+            FailedLoginUsername::countRecentFailedLoginsFor($this->username)
+        );
     }
 
     /**
@@ -387,23 +394,11 @@ class LoginContext implements Context
      */
     public function thatUsernameHasNoRecentFailedLoginAttempts()
     {
-        throw new PendingException();
-    }
-
-    /**
-     * @Given my request comes from the IP address :arg1
-     */
-    public function myRequestComesFromTheIpAddress($arg1)
-    {
-        throw new PendingException();
-    }
-
-    /**
-     * @Given that IP address has enough failed logins to require a captcha
-     */
-    public function thatIpAddressHasEnoughFailedLoginsToRequireACaptcha()
-    {
-        throw new PendingException();
+        Assert::assertNotEmpty($this->username);
+        Assert::assertEquals(
+            0,
+            FailedLoginUsername::countRecentFailedLoginsFor($this->username)
+        );
     }
 
     /**
@@ -411,23 +406,22 @@ class LoginContext implements Context
      */
     public function thatUsernameShouldBeBlockedForAwhile()
     {
-        throw new PendingException();
+        Assert::assertNotEmpty($this->username);
+        Assert::assertTrue(
+            FailedLoginUsername::isRateLimitBlocking($this->username)
+        );
     }
 
     /**
-     * @Given my request comes from IP address :arg1
+     * @Given my request comes from IP address :ipAddress
      */
-    public function myRequestComesFromIpAddress($arg1)
+    public function myRequestComesFromIpAddress($ipAddress)
     {
-        throw new PendingException();
-    }
-
-    /**
-     * @Given that IP address has triggered the rate limit
-     */
-    public function thatIpAddressHasTriggeredTheRateLimit()
-    {
-        throw new PendingException();
+        if ( ! $this->request instanceof DummyRequest) {
+            $this->request = new DummyRequest();
+        }
+        
+        $this->request->setDummyIpAddress($ipAddress);
     }
 
     /**
@@ -435,14 +429,176 @@ class LoginContext implements Context
      */
     public function thatIpAddressShouldBeBlockedForAwhile()
     {
-        throw new PendingException();
+        $ipAddresses = $this->request->getUntrustedIpAddresses();
+        Assert::assertCount(1, $ipAddresses);
+        $ipAddress = $ipAddresses[0];
+        
+        Assert::assertTrue(
+            FailedLoginIpAddress::isRateLimitBlocking($ipAddress)
+        );
     }
 
     /**
-     * @Then that username's failed login attempts should be at :arg1
+     * @Then that username's failed login attempts should be at :number
      */
-    public function thatUsernameSFailedLoginAttemptsShouldBeAt($arg1)
+    public function thatUsernameSFailedLoginAttemptsShouldBeAt($number)
     {
-        throw new PendingException();
+        Assert::assertNotEmpty($this->username);
+        Assert::assertTrue(is_numeric($number));
+        Assert::assertCount(
+            (int)$number,
+            FailedLoginUsername::getFailedLoginsFor($this->username)
+        );
+    }
+
+    /**
+     * @Given that username does not have enough failed logins to require a captcha
+     */
+    public function thatUsernameDoesNotHaveEnoughFailedLoginsToRequireACaptcha()
+    {
+        Assert::assertNotEmpty($this->username);
+        FailedLoginUsername::deleteAll();
+        Assert::assertEmpty(FailedLoginUsername::getFailedLoginsFor($this->username));
+    }
+
+    /**
+     * @Given my IP address has enough failed logins to require a captcha
+     */
+    public function myIpAddressHasEnoughFailedLoginsToRequireACaptcha()
+    {
+        $ipAddress = $this->request->getMostLikelyIpAddress();
+        Assert::assertNotNull($ipAddress, 'No IP address was provided.');
+        FailedLoginIpAddress::deleteAll();
+        Assert::assertEmpty(FailedLoginIpAddress::getFailedLoginsFor($ipAddress));
+        
+        $desiredCount = Authenticator::REQUIRE_CAPTCHA_AFTER_NTH_FAILED_LOGIN;
+        
+        for ($i = 0; $i < $desiredCount; $i++) {
+            $failedLoginUsername = new FailedLoginIpAddress([
+                'ip_address' => $ipAddress,
+            ]);
+            Assert::assertTrue($failedLoginUsername->save());
+        }
+        
+        Assert::assertEquals(
+            Authenticator::REQUIRE_CAPTCHA_AFTER_NTH_FAILED_LOGIN,
+            FailedLoginIpAddress::countRecentFailedLoginsFor($ipAddress)
+        );
+    }
+
+    /**
+     * @Given that username has enough failed logins to be blocked by the rate limit
+     */
+    public function thatUsernameHasEnoughFailedLoginsToBeBlockedByTheRateLimit()
+    {
+        Assert::assertNotEmpty($this->username);
+        FailedLoginUsername::deleteAll();
+        Assert::assertEmpty(FailedLoginUsername::getFailedLoginsFor($this->username));
+        
+        $desiredCount = Authenticator::BLOCK_AFTER_NTH_FAILED_LOGIN;
+        
+        for ($i = 0; $i < $desiredCount; $i++) {
+            $failedLoginUsername = new FailedLoginUsername([
+                'username' => $this->username,
+            ]);
+            Assert::assertTrue($failedLoginUsername->save());
+        }
+        
+        Assert::assertEquals(
+            Authenticator::BLOCK_AFTER_NTH_FAILED_LOGIN,
+            FailedLoginUsername::countRecentFailedLoginsFor($this->username)
+        );
+    }
+
+    /**
+     * @Given that IP address has triggered the rate limit
+     */
+    public function thatIpAddressHasTriggeredTheRateLimit()
+    {
+        $ipAddresses = $this->request->getUntrustedIpAddresses();
+        Assert::assertCount(1, $ipAddresses);
+        $ipAddress = $ipAddresses[0];
+        
+        FailedLoginIpAddress::deleteAll();
+        Assert::assertEmpty(FailedLoginIpAddress::getFailedLoginsFor($ipAddress));
+        
+        $desiredCount = Authenticator::BLOCK_AFTER_NTH_FAILED_LOGIN;
+        
+        for ($i = 0; $i < $desiredCount; $i++) {
+            $failedLoginIpAddress = new FailedLoginIpAddress([
+                'ip_address' => $ipAddress,
+            ]);
+            Assert::assertTrue($failedLoginIpAddress->save());
+        }
+        
+        Assert::assertTrue(
+            FailedLoginIpAddress::isRateLimitBlocking($ipAddress)
+        );
+    }
+
+    /**
+     * @Given /^I pass (the|any) captchas?$/
+     */
+    public function iPassTheCaptcha()
+    {
+        $this->captcha = new DummySuccessfulCaptcha();
+    }
+
+    /**
+     * @Given that username has :number non-recent failed logins
+     */
+    public function thatUsernameHasNonRecentFailedLogins($number)
+    {
+        Assert::assertNotEmpty($this->username);
+        Assert::assertTrue(is_numeric($number));
+        
+        $numTotalFailures = count(FailedLoginUsername::getFailedLoginsFor($this->username));
+        $numRecentFailures = FailedLoginUsername::countRecentFailedLoginsFor($this->username);
+        $numNonRecentFailures = $numTotalFailures - $numRecentFailures;
+        
+        for ($i = $numNonRecentFailures; $i < $number; $i++) {
+            $failedLoginUsername = new FailedLoginUsername([
+                'username' => $this->username,
+                
+                // NOTE: Use some time (UTC) longer ago than we consider "recent".
+                'occurred_at_utc' => new UtcTime('-1 month'),
+            ]);
+            // NOTE: Don't validate, as that would overwrite the datetime field.
+            Assert::assertTrue($failedLoginUsername->save(false));
+        }
+        
+        $numTotalFailuresPost = count(FailedLoginUsername::getFailedLoginsFor($this->username));
+        $numRecentFailuresPost = FailedLoginUsername::countRecentFailedLoginsFor($this->username);
+        $numNonRecentFailuresPost = $numTotalFailuresPost - $numRecentFailuresPost;
+        
+        Assert::assertEquals($number, $numNonRecentFailuresPost);
+    }
+
+    /**
+     * @Then I should not have to pass a captcha test for that user
+     */
+    public function iShouldNotHaveToPassACaptchaTestForThatUser()
+    {
+        Assert::assertNotEmpty($this->username);
+        Assert::assertFalse(
+            FailedLoginUsername::isCaptchaRequiredFor($this->username)
+        );
+    }
+
+    /**
+     * @Given :ipAddress is a trusted IP address
+     */
+    public function isATrustedIpAddress($ipAddress)
+    {
+        $this->request->trustIpAddress($ipAddress);
+    }
+
+    /**
+     * @Then the IP address :ipAddress should not have any failed login attempts
+     */
+    public function theIpAddressShouldNotHaveAnyFailedLoginAttempts($ipAddress)
+    {
+        Assert::assertTrue(Request::isValidIpAddress($ipAddress));
+        Assert::assertEmpty(FailedLoginIpAddress::getFailedLoginsFor($ipAddress));
     }
 }
