@@ -127,10 +127,14 @@ class Authenticator
         $dummyUser->isPasswordCorrect($password);
     }
     
-    public static function calculateSecondsToDelay($failedLoginAttempts)
+    public static function calculateSecondsToDelay($numRecentFailures)
     {
+        if ( ! self::isEnoughFailedLoginsToBlock($numRecentFailures)) {
+            return 0;
+        }
+        
         return min(
-            $failedLoginAttempts * $failedLoginAttempts,
+            $numRecentFailures * $numRecentFailures,
             self::MAX_SECONDS_TO_BLOCK
         );
     }

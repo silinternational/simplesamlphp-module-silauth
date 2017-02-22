@@ -59,9 +59,11 @@ class AuthenticatorTest extends TestCase
     public function testCalculateSecondsToDelay()
     {
         // Arrange:
+        $blockAfterNth = Authenticator::BLOCK_AFTER_NTH_FAILED_LOGIN;
         $testCases = [
             ['failedLoginAttempts' => 0, 'expected' => 0],
-            ['failedLoginAttempts' => 1, 'expected' => 1],
+            ['failedLoginAttempts' => $blockAfterNth - 1, 'expected' => 0],
+            ['failedLoginAttempts' => $blockAfterNth, 'expected' => pow($blockAfterNth, 2)],
             ['failedLoginAttempts' => 5, 'expected' => 25],
             ['failedLoginAttempts' => 6, 'expected' => 36],
             ['failedLoginAttempts' => 10, 'expected' => 100],
