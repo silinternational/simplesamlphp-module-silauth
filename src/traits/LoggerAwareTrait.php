@@ -17,7 +17,7 @@ trait LoggerAwareTrait
     }
     
     /**
-     * Set a logger for this User instance to use.
+     * Set a logger for this class instance to use.
      *
      * @param LoggerInterface $logger A PSR-3 compliant logger.
      * @return null
