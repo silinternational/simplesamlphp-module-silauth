@@ -127,6 +127,14 @@ class Authenticator
         $dummyUser->isPasswordCorrect($password);
     }
     
+    /**
+     * Calculate how many seconds of delay should be required for the given
+     * number of recent failed login attempts.
+     *
+     * @param int $numRecentFailures The number of recent failed login attempts.
+     * @return int The number of seconds to delay before allowing another such
+     *     login attempt.
+     */
     public static function calculateSecondsToDelay($numRecentFailures)
     {
         if ( ! self::isEnoughFailedLoginsToBlock($numRecentFailures)) {
