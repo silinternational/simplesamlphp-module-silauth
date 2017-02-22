@@ -3,8 +3,13 @@ namespace Sil\SilAuth\auth;
 
 use Psr\Log\LoggerInterface;
 use Sil\SilAuth\auth\AuthError;
+use Sil\SilAuth\auth\IdBroker;
+use Sil\SilAuth\captcha\Captcha;
+use Sil\SilAuth\time\UtcTime;
 use Sil\SilAuth\time\WaitTime;
-use Sil\SilAuth\models\User;
+use Sil\SilAuth\models\FailedLoginIpAddress;
+use Sil\SilAuth\models\FailedLoginUsername;
+use Sil\SilAuth\http\Request;
 
 /**
  * An immutable class for making a single attempt to authenticate using a given
@@ -18,6 +23,10 @@ class Authenticator
     
     /** @var AuthError|null */
     private $authError = null;
+    
+    /** @var LoggerInterface */
+    protected $logger;
+    
     private $userAttributes = null;
     
     /**
@@ -26,11 +35,23 @@ class Authenticator
      * 
      * @param string $username The username to check.
      * @param string $password The password to check.
-     * @param Ldap $ldap An object for interacting with the LDAP server.
+     * @param Request $request An object representing the HTTP request.
+     * @param Captcha $captcha A way to check the submitted captcha.
+     * @param IdBroker $idBroker An object for communicating with the ID Broker.
      * @param LoggerInterface $logger A PSR-3 compliant logger.
      */
-    public function __construct($username, $password, $ldap, $logger)
-    {
+    public function __construct(
+            $username,
+            $password,
+            Request $request,
+            Captcha $captcha,
+            IdBroker $idBroker,
+            LoggerInterface $logger
+    ) {
+        $this->logger = $logger;
+        
+        /** @todo Check CSRF here, too, if feasible. */
+        
         if (empty($username)) {
             $this->setErrorUsernameRequired();
             return;
@@ -41,51 +62,36 @@ class Authenticator
             return;
         }
         
-        $user = User::findByUsername($username);
-        if ($user === null) {
-            $this->avoidNonExistentUserTimingAttack($password);
-            $this->setErrorInvalidLogin();
-            return;
-        }
-        $user->setLogger($logger);
+        $ipAddresses = $request->getUntrustedIpAddresses();
         
-        if ($user->isBlockedByRateLimit()) {
+        if ($this->isBlockedByRateLimit($username, $ipAddresses)) {
             $this->setErrorBlockedByRateLimit(
-                $user->getWaitTimeUntilUnblocked()
+                $this->getWaitTimeUntilUnblocked($username, $ipAddresses)
             );
             return;
         }
         
-        if ($user->isLocked() || !$user->isActive()) {
-            $this->setErrorInvalidLogin();
-            return;
-        }
-        
-        if ( ! $user->hasPasswordInDatabase()) {
-            if ( ! $this->canConnectToLdap($ldap, $logger)) {
-                $this->setErrorNeedToSetAcctPassword();
+        if ($this->isCaptchaRequired($username, $ipAddresses)) {
+            $logger->warning('Captcha required for {username} (IP: {ipAddresses}).', [
+                'username' => var_export($username, true),
+                'ipAddresses' => join(', ', $ipAddresses),
+            ]);
+            if ( ! $captcha->isValidIn($request)) {
+                $logger->warning('Invalid or missing captcha for {username} (IP: {ipAddresses}).', [
+                    'username' => var_export($username, true),
+                    'ipAddresses' => join(', ', $ipAddresses),
+                ]);
+                $this->setErrorInvalidLogin();
                 return;
             }
-            
-            if ($ldap->isPasswordCorrectForUser($username, $password)) {
-                $user->setPassword($password);
-                
-                /* Try to save the password, but let the user proceed even if
-                 * we can't (since we know the password is correct).  */
-                $user->tryToSave(sprintf(
-                    'Failed to record password from LDAP into database for %s',
-                    var_export($username, true)
-                ));
-            }
         }
         
-        if ( ! $user->isPasswordCorrect($password)) {
-            $user->recordLoginAttemptInDatabase();
+        if ( ! $idBroker->isValidCredentials($username, $password)) {
+            $this->recordFailedLoginBy($username, $ipAddresses);
             
-            $user->refresh();
-            if ($user->isBlockedByRateLimit()) {
+            if ($this->isBlockedByRateLimit($username, $ipAddresses)) {
                 $this->setErrorBlockedByRateLimit(
-                    $user->getWaitTimeUntilUnblocked()
+                    $this->getWaitTimeUntilUnblocked($username, $ipAddresses)
                 );
             } else {
                 $this->setErrorInvalidLogin();
@@ -95,20 +101,11 @@ class Authenticator
         
         // NOTE: If we reach this point, the user successfully authenticated.
         
-        $user->resetFailedLoginAttemptsInDatabase();
+        $this->resetFailedLoginsBy($username, $ipAddresses);
         
-        if ($user->isPasswordRehashNeeded()) {
-            $user->tryToSaveRehashedPassword($password);
-        }
+        $userAttributes = $idBroker->getUserAttributesFor($username);
         
-        $this->setUserAttributes([
-            'eduPersonTargetID' => [$user->uuid],
-            'sn' => [$user->last_name],
-            'givenName' => [$user->first_name],
-            'mail' => [$user->email],
-            'username' => [$user->username],
-            'employeeId' => [$user->employee_id],
-        ]);
+        $this->setUserAttributes($userAttributes);
     }
     
     /**
