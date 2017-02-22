@@ -3,7 +3,6 @@ namespace Sil\SilAuth\system;
 
 use Psr\Log\LoggerInterface;
 use Sil\SilAuth\config\ConfigManager;
-use Sil\SilAuth\ldap\Ldap;
 use Sil\SilAuth\models\User;
 use Throwable;
 
@@ -19,18 +18,6 @@ class System
     public function __construct($logger = null)
     {
         $this->logger = $logger;
-    }
-    
-    protected function isLdapOkay()
-    {
-        try {
-            $ldap = new Ldap(ConfigManager::getSspConfigFor('ldap'));
-            $ldap->userExists(null);
-            return true;
-        } catch (Throwable $t) {
-            $this->logError($t->getMessage());
-            return false;
-        }
     }
     
     protected function isDatabaseOkay()
@@ -75,10 +62,6 @@ class System
         
         if ( ! $this->isDatabaseOkay()) {
             $this->reportError('Database problem', 1485284407);
-        }
-        
-        if ( ! $this->isLdapOkay()) {
-            $this->logError('LDAP problem');
         }
         
         echo 'OK';
