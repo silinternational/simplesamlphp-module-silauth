@@ -17,4 +17,9 @@ class IdBroker
     {
         throw new \Exception('Not yet implemented.');
     }
+    
+    public function isValidCredentials(string $username, string $password)
+    {
+        throw new \Exception('Not yet implemented.');
+    }
 }
