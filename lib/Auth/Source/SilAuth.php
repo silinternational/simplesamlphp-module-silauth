@@ -80,6 +80,19 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
         assert('FALSE');
     }
     
+    protected function getTrustedIpAddresses()
+    {
+        $trustedIpAddresses = [];
+        $ipAddressesString = $this->authConfig['trustedIpAddresses'] ?? '';
+        $stringPieces = explode(',', $ipAddressesString);
+        foreach ($stringPieces as $stringPiece) {
+            if ( ! empty($stringPiece)) {
+                $trustedIpAddresses[] = $stringPiece;
+            }
+        }
+        return $trustedIpAddresses;
+    }
+    
     protected function login($username, $password)
     {
         $logger = new Psr3SamlLogger();
