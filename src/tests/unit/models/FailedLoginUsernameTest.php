@@ -45,6 +45,31 @@ class FailedLoginUsernameTest extends TestCase
         // Assert:
         $this->assertEquals(2, $result);
     }
+    
+    public function testGetMostRecentFailedLoginFor()
+    {
+        // Arrange:
+        $username = 'dummy_username';
+        $nowDateTimeString = UtcTime::now();
+        $fixtures = [[
+            'username' => $username,
+            'occurred_at_utc' => UtcTime::format('-61 minutes'),
+        ], [
+            'username' => $username,
+            'occurred_at_utc' => $nowDateTimeString,
+        ], [
+            'username' => $username,
+            'occurred_at_utc' => UtcTime::format('-59 minutes'),
+        ]];
+        $this->setDbFixture($fixtures);
+        
+        // Act:
+        $fliaRecord = FailedLoginUsername::getMostRecentFailedLoginFor($username);
+
+        // Assert:
+        $this->assertSame($nowDateTimeString, $fliaRecord->occurred_at_utc);
+    }
+    
     public function testIsCaptchaRequiredFor()
     {
         // Arrange:

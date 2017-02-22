@@ -57,6 +57,22 @@ class FailedLoginUsername extends FailedLoginUsernameBase implements LoggerAware
     }
     
     /**
+     * Get the most recent failed-login record for the given username, or null
+     * if none is found.
+     *
+     * @param string $username The username.
+     * @return FailedLoginUsername|null
+     */
+    public static function getMostRecentFailedLoginFor($username)
+    {
+        return self::find()->where([
+            'username' => $username,
+        ])->orderBy([
+            'occurred_at_utc' => SORT_DESC,
+        ])->one();
+    }
+    
+    /**
      * Get the number of seconds remaining until the specified username is
      * no longer blocked by a rate-limit. Returns zero if the user is not
      * currently blocked.
