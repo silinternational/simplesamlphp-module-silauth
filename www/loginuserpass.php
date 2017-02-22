@@ -39,7 +39,6 @@ $authSourcesConfig = $globalConfig->getConfig('authsources.php');
 $silAuthConfig = $authSourcesConfig->getConfigItem('silauth');
 
 $recaptchaSiteKey = $silAuthConfig->getString('recaptcha.siteKey', null);
-$recaptchaSecret = $silAuthConfig->getString('recaptcha.secret', null);
 $forgotPasswordUrl = $silAuthConfig->getString('link.forgotPassword', null);
 
 $remoteIp = Request::sanitizeInputString(INPUT_SERVER, 'REMOTE_ADDR');
