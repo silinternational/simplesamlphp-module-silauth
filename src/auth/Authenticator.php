@@ -224,6 +224,12 @@ class Authenticator
         return ( ! $this->hasError());
     }
     
+    protected function isBlockedByRateLimit($username, array $ipAddresses)
+    {
+        return FailedLoginUsername::isRateLimitBlocking($username) ||
+               FailedLoginIpAddress::isRateLimitBlockingAnyOfThese($ipAddresses);
+    }
+    
     protected function isCaptchaRequired($username, array $ipAddresses)
     {
         return FailedLoginUsername::isCaptchaRequiredFor($username) ||
