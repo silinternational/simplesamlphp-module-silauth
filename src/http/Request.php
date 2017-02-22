@@ -5,8 +5,19 @@ use Sil\SilAuth\text\Text;
 
 class Request
 {
-    private $trustedIpAddresses = [];
+    /**
+     * The list of (lowercased) trusted IP addresses.
+     *
+     * @var string[]
+     */
+    private $lcTrustedIpAddresses = [];
     
+    /**
+     * Constructor.
+     *
+     * @param string[] $ipAddressesToTrust The list of IP addresses (IPv4 and/or
+     *     IPv6) to trust, and thus not to enforce any rate-limits on.
+     */
     public function __construct(array $ipAddressesToTrust = [])
     {
         foreach ($ipAddressesToTrust as $ipAddress) {
@@ -86,15 +97,25 @@ class Request
     {
         $untrustedIpAddresses = [];
         foreach ($this->getIpAddresses() as $ipAddress) {
-            
-            /* @todo Should we make this comparison case-insensitive? */
-            if ( ! in_array($ipAddress, $this->trustedIpAddresses)) {
+            if ( ! $this->isTrustedIpAddress($ipAddress)) {
                 $untrustedIpAddresses[] = $ipAddress;
             }
         }
         return $untrustedIpAddresses;
     }
-
+    
+    /**
+     * Determine whether the given IP address (case-insensitive) is in the list
+     * of trusted IP addresses.
+     *
+     * @param string $ipAddress The IP address in question.
+     * @return bool
+     */
+    public function isTrustedIpAddress($ipAddress)
+    {
+        return in_array(strtolower($ipAddress), $this->lcTrustedIpAddresses);
+    }
+    
     /**
      * Check that a given string is a valid IP address
      *
@@ -128,6 +149,6 @@ class Request
                 var_export($ipAddress, true)
             ));
         }
-        $this->trustedIpAddresses[] = $ipAddress;
+        $this->lcTrustedIpAddresses[] = strtolower($ipAddress);
     }
 }
