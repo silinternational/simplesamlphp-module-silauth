@@ -117,15 +117,15 @@ class Request
     }
     
     /**
-     * Check that a given string is a valid IP address
+     * Check that a given string is a valid IP address (IPv4 or IPv6).
      *
-     * @param  string  $ip
-     * @return boolean
+     * @param string $ipAddress The IP address in question.
+     * @return bool
      */
-    public static function isValidIpAddress($ip)
+    public static function isValidIpAddress($ipAddress)
     {
         $flags = FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6;
-        return (filter_var($ip, FILTER_VALIDATE_IP, $flags) !== false);
+        return (filter_var($ipAddress, FILTER_VALIDATE_IP, $flags) !== false);
     }
     
     /**
