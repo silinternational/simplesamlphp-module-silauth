@@ -37,4 +37,37 @@ class WaitTimeTest extends TestCase
             ));
         }
     }
+    
+    public function testGetLongestWaitTime()
+    {
+        // Arrange:
+        $testCases = [
+            ['durations' => [], 'expectException' => '\InvalidArgumentException'],
+            ['durations' => [0, 0], 'expected' => new WaitTime(0)],
+            ['durations' => [0, 1], 'expected' => new WaitTime(1)],
+            ['durations' => [1, 0], 'expected' => new WaitTime(1)],
+            ['durations' => [6], 'expected' => new WaitTime(6)],
+            ['durations' => [5, 5, 6], 'expected' => new WaitTime(6)],
+            ['durations' => [5, 6, 5], 'expected' => new WaitTime(6)],
+            ['durations' => [6, 5, 5], 'expected' => new WaitTime(6)],
+            ['durations' => [0, 17], 'expected' => new WaitTime(17)],
+            ['durations' => [17, 5], 'expected' => new WaitTime(17)],
+        ];
+        foreach ($testCases as $testCase) {
+            if (array_key_exists('expectException', $testCase)) {
+                $this->expectException($testCase['expectException']);
+            }
+            
+            // Act:
+            $actual = WaitTime::getLongestWaitTime($testCase['durations']);
+            
+            // Assert:
+            $this->assertEquals($testCase['expected'], $actual, sprintf(
+                'Expected the longest of %s second(s) to be a wait time of %s, not %s.',
+                json_encode($testCase['durations']),
+                $testCase['expected'],
+                $actual
+            ));
+        }
+    }
 }

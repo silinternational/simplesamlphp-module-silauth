@@ -15,4 +15,4 @@ touch /data/vendor/simplesamlphp/simplesamlphp/modules/sildisco/default-enable
 
 apachectl -k graceful
 
-./src/add-test-users
+sed -i "s/^<?php$/<?php defined('YII_DEBUG') || define('YII_DEBUG', true);/" /data/vendor/simplesamlphp/simplesamlphp/www/_include.php

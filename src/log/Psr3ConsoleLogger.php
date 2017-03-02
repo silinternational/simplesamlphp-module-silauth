@@ -21,6 +21,6 @@ class Psr3ConsoleLogger extends LoggerBase
             'LOG: [%s] %s',
             $level,
             $this->interpolate($message, $context)
-        );
+        ) . PHP_EOL;
     }
 }

@@ -23,13 +23,13 @@ class ConfigManagerTest extends TestCase
     public function testGetSspConfigFor()
     {
         // Arrange:
-        $category = 'ldap';
+        $category = 'mysql';
         
         // Act:
         $result = ConfigManager::getSspConfigFor($category);
         
         // Assert:
-        $this->assertArrayHasKey('use_tls', $result, var_export($result, true));
+        $this->assertArrayHasKey('database', $result, var_export($result, true));
     }
     
     public function testRemoveCategory()

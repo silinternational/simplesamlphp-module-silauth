@@ -23,7 +23,7 @@ abstract class LoggerBase extends \Psr\Log\AbstractLogger
         // Build a replacement array with braces around the context keys.
         $replace = [];
         foreach ($context as $key => $value) {
-            // Check that the value can be casted to string.
+            // Check that the value can be cast to string.
             if (!is_array($value) && (!is_object($value) || method_exists($value, '__toString'))) {
                 $replace['{' . $key . '}'] = $value;
             }

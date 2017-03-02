@@ -4,4 +4,4 @@ default:
             paths:
                 - features
             contexts:
-                - Sil\SilAuth\features\context\FeatureContext
+                - Sil\SilAuth\features\context\LoginContext
