@@ -1,8 +1,10 @@
 <?php
 
 use Sil\SilAuth\auth\Authenticator;
+use Sil\SilAuth\auth\IdBroker;
+use Sil\SilAuth\captcha\Captcha;
 use Sil\SilAuth\config\ConfigManager;
-use Sil\SilAuth\ldap\Ldap;
+use Sil\SilAuth\http\Request;
 use Sil\SilAuth\log\Psr3SamlLogger;
 
 /**
@@ -15,7 +17,8 @@ use Sil\SilAuth\log\Psr3SamlLogger;
  */
 class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
 {
-    protected $ldapConfig;
+    protected $authConfig;
+    protected $idBrokerConfig;
     protected $mysqlConfig;
     protected $recaptchaConfig;
     
@@ -32,7 +35,8 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
     {
         parent::__construct($info, $config);
         
-        $this->ldapConfig = ConfigManager::getConfigFor('ldap', $config);
+        $this->authConfig = ConfigManager::getConfigFor('auth', $config);
+        $this->idBrokerConfig = ConfigManager::getConfigFor('idBroker', $config);
         $this->mysqlConfig = ConfigManager::getConfigFor('mysql', $config);
         $this->recaptchaConfig = ConfigManager::getConfigFor('recaptcha', $config);
         
@@ -81,11 +85,37 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
         assert('FALSE');
     }
     
+    protected function getTrustedIpAddresses()
+    {
+        $trustedIpAddresses = [];
+        $ipAddressesString = $this->authConfig['trustedIpAddresses'] ?? '';
+        $stringPieces = explode(',', $ipAddressesString);
+        foreach ($stringPieces as $stringPiece) {
+            if ( ! empty($stringPiece)) {
+                $trustedIpAddresses[] = $stringPiece;
+            }
+        }
+        return $trustedIpAddresses;
+    }
+    
     protected function login($username, $password)
     {
-        $ldap = new Ldap($this->ldapConfig);
         $logger = new Psr3SamlLogger();
-        $authenticator = new Authenticator($username, $password, $ldap, $logger);
+        $captcha = new Captcha($this->recaptchaConfig['secret'] ?? null);
+        $idBroker = new IdBroker(
+            $this->idBrokerConfig['baseUri'] ?? null,
+            $this->idBrokerConfig['accessToken'] ?? null,
+            $logger
+        );
+        $request = new Request($this->getTrustedIpAddresses());
+        $authenticator = new Authenticator(
+            $username,
+            $password,
+            $request,
+            $captcha,
+            $idBroker,
+            $logger
+        );
         
         if ( ! $authenticator->isAuthenticated()) {
             $authError = $authenticator->getAuthError();

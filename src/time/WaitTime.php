@@ -41,6 +41,21 @@ class WaitTime
         return $this->friendlyNumber;
     }
     
+    /**
+     * Get a WaitTime representing the longest of the given durations.
+     *
+     * @param int[] $durationsInSeconds A list of (at least one) duration(s), in
+     *     seconds.
+     * @return WaitTime
+     */
+    public static function getLongestWaitTime(array $durationsInSeconds)
+    {
+        if (empty($durationsInSeconds)) {
+            throw new \InvalidArgumentException('No durations given.', 1487605801);
+        }
+        return new WaitTime(max($durationsInSeconds));
+    }
+    
     public function getUnit()
     {
         return $this->unit;

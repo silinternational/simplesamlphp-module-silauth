@@ -3,10 +3,13 @@ namespace Sil\SilAuth\auth;
 
 use Psr\Log\LoggerInterface;
 use Sil\SilAuth\auth\AuthError;
-use Sil\SilAuth\ldap\Ldap;
-use Sil\SilAuth\ldap\LdapConnectionException;
+use Sil\SilAuth\auth\IdBroker;
+use Sil\SilAuth\captcha\Captcha;
+use Sil\SilAuth\time\UtcTime;
 use Sil\SilAuth\time\WaitTime;
-use Sil\SilAuth\models\User;
+use Sil\SilAuth\models\FailedLoginIpAddress;
+use Sil\SilAuth\models\FailedLoginUsername;
+use Sil\SilAuth\http\Request;
 
 /**
  * An immutable class for making a single attempt to authenticate using a given
@@ -20,6 +23,10 @@ class Authenticator
     
     /** @var AuthError|null */
     private $authError = null;
+    
+    /** @var LoggerInterface */
+    protected $logger;
+    
     private $userAttributes = null;
     
     /**
@@ -28,11 +35,23 @@ class Authenticator
      * 
      * @param string $username The username to check.
      * @param string $password The password to check.
-     * @param Ldap $ldap An object for interacting with the LDAP server.
+     * @param Request $request An object representing the HTTP request.
+     * @param Captcha $captcha A way to check the submitted captcha.
+     * @param IdBroker $idBroker An object for communicating with the ID Broker.
      * @param LoggerInterface $logger A PSR-3 compliant logger.
      */
-    public function __construct($username, $password, $ldap, $logger)
-    {
+    public function __construct(
+            $username,
+            $password,
+            Request $request,
+            Captcha $captcha,
+            IdBroker $idBroker,
+            LoggerInterface $logger
+    ) {
+        $this->logger = $logger;
+        
+        /** @todo Check CSRF here, too, if feasible. */
+        
         if (empty($username)) {
             $this->setErrorUsernameRequired();
             return;
@@ -43,51 +62,40 @@ class Authenticator
             return;
         }
         
-        $user = User::findByUsername($username);
-        if ($user === null) {
-            $this->avoidNonExistentUserTimingAttack($password);
-            $this->setErrorInvalidLogin();
-            return;
-        }
-        $user->setLogger($logger);
+        $ipAddresses = $request->getUntrustedIpAddresses();
         
-        if ($user->isBlockedByRateLimit()) {
+        if ($this->isBlockedByRateLimit($username, $ipAddresses)) {
             $this->setErrorBlockedByRateLimit(
-                $user->getWaitTimeUntilUnblocked()
+                $this->getWaitTimeUntilUnblocked($username, $ipAddresses)
             );
             return;
         }
         
-        if ($user->isLocked() || !$user->isActive()) {
-            $this->setErrorInvalidLogin();
-            return;
-        }
-        
-        if ( ! $user->hasPasswordInDatabase()) {
-            if ( ! $this->canConnectToLdap($ldap, $logger)) {
-                $this->setErrorNeedToSetAcctPassword();
+        if ($this->isCaptchaRequired($username, $ipAddresses)) {
+            $logger->warning('Captcha required for {username} (IP: {ipAddresses}).', [
+                'username' => var_export($username, true),
+                'ipAddresses' => join(', ', $ipAddresses),
+            ]);
+            if ( ! $captcha->isValidIn($request)) {
+                $logger->warning('Invalid or missing captcha for {username} (IP: {ipAddresses}).', [
+                    'username' => var_export($username, true),
+                    'ipAddresses' => join(', ', $ipAddresses),
+                ]);
+                $this->setErrorInvalidLogin();
                 return;
             }
-            
-            if ($ldap->isPasswordCorrectForUser($username, $password)) {
-                $user->setPassword($password);
-                
-                /* Try to save the password, but let the user proceed even if
-                 * we can't (since we know the password is correct).  */
-                $user->tryToSave(sprintf(
-                    'Failed to record password from LDAP into database for %s',
-                    var_export($username, true)
-                ));
-            }
         }
         
-        if ( ! $user->isPasswordCorrect($password)) {
-            $user->recordLoginAttemptInDatabase();
+        $authenticatedUser = $idBroker->getAuthenticatedUser(
+            $username,
+            $password
+        );
+        if ($authenticatedUser === null) {
+            $this->recordFailedLoginBy($username, $ipAddresses);
             
-            $user->refresh();
-            if ($user->isBlockedByRateLimit()) {
+            if ($this->isBlockedByRateLimit($username, $ipAddresses)) {
                 $this->setErrorBlockedByRateLimit(
-                    $user->getWaitTimeUntilUnblocked()
+                    $this->getWaitTimeUntilUnblocked($username, $ipAddresses)
                 );
             } else {
                 $this->setErrorInvalidLogin();
@@ -97,59 +105,29 @@ class Authenticator
         
         // NOTE: If we reach this point, the user successfully authenticated.
         
-        $user->resetFailedLoginAttemptsInDatabase();
+        $this->resetFailedLoginsBy($username, $ipAddresses);
         
-        if ($user->isPasswordRehashNeeded()) {
-            $user->tryToSaveRehashedPassword($password);
-        }
-        
-        $this->setUserAttributes([
-            'eduPersonTargetID' => [$user->uuid],
-            'sn' => [$user->last_name],
-            'givenName' => [$user->first_name],
-            'mail' => [$user->email],
-            'username' => [$user->username],
-            'employeeId' => [$user->employee_id],
-        ]);
+        $this->setUserAttributes($authenticatedUser);
     }
     
     /**
-     * "Check" the given password against a dummy use to avoid exposing the
-     * existence of certain users (or absence thereof) through a timing attack.
-     * Technically, they could still deduce it since we don't rate-limit
-     * non-existent accounts (in order to protect our database from a DDoS
-     * attack), but this at least reduces the number of available side
-     * channels.
+     * Calculate how many seconds of delay should be required for the given
+     * number of recent failed login attempts.
      *
-     * @param string $password
+     * @param int $numRecentFailures The number of recent failed login attempts.
+     * @return int The number of seconds to delay before allowing another such
+     *     login attempt.
      */
-    protected function avoidNonExistentUserTimingAttack($password)
+    public static function calculateSecondsToDelay($numRecentFailures)
     {
-        $dummyUser = new User();
-        $dummyUser->isPasswordCorrect($password);
-    }
-    
-    public static function calculateSecondsToDelay($failedLoginAttempts)
-    {
+        if ( ! self::isEnoughFailedLoginsToBlock($numRecentFailures)) {
+            return 0;
+        }
+        
         return min(
-            $failedLoginAttempts * $failedLoginAttempts,
+            $numRecentFailures * $numRecentFailures,
             self::MAX_SECONDS_TO_BLOCK
         );
-    }
-    
-    protected function canConnectToLdap($ldap, $logger)
-    {
-        try {
-            $ldap->connect();
-            return true;
-        } catch (LdapConnectionException $e) {
-            $logger->error(sprintf(
-                'Unable to connect to the LDAP. Error %s: %s',
-                $e->getCode(),
-                $e->getMessage()
-            ));
-            return false;
-        }
     }
     
     /**
@@ -160,6 +138,41 @@ class Authenticator
     public function getAuthError()
     {
         return $this->authError;
+    }
+    
+    /**
+     * Get the number of seconds to continue blocking, based on the given number
+     * of recent failures and the given date/time of the most recent failed
+     * login attempt.
+     *
+     * @param int $numRecentFailures The number of recent failed login attempts.
+     * @param string|null $mostRecentFailureAt A date/time string for when the
+     *     most recent failed login attempt occurred. If null (meaning there
+     *     have been no recent failures), then zero (0) will be returned.
+     * @return int The number of seconds
+     * @throws Exception If an invalid (but non-null) date/time string is given
+     *     for `$mostRecentFailureAt`.
+     */
+    public static function getSecondsUntilUnblocked(
+        int $numRecentFailures,
+        $mostRecentFailureAt
+    ) {
+        if ($mostRecentFailureAt === null) {
+            return 0;
+        }
+        
+        $totalSecondsToBlock = self::calculateSecondsToDelay(
+            $numRecentFailures
+        );
+        
+        $secondsSinceLastFailure = UtcTime::getSecondsSinceDateTime(
+            $mostRecentFailureAt
+        );
+        
+        return UtcTime::getRemainingSeconds(
+            $totalSecondsToBlock,
+            $secondsSinceLastFailure
+        );
     }
     
     /**
@@ -186,6 +199,33 @@ class Authenticator
         return $this->userAttributes;
     }
     
+    /**
+     * Get a (user friendly) wait time representing how long the user must wait
+     * until they will no longer be blocked by a rate limit (regardless of
+     * whether it is their username and/or IP address that is blocked).
+     *
+     * NOTE: This will always return a WaitTime, even if the given username and
+     *       IP addresses aren't blocked (in which case the shortest available
+     *       WaitTime will be returned, such as a 5-second wait time).
+     *
+     * @param string $username The username in question.
+     * @param array $ipAddresses The list of relevant IP addresses (related to
+     *     this request).
+     * @return WaitTime
+     */
+    protected function getWaitTimeUntilUnblocked($username, array $ipAddresses)
+    {
+        $durationsInSeconds = [
+            FailedLoginUsername::getSecondsUntilUnblocked($username),
+        ];
+        
+        foreach ($ipAddresses as $ipAddress) {
+            $durationsInSeconds[] = FailedLoginIpAddress::getSecondsUntilUnblocked($ipAddress);
+        }
+        
+        return WaitTime::getLongestWaitTime($durationsInSeconds);
+    }
+    
     protected function hasError()
     {
         return ($this->authError !== null);
@@ -202,9 +242,38 @@ class Authenticator
         return ( ! $this->hasError());
     }
     
-    public static function isEnoughFailedLoginsToBlock($failedLoginAttempts)
+    protected function isBlockedByRateLimit($username, array $ipAddresses)
     {
-        return ($failedLoginAttempts >= self::BLOCK_AFTER_NTH_FAILED_LOGIN);
+        return FailedLoginUsername::isRateLimitBlocking($username) ||
+               FailedLoginIpAddress::isRateLimitBlockingAnyOfThese($ipAddresses);
+    }
+    
+    protected function isCaptchaRequired($username, array $ipAddresses)
+    {
+        return FailedLoginUsername::isCaptchaRequiredFor($username) ||
+               FailedLoginIpAddress::isCaptchaRequiredForAnyOfThese($ipAddresses);
+    }
+    
+    public static function isEnoughFailedLoginsToBlock($numFailedLogins)
+    {
+        return ($numFailedLogins >= self::BLOCK_AFTER_NTH_FAILED_LOGIN);
+    }
+    
+    public static function isEnoughFailedLoginsToRequireCaptcha($numFailedLogins)
+    {
+        return ($numFailedLogins >= self::REQUIRE_CAPTCHA_AFTER_NTH_FAILED_LOGIN);
+    }
+    
+    protected function recordFailedLoginBy($username, array $ipAddresses)
+    {
+        FailedLoginUsername::recordFailedLoginBy($username, $this->logger);
+        FailedLoginIpAddress::recordFailedLoginBy($ipAddresses, $this->logger);
+    }
+    
+    protected function resetFailedLoginsBy($username, array $ipAddresses)
+    {
+        FailedLoginUsername::resetFailedLoginsBy($username);
+        FailedLoginIpAddress::resetFailedLoginsBy($ipAddresses);
     }
     
     protected function setError($code, $messageParams = [])

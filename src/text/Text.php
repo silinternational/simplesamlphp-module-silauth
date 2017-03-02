@@ -4,19 +4,6 @@ namespace Sil\SilAuth\text;
 class Text
 {
     /**
-     * Retrieve input data (see `filter_input(...)` for details) and sanitize
-     * it (see Text::sanitizeString).
-     * 
-     * @param int $inputType Example: INPUT_POST
-     * @param string $variableName Example: 'username'
-     * @return string
-     */
-    public static function sanitizeInputString(int $inputType, string $variableName)
-    {
-        return self::sanitizeString(filter_input($inputType, $variableName));
-    }
-    
-    /**
      * Sanitize a given string by trimming it (see `trim()`) and stripping low
      * ASCII characters (< 32) and backticks (`).
      *
