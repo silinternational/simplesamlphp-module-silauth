@@ -1,6 +1,6 @@
 {
   "name": "silinternational/simplesamlphp-module-silauth",
-  "description": "SimpleSAMLphp auth module implementing custom business logic and password migration from LDAP to DB",
+  "description": "SimpleSAMLphp auth module implementing various security measures before calls to IdP ID Broker backend",
   "type": "simplesamlphp-module",
   "license": "MIT",
   "authors": [
