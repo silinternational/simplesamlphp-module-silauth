@@ -13,8 +13,8 @@ use Sil\SilAuth\http\Request;
 use Sil\SilAuth\log\Psr3ConsoleLogger;
 use Sil\SilAuth\models\FailedLoginIpAddress;
 use Sil\SilAuth\models\FailedLoginUsername;
-use Sil\SilAuth\tests\unit\auth\DummyFailedIdBroker;
-use Sil\SilAuth\tests\unit\auth\DummySuccessfulIdBroker;
+use Sil\SilAuth\tests\fakes\FakeFailedIdBroker;
+use Sil\SilAuth\tests\fakes\FakeSuccessfulIdBroker;
 use Sil\SilAuth\tests\unit\captcha\DummyFailedCaptcha;
 use Sil\SilAuth\tests\unit\captcha\DummySuccessfulCaptcha;
 use Sil\SilAuth\tests\unit\http\DummyRequest;
@@ -69,7 +69,11 @@ class LoginContext implements Context
         $this->logger = new Psr3ConsoleLogger();
         
         $this->captcha = new Captcha();
-        $this->idBroker = new IdBroker($this->logger);
+        $this->idBroker = new IdBroker(
+            Env::get('ID_BROKER_BASE_URI'),
+            Env::get('ID_BROKER_ACCESS_TOKEN'),
+            $this->logger
+        );
         $this->request = new Request();
         
         $this->resetDatabase();
@@ -223,7 +227,7 @@ class LoginContext implements Context
     public function iProvideAnIncorrectPassword()
     {
         $this->password = 'dummy incorrect password';
-        $this->idBroker = new DummyFailedIdBroker($this->logger);
+        $this->idBroker = new FakeFailedIdBroker('fake', 'fake', $this->logger);
     }
 
     /**
@@ -246,7 +250,7 @@ class LoginContext implements Context
     {
         Assert::assertNotEmpty($this->username);
         $this->password = 'dummy correct password';
-        $this->idBroker = new DummySuccessfulIdBroker($this->logger);
+        $this->idBroker = new FakeSuccessfulIdBroker('fake', 'fake', $this->logger);
     }
 
     /**

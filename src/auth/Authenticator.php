@@ -86,7 +86,11 @@ class Authenticator
             }
         }
         
-        if ( ! $idBroker->isValidCredentials($username, $password)) {
+        $authenticatedUser = $idBroker->getAuthenticatedUser(
+            $username,
+            $password
+        );
+        if ($authenticatedUser === null) {
             $this->recordFailedLoginBy($username, $ipAddresses);
             
             if ($this->isBlockedByRateLimit($username, $ipAddresses)) {
@@ -103,9 +107,7 @@ class Authenticator
         
         $this->resetFailedLoginsBy($username, $ipAddresses);
         
-        $userAttributes = $idBroker->getUserAttributesFor($username);
-        
-        $this->setUserAttributes($userAttributes);
+        $this->setUserAttributes($authenticatedUser);
     }
     
     /**

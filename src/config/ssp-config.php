@@ -5,6 +5,8 @@ use Sil\PhpEnv\Env;
 return [
     'silauth:SilAuth',
     'auth.trustedIpAddresses' => Env::get('TRUSTED_IP_ADDRESSES'),
+    'idBroker.accessToken' => Env::get('ID_BROKER_ACCESS_TOKEN'),
+    'idBroker.baseUri' => Env::get('ID_BROKER_BASE_URI'),
     'link.forgotPassword' => Env::get('FORGOT_PASSWORD_URL'),
     'mysql.host' => Env::get('MYSQL_HOST'),
     'mysql.database' => Env::get('MYSQL_DATABASE'),

@@ -18,6 +18,7 @@ use Sil\SilAuth\log\Psr3SamlLogger;
 class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
 {
     protected $authConfig;
+    protected $idBrokerConfig;
     protected $mysqlConfig;
     protected $recaptchaConfig;
     
@@ -35,6 +36,7 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
         parent::__construct($info, $config);
         
         $this->authConfig = ConfigManager::getConfigFor('auth', $config);
+        $this->idBrokerConfig = ConfigManager::getConfigFor('idBroker', $config);
         $this->mysqlConfig = ConfigManager::getConfigFor('mysql', $config);
         $this->recaptchaConfig = ConfigManager::getConfigFor('recaptcha', $config);
         
@@ -100,7 +102,11 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
     {
         $logger = new Psr3SamlLogger();
         $captcha = new Captcha($this->recaptchaConfig['secret'] ?? null);
-        $idBroker = new IdBroker($logger);
+        $idBroker = new IdBroker(
+            $this->idBrokerConfig['baseUri'] ?? null,
+            $this->idBrokerConfig['accessToken'] ?? null,
+            $logger
+        );
         $request = new Request($this->getTrustedIpAddresses());
         $authenticator = new Authenticator(
             $username,
