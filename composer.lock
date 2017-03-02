@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "5b4bb7252e4496fb165bc032cd72a3de",
+    "content-hash": "35fb76a2ee12f50b41f0cdcaf937f472",
     "packages": [
         {
             "name": "adldap2/adldap2",
@@ -1050,12 +1050,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "07acc8c9c8d55bd2f1f161acc5aa164b571e4e8e"
+                "reference": "73603e2e613ddc14e2e11ec6da4e837bf0a2149a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/07acc8c9c8d55bd2f1f161acc5aa164b571e4e8e",
-                "reference": "07acc8c9c8d55bd2f1f161acc5aa164b571e4e8e",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/73603e2e613ddc14e2e11ec6da4e837bf0a2149a",
+                "reference": "73603e2e613ddc14e2e11ec6da4e837bf0a2149a",
                 "shasum": ""
             },
             "conflict": {
@@ -1111,6 +1111,7 @@
                 "simplesamlphp/simplesamlphp": "<1.14.11",
                 "simplesamlphp/simplesamlphp-module-infocard": "<1.0.1",
                 "socalnick/scn-social-auth": "<1.15.2",
+                "squizlabs/php_codesniffer": ">=1,<2.8.1",
                 "swiftmailer/swiftmailer": ">=4,<5.4.5",
                 "symfony/dependency-injection": ">=2,<2.0.17",
                 "symfony/form": ">=2.3,<2.3.35|>=2.4,<2.6.12|>=2.7,<2.7.7",
@@ -1176,7 +1177,7 @@
                 }
             ],
             "description": "Prevents installation of composer packages with known security vulnerabilities: no API, simply require it",
-            "time": "2017-02-28T15:07:27+00:00"
+            "time": "2017-03-02T15:23:30+00:00"
         },
         {
             "name": "robrichards/xmlseclibs",
@@ -1221,11 +1222,17 @@
         },
         {
             "name": "silinternational/idp-id-broker-php-client",
-            "version": "0.1.0",
+            "version": "0.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/silinternational/idp-id-broker-php-client.git",
-                "reference": "ae478bfacc6ec29eabec1dffb4639ebf35a2e4f4"
+                "reference": "47fa0c1e7c9875b454261904c3f893b8ad32c8f0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/silinternational/idp-id-broker-php-client/zipball/47fa0c1e7c9875b454261904c3f893b8ad32c8f0",
+                "reference": "47fa0c1e7c9875b454261904c3f893b8ad32c8f0",
+                "shasum": ""
             },
             "require": {
                 "guzzlehttp/guzzle-services": "^1.1",
@@ -1243,6 +1250,7 @@
                     "Sil\\Idp\\IdBroker\\Client\\tests\\": "tests/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -1263,7 +1271,7 @@
                 "idp",
                 "php client"
             ],
-            "time": "2017-03-01T20:10:28+00:00"
+            "time": "2017-03-02T19:57:18+00:00"
         },
         {
             "name": "silinternational/php-env",
@@ -2622,16 +2630,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "5.7.14",
+            "version": "5.7.15",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "4906b8faf23e42612182fd212eb6f4c0f2954b57"
+                "reference": "b99112aecc01f62acf3d81a3f59646700a1849e5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/4906b8faf23e42612182fd212eb6f4c0f2954b57",
-                "reference": "4906b8faf23e42612182fd212eb6f4c0f2954b57",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/b99112aecc01f62acf3d81a3f59646700a1849e5",
+                "reference": "b99112aecc01f62acf3d81a3f59646700a1849e5",
                 "shasum": ""
             },
             "require": {
@@ -2700,7 +2708,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2017-02-19T07:22:16+00:00"
+            "time": "2017-03-02T15:22:43+00:00"
         },
         {
             "name": "phpunit/phpunit-mock-objects",

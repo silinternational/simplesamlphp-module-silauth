@@ -14,7 +14,7 @@
     "php": ">=7.0",
     "ramsey/uuid": "^3.5",
     "roave/security-advisories": "dev-master",
-    "silinternational/idp-id-broker-php-client": "^0.1",
+    "silinternational/idp-id-broker-php-client": "^0.2",
     "silinternational/php-env": "^0.2.0",
     "silinternational/ssp-deps": "dev-develop",
     "silinternational/ssp-utilities": "dev-develop",
