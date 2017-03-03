@@ -19,8 +19,11 @@ class IdBroker
      * @param string $accessToken Your authorization access (bearer) token.
      * @param LoggerInterface $logger
      */
-    public function __construct($baseUri, $accessToken, LoggerInterface $logger)
-    {
+    public function __construct(
+        string $baseUri,
+        string $accessToken,
+        LoggerInterface $logger
+    ) {
         $this->logger = $logger;
         $this->client = new IdBrokerClient($baseUri, $accessToken);
     }
