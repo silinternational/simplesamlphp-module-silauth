@@ -70,8 +70,8 @@ class LoginContext implements Context
         
         $this->captcha = new Captcha();
         $this->idBroker = new IdBroker(
-            Env::get('ID_BROKER_BASE_URI'),
-            Env::get('ID_BROKER_ACCESS_TOKEN'),
+            'http://fake.example.com/api/',
+            'FakeAccessToken',
             $this->logger
         );
         $this->request = new Request();
