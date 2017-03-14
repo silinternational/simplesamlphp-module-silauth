@@ -1,6 +1,7 @@
 <?php
 namespace Sil\SilAuth\features\context;
 
+use Behat\Behat\Tester\Exception\PendingException;
 use Behat\Behat\Context\Context;
 use PHPUnit_Framework_Assert as Assert;
 use Psr\Log\LoggerInterface;
@@ -14,6 +15,7 @@ use Sil\SilAuth\log\Psr3ConsoleLogger;
 use Sil\SilAuth\models\FailedLoginIpAddress;
 use Sil\SilAuth\models\FailedLoginUsername;
 use Sil\SilAuth\tests\fakes\FakeFailedIdBroker;
+use Sil\SilAuth\tests\fakes\FakeInvalidIdBroker;
 use Sil\SilAuth\tests\fakes\FakeSuccessfulIdBroker;
 use Sil\SilAuth\tests\unit\captcha\DummyFailedCaptcha;
 use Sil\SilAuth\tests\unit\captcha\DummySuccessfulCaptcha;
@@ -524,5 +526,23 @@ class LoginContext implements Context
     {
         Assert::assertTrue(Request::isValidIpAddress($ipAddress));
         Assert::assertEmpty(FailedLoginIpAddress::getFailedLoginsFor($ipAddress));
+    }
+
+    /**
+     * @Given the ID Broker is returning invalid responses
+     */
+    public function theIdBrokerIsReturningInvalidResponses()
+    {
+        $this->idBroker = new FakeInvalidIdBroker('fake', 'fake', $this->logger);
+    }
+
+    /**
+     * @Then I should see a generic try-later error message
+     */
+    public function iShouldSeeAGenericTryLaterErrorMessage()
+    {
+        $authError = $this->authenticator->getAuthError();
+        Assert::assertNotEmpty($authError);
+        Assert::assertContains('later', (string)$authError);
     }
 }

@@ -86,10 +86,21 @@ class Authenticator
             }
         }
         
-        $authenticatedUser = $idBroker->getAuthenticatedUser(
-            $username,
-            $password
-        );
+        try {
+            $authenticatedUser = $idBroker->getAuthenticatedUser(
+                $username,
+                $password
+            );
+        } catch (\Exception $e) {
+            $logger->critical(sprintf(
+                'Problem communicating with ID Broker (%s): %s',
+                $e->getCode(),
+                $e->getMessage()
+            ));
+            $this->setErrorGenericTryLater();
+            return;
+        }
+        
         if ($authenticatedUser === null) {
             $this->recordFailedLoginBy($username, $ipAddresses);
             
