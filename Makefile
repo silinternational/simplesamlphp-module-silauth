@@ -14,6 +14,9 @@ behat:
 behatappend:
 	docker-compose run --rm tests bash -c "vendor/bin/behat --config=features/behat.yml --append-snippets"
 
+behatv:
+	docker-compose run --rm tests bash -c "vendor/bin/behat --config=features/behat.yml --stop-on-failure -v"
+
 bounce:
 	docker-compose up -d web
 
