@@ -51,6 +51,14 @@ class IdBroker
             
             case 200: // Credentials were acceptable.
                 unset($result['statusCode']);
+                /*
+                 * Make sure all values are arrays themselves for simplesamlphp compatibility
+                 */
+                foreach ($result as $key => $value) {
+                    if ( ! is_array($value)) {
+                        $result[$key] = [$value];
+                    }
+                }
                 return $result;
             
             case 400: // Credentials were NOT acceptable.
