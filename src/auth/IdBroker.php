@@ -32,11 +32,13 @@ class IdBroker
      * Attempt to authenticate with the given username and password, returning
      * the attributes for that user if the credentials were acceptable (or null
      * if they were not acceptable, since there is no authenticated user in that
-     * situation).
+     * situation). If an unexpected response is received, an exception will be
+     * thrown.
      *
      * @param string $username The username.
      * @param string $password The password.
      * @return array|null The user's attributes (if successful), otherwise null.
+     * @throws \Exception
      */
     public function getAuthenticatedUser(string $username, string $password)
     {
@@ -45,10 +47,28 @@ class IdBroker
             'password' => $password,
         ]);
         $statusCode = $result['statusCode'] ?? null;
-        if (intval($statusCode) === 200) {
-            unset($result['statusCode']);
-            return $result;
+        switch (intval($statusCode)) {
+            
+            case 200: // Credentials were acceptable.
+                unset($result['statusCode']);
+                /*
+                 * Make sure all values are arrays themselves for simplesamlphp compatibility
+                 */
+                foreach ($result as $key => $value) {
+                    if ( ! is_array($value)) {
+                        $result[$key] = [$value];
+                    }
+                }
+                return $result;
+            
+            case 400: // Credentials were NOT acceptable.
+                return null;
+
+            default:
+                throw new \Exception(sprintf(
+                    'Unexpected response from ID Broker: %s',
+                    var_export($result->toArray(), true)
+                ), 1489500140);
         }
-        return null;
     }
 }

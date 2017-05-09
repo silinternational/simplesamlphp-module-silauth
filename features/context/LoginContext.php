@@ -1,8 +1,8 @@
 <?php
 namespace Sil\SilAuth\features\context;
 
+use Behat\Behat\Tester\Exception\PendingException;
 use Behat\Behat\Context\Context;
-use PHPUnit_Framework_Assert as Assert;
 use Psr\Log\LoggerInterface;
 use Sil\PhpEnv\Env;
 use Sil\SilAuth\auth\Authenticator;
@@ -14,11 +14,13 @@ use Sil\SilAuth\log\Psr3ConsoleLogger;
 use Sil\SilAuth\models\FailedLoginIpAddress;
 use Sil\SilAuth\models\FailedLoginUsername;
 use Sil\SilAuth\tests\fakes\FakeFailedIdBroker;
+use Sil\SilAuth\tests\fakes\FakeInvalidIdBroker;
 use Sil\SilAuth\tests\fakes\FakeSuccessfulIdBroker;
 use Sil\SilAuth\tests\unit\captcha\DummyFailedCaptcha;
 use Sil\SilAuth\tests\unit\captcha\DummySuccessfulCaptcha;
 use Sil\SilAuth\tests\unit\http\DummyRequest;
 use Sil\SilAuth\time\UtcTime;
+use Webmozart\Assert\Assert;
 //use yii\helpers\ArrayHelper;
 
 /**
@@ -81,16 +83,16 @@ class LoginContext implements Context
     
     protected function addXFailedLoginUsernames(int $number, $username)
     {
-        Assert::assertNotEmpty($username);
+        Assert::notEmpty($username);
         
         for ($i = 0; $i < $number; $i++) {
             $newRecord = new FailedLoginUsername(['username' => $username]);
-            Assert::assertTrue($newRecord->save());
+            Assert::true($newRecord->save());
         }
         
-        Assert::assertCount(
-            $number,
-            FailedLoginUsername::getFailedLoginsFor($username)
+        Assert::count(
+            FailedLoginUsername::getFailedLoginsFor($username),
+            $number
         );
     }
     
@@ -148,15 +150,17 @@ class LoginContext implements Context
      */
     public function iShouldNotBeAllowedThrough()
     {
-        Assert::assertFalse(
+        Assert::false(
             $this->authenticator->isAuthenticated()
         );
-        try {
-            $this->authenticator->getUserAttributes();
-            Assert::fail();
-        } catch (\Exception $e) {
-            Assert::assertNotEmpty($e->getMessage());
-        }
+        $authenticator = $this->authenticator;
+        Assert::throws(
+            function() use ($authenticator) {
+                $authenticator->getUserAttributes();
+            },
+            \Exception::class,
+            'The call to getUserAttributes() should have thrown an exception.'
+        );
     }
 
     /**
@@ -173,8 +177,8 @@ class LoginContext implements Context
     public function iShouldSeeAnErrorMessageWithInIt($text)
     {
         $authError = $this->authenticator->getAuthError();
-        Assert::assertNotEmpty($authError);
-        Assert::assertContains($text, (string)$authError);
+        Assert::notEmpty($authError);
+        Assert::contains((string)$authError, $text);
     }
 
     /**
@@ -199,8 +203,8 @@ class LoginContext implements Context
     public function iShouldSeeAGenericInvalidLoginErrorMessage()
     {
         $authError = $this->authenticator->getAuthError();
-        Assert::assertNotEmpty($authError);
-        Assert::assertContains('invalid_login', (string)$authError);
+        Assert::notEmpty($authError);
+        Assert::contains((string)$authError, 'invalid_login');
     }
 
     /**
@@ -217,8 +221,8 @@ class LoginContext implements Context
     public function iShouldSeeAnErrorMessageTellingMeToWait()
     {
         $authError = $this->authenticator->getAuthError();
-        Assert::assertNotEmpty($authError);
-        Assert::assertContains('rate_limit', (string)$authError);
+        Assert::notEmpty($authError);
+        Assert::contains((string)$authError, 'rate_limit');
     }
 
     /**
@@ -248,7 +252,7 @@ class LoginContext implements Context
      */
     public function iProvideTheCorrectPasswordForThatUsername()
     {
-        Assert::assertNotEmpty($this->username);
+        Assert::notEmpty($this->username);
         $this->password = 'dummy correct password';
         $this->idBroker = new FakeSuccessfulIdBroker('fake', 'fake', $this->logger);
     }
@@ -259,7 +263,7 @@ class LoginContext implements Context
     public function iShouldNotSeeAnErrorMessage()
     {
         $authError = $this->authenticator->getAuthError();
-        Assert::assertEmpty(
+        Assert::isEmpty(
             $authError,
             "Unexpected error: \n- " . $authError
         );
@@ -270,11 +274,11 @@ class LoginContext implements Context
      */
     public function iShouldBeAllowedThrough()
     {
-        Assert::assertTrue(
+        Assert::true(
             $this->authenticator->isAuthenticated()
         );
         $userInfo = $this->authenticator->getUserAttributes();
-        Assert::assertNotEmpty($userInfo);
+        Assert::notEmpty($userInfo);
     }
 
     /**
@@ -292,7 +296,7 @@ class LoginContext implements Context
      */
     public function thatUsernameHasRecentFailedLogins($number)
     {
-        Assert::assertTrue(is_numeric($number));
+        Assert::true(is_numeric($number));
         
         FailedLoginUsername::resetFailedLoginsBy($this->username);
         
@@ -305,10 +309,10 @@ class LoginContext implements Context
     public function iShouldSeeAnErrorMessageWithAndInIt($text1, $text2)
     {
         $authError = $this->authenticator->getAuthError();
-        Assert::assertNotEmpty($authError);
+        Assert::notEmpty($authError);
         $authErrorString = (string)$authError;
-        Assert::assertContains($text1, $authErrorString);
-        Assert::assertContains($text2, $authErrorString);
+        Assert::contains($authErrorString, $text1);
+        Assert::contains($authErrorString, $text2);
     }
 
     /**
@@ -329,8 +333,8 @@ class LoginContext implements Context
      */
     public function thatUsernameHasNoRecentFailedLoginAttempts()
     {
-        Assert::assertNotEmpty($this->username);
-        Assert::assertEquals(
+        Assert::notEmpty($this->username);
+        Assert::eq(
             0,
             FailedLoginUsername::countRecentFailedLoginsFor($this->username)
         );
@@ -341,8 +345,8 @@ class LoginContext implements Context
      */
     public function thatUsernameShouldBeBlockedForAwhile()
     {
-        Assert::assertNotEmpty($this->username);
-        Assert::assertTrue(
+        Assert::notEmpty($this->username);
+        Assert::true(
             FailedLoginUsername::isRateLimitBlocking($this->username)
         );
     }
@@ -365,10 +369,10 @@ class LoginContext implements Context
     public function thatIpAddressShouldBeBlockedForAwhile()
     {
         $ipAddresses = $this->request->getUntrustedIpAddresses();
-        Assert::assertCount(1, $ipAddresses);
+        Assert::count($ipAddresses, 1);
         $ipAddress = $ipAddresses[0];
         
-        Assert::assertTrue(
+        Assert::true(
             FailedLoginIpAddress::isRateLimitBlocking($ipAddress)
         );
     }
@@ -378,11 +382,11 @@ class LoginContext implements Context
      */
     public function thatUsernameSFailedLoginAttemptsShouldBeAt($number)
     {
-        Assert::assertNotEmpty($this->username);
-        Assert::assertTrue(is_numeric($number));
-        Assert::assertCount(
-            (int)$number,
-            FailedLoginUsername::getFailedLoginsFor($this->username)
+        Assert::notEmpty($this->username);
+        Assert::true(is_numeric($number));
+        Assert::count(
+            FailedLoginUsername::getFailedLoginsFor($this->username),
+            (int)$number
         );
     }
 
@@ -391,9 +395,9 @@ class LoginContext implements Context
      */
     public function thatUsernameDoesNotHaveEnoughFailedLoginsToRequireACaptcha()
     {
-        Assert::assertNotEmpty($this->username);
+        Assert::notEmpty($this->username);
         FailedLoginUsername::deleteAll();
-        Assert::assertEmpty(FailedLoginUsername::getFailedLoginsFor($this->username));
+        Assert::isEmpty(FailedLoginUsername::getFailedLoginsFor($this->username));
     }
 
     /**
@@ -402,9 +406,9 @@ class LoginContext implements Context
     public function myIpAddressHasEnoughFailedLoginsToRequireACaptcha()
     {
         $ipAddress = $this->request->getMostLikelyIpAddress();
-        Assert::assertNotNull($ipAddress, 'No IP address was provided.');
+        Assert::notNull($ipAddress, 'No IP address was provided.');
         FailedLoginIpAddress::deleteAll();
-        Assert::assertEmpty(FailedLoginIpAddress::getFailedLoginsFor($ipAddress));
+        Assert::isEmpty(FailedLoginIpAddress::getFailedLoginsFor($ipAddress));
         
         $desiredCount = Authenticator::REQUIRE_CAPTCHA_AFTER_NTH_FAILED_LOGIN;
         
@@ -412,10 +416,10 @@ class LoginContext implements Context
             $failedLoginUsername = new FailedLoginIpAddress([
                 'ip_address' => $ipAddress,
             ]);
-            Assert::assertTrue($failedLoginUsername->save());
+            Assert::true($failedLoginUsername->save());
         }
         
-        Assert::assertEquals(
+        Assert::eq(
             Authenticator::REQUIRE_CAPTCHA_AFTER_NTH_FAILED_LOGIN,
             FailedLoginIpAddress::countRecentFailedLoginsFor($ipAddress)
         );
@@ -440,11 +444,11 @@ class LoginContext implements Context
     public function thatIpAddressHasTriggeredTheRateLimit()
     {
         $ipAddresses = $this->request->getUntrustedIpAddresses();
-        Assert::assertCount(1, $ipAddresses);
+        Assert::count($ipAddresses, 1);
         $ipAddress = $ipAddresses[0];
         
         FailedLoginIpAddress::deleteAll();
-        Assert::assertEmpty(FailedLoginIpAddress::getFailedLoginsFor($ipAddress));
+        Assert::isEmpty(FailedLoginIpAddress::getFailedLoginsFor($ipAddress));
         
         $desiredCount = Authenticator::BLOCK_AFTER_NTH_FAILED_LOGIN;
         
@@ -452,10 +456,10 @@ class LoginContext implements Context
             $failedLoginIpAddress = new FailedLoginIpAddress([
                 'ip_address' => $ipAddress,
             ]);
-            Assert::assertTrue($failedLoginIpAddress->save());
+            Assert::true($failedLoginIpAddress->save());
         }
         
-        Assert::assertTrue(
+        Assert::true(
             FailedLoginIpAddress::isRateLimitBlocking($ipAddress)
         );
     }
@@ -473,8 +477,8 @@ class LoginContext implements Context
      */
     public function thatUsernameHasNonRecentFailedLogins($number)
     {
-        Assert::assertNotEmpty($this->username);
-        Assert::assertTrue(is_numeric($number));
+        Assert::notEmpty($this->username);
+        Assert::true(is_numeric($number));
         
         $numTotalFailures = count(FailedLoginUsername::getFailedLoginsFor($this->username));
         $numRecentFailures = FailedLoginUsername::countRecentFailedLoginsFor($this->username);
@@ -488,14 +492,14 @@ class LoginContext implements Context
                 'occurred_at_utc' => new UtcTime('-1 month'),
             ]);
             // NOTE: Don't validate, as that would overwrite the datetime field.
-            Assert::assertTrue($failedLoginUsername->save(false));
+            Assert::true($failedLoginUsername->save(false));
         }
         
         $numTotalFailuresPost = count(FailedLoginUsername::getFailedLoginsFor($this->username));
         $numRecentFailuresPost = FailedLoginUsername::countRecentFailedLoginsFor($this->username);
         $numNonRecentFailuresPost = $numTotalFailuresPost - $numRecentFailuresPost;
         
-        Assert::assertEquals($number, $numNonRecentFailuresPost);
+        Assert::eq($number, $numNonRecentFailuresPost);
     }
 
     /**
@@ -503,8 +507,8 @@ class LoginContext implements Context
      */
     public function iShouldNotHaveToPassACaptchaTestForThatUser()
     {
-        Assert::assertNotEmpty($this->username);
-        Assert::assertFalse(
+        Assert::notEmpty($this->username);
+        Assert::false(
             FailedLoginUsername::isCaptchaRequiredFor($this->username)
         );
     }
@@ -522,7 +526,25 @@ class LoginContext implements Context
      */
     public function theIpAddressShouldNotHaveAnyFailedLoginAttempts($ipAddress)
     {
-        Assert::assertTrue(Request::isValidIpAddress($ipAddress));
-        Assert::assertEmpty(FailedLoginIpAddress::getFailedLoginsFor($ipAddress));
+        Assert::true(Request::isValidIpAddress($ipAddress));
+        Assert::isEmpty(FailedLoginIpAddress::getFailedLoginsFor($ipAddress));
+    }
+
+    /**
+     * @Given the ID Broker is returning invalid responses
+     */
+    public function theIdBrokerIsReturningInvalidResponses()
+    {
+        $this->idBroker = new FakeInvalidIdBroker('fake', 'fake', $this->logger);
+    }
+
+    /**
+     * @Then I should see a generic try-later error message
+     */
+    public function iShouldSeeAGenericTryLaterErrorMessage()
+    {
+        $authError = $this->authenticator->getAuthError();
+        Assert::notEmpty($authError);
+        Assert::contains((string)$authError, 'later');
     }
 }

@@ -151,3 +151,12 @@ Feature: User login
     Then I should see a generic invalid-login error message
       And I should not be allowed through
       But the IP address "11.22.33.44" should not have any failed login attempts
+
+  Scenario: Invalid response from the ID Broker
+    Given I provide a username
+      And I provide the correct password for that username
+      And that username has no recent failed login attempts
+      But the ID Broker is returning invalid responses
+    When I try to log in
+    Then I should see a generic try-later error message
+      And I should not be allowed through

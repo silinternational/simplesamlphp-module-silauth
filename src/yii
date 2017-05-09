@@ -15,7 +15,17 @@ define('YII_ENV', 'production');
 defined('STDIN') or define('STDIN', fopen('php://stdin', 'r'));
 defined('STDOUT') or define('STDOUT', fopen('php://stdout', 'w'));
 
-require(__DIR__ . '/../vendor/autoload.php');
+$autoloadLocations = [
+    __DIR__ . '/../vendor/autoload.php',
+    '/data/vendor/autoload.php',
+];
+
+foreach ($autoloadLocations as $location) {
+    if (file_exists($location)) {
+        require_once $location ;
+        break;
+    }
+}
 
 use Sil\PhpEnv\Env;
 use Sil\SilAuth\config\ConfigManager;
