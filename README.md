@@ -20,3 +20,12 @@ both the REMOTE_ADDR and the X-Forwarded-For header for IP addresses, you will
 want to list any IP addresses that should NOT be rate limited (such as your 
 load balancer) in the TRUSTED_IP_ADDRESSES environment variable (see 
 `local.env.dist`).
+
+## Debugging
+To debug the project in your IDE (such as NetBeans), do the following:
+
+1. Edit your `local.env` file, insert your IP address as the value for 
+   `XDEBUG_REMOTE_HOST`.
+2. Run `make start enabledebug`.
+3. Set your IDE to use debugger port 9000 and a Session ID of netbeans-xdebug.
+4. Click the "Debug Project" button in your IDE.
