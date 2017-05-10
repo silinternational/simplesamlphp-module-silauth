@@ -45,6 +45,7 @@ services:
       MYSQL_DATABASE: test
       MYSQL_USER: silauth
       MYSQL_PASSWORD: silauth
+      IDP_DOMAIN_NAME: fake.example.com
     links:
       - testdb
     working_dir: /data
