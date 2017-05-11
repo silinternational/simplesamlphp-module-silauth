@@ -9,9 +9,13 @@ use Sil\SilAuth\auth\IdBroker;
 
 abstract class FakeIdBroker extends IdBroker
 {
-    public function __construct($baseUri, $accessToken, LoggerInterface $logger)
-    {
-        parent::__construct($baseUri, $accessToken, $logger);
+    public function __construct(
+        string $baseUri,
+        string $accessToken,
+        LoggerInterface $logger,
+        string $idpDomainName = 'fake.example.com'
+    ) {
+        parent::__construct($baseUri, $accessToken, $logger, $idpDomainName);
         
         // Now replace the client with one that will return the desired response.
         $this->client = new IdBrokerClient($baseUri, $accessToken, [

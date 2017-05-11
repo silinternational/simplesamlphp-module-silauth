@@ -17,6 +17,7 @@ class FakeSuccessfulIdBroker extends FakeIdBroker
     protected function getDesiredResponse()
     {
         return new Response(200, [], json_encode([
+            'uuid' => '11111111-aaaa-1111-aaaa-111111111111',
             'employee_id' => '123',
             'first_name' => 'John',
             'last_name' => 'Smith',

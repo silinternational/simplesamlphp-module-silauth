@@ -23,6 +23,7 @@ web:
         MYSQL_USER: silauth
         MYSQL_PASSWORD: silauth
         APPLICATION_ENV: testing
+        IDP_DOMAIN_NAME: fake.example.com
     working_dir: /data
 
 ldap:

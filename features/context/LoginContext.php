@@ -1,7 +1,6 @@
 <?php
 namespace Sil\SilAuth\features\context;
 
-use Behat\Behat\Tester\Exception\PendingException;
 use Behat\Behat\Context\Context;
 use Psr\Log\LoggerInterface;
 use Sil\PhpEnv\Env;
@@ -74,7 +73,8 @@ class LoginContext implements Context
         $this->idBroker = new IdBroker(
             'http://fake.example.com/api/',
             'FakeAccessToken',
-            $this->logger
+            $this->logger,
+            'fake.example.com'
         );
         $this->request = new Request();
         
