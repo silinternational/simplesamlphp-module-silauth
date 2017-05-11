@@ -3,7 +3,7 @@ version: "2"
 services:
 
   web:
-    image: silintl/ssp-base:latest
+    image: silintl/ssp-base:feature_silauth-saml-attrs
     ports:
       - "80:80"
       - "9000:9000"
@@ -28,7 +28,7 @@ services:
     command: ["/data/run-dev.sh"]
 
   tests:
-    image: silintl/ssp-base:latest
+    image: silintl/ssp-base:feature_silauth-saml-attrs
     volumes_from:
       - web
     volumes:
