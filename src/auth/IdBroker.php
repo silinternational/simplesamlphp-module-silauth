@@ -3,6 +3,7 @@ namespace Sil\SilAuth\auth;
 
 use Psr\Log\LoggerInterface;
 use Sil\Idp\IdBroker\Client\IdBrokerClient;
+use Sil\SilAuth\saml\User as SamlUser;
 
 class IdBroker
 {
@@ -11,6 +12,8 @@ class IdBroker
     
     /** @var LoggerInterface */
     protected $logger;
+    
+    protected $idpDomainName;
     
     /**
      * 
@@ -22,9 +25,11 @@ class IdBroker
     public function __construct(
         string $baseUri,
         string $accessToken,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        string $idpDomainName
     ) {
         $this->logger = $logger;
+        $this->idpDomainName = $idpDomainName;
         $this->client = new IdBrokerClient($baseUri, $accessToken);
     }
     
@@ -35,6 +40,9 @@ class IdBroker
      * situation). If an unexpected response is received, an exception will be
      * thrown.
      *
+     * NOTE: The attributes names used (if any) in the response will be SAML
+     *       field names, not ID Broker field names.
+     *
      * @param string $username The username.
      * @param string $password The password.
      * @return array|null The user's attributes (if successful), otherwise null.
@@ -42,33 +50,20 @@ class IdBroker
      */
     public function getAuthenticatedUser(string $username, string $password)
     {
-        $result = $this->client->authenticate([
-            'username' => $username,
-            'password' => $password,
-        ]);
-        $statusCode = $result['statusCode'] ?? null;
-        switch (intval($statusCode)) {
-            
-            case 200: // Credentials were acceptable.
-                unset($result['statusCode']);
-                /*
-                 * Make sure all values are arrays themselves for simplesamlphp compatibility
-                 */
-                foreach ($result as $key => $value) {
-                    if ( ! is_array($value)) {
-                        $result[$key] = [$value];
-                    }
-                }
-                return $result;
-            
-            case 400: // Credentials were NOT acceptable.
-                return null;
-
-            default:
-                throw new \Exception(sprintf(
-                    'Unexpected response from ID Broker: %s',
-                    var_export($result->toArray(), true)
-                ), 1489500140);
+        $userInfo = $this->client->authenticate($username, $password);
+        
+        if ($userInfo === null) {
+            return null;
         }
+        
+        return SamlUser::convertToSamlFieldNames(
+            $userInfo['employee_id'],
+            $userInfo['first_name'],
+            $userInfo['last_name'],
+            $userInfo['username'],
+            $userInfo['email'],
+            $userInfo['uuid'],
+            $this->idpDomainName
+        );
     }
 }

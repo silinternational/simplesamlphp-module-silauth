@@ -22,17 +22,17 @@ bounce:
 
 clean:
 	docker-compose kill
-	docker-compose rm -f
+	docker system prune -f
 
 composer:
-	docker-compose run --rm tests bash -c "COMPOSER_ROOT_VERSION=dev-develop composer install --no-scripts"
+	docker-compose run --rm tests bash -c "composer install --no-scripts"
 
 composerrequire:
-	docker-compose run --rm tests bash -c "COMPOSER_ROOT_VERSION=dev-develop composer require $(NAME) --no-scripts"
+	docker-compose run --rm tests bash -c "composer require $(NAME) --no-scripts"
 # Example: `make composerrequire NAME=monolog/monolog`
 
 composerupdate:
-	docker-compose run --rm tests bash -c "COMPOSER_ROOT_VERSION=dev-develop composer update --no-scripts"
+	docker-compose run --rm tests bash -c "composer update --no-scripts"
 
 db:
 	docker-compose up -d db

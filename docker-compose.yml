@@ -3,7 +3,7 @@ version: "2"
 services:
 
   web:
-    image: silintl/ssp-base:latest
+    image: silintl/ssp-base:develop
     ports:
       - "80:80"
       - "9000:9000"
@@ -28,7 +28,7 @@ services:
     command: ["/data/run-dev.sh"]
 
   tests:
-    image: silintl/ssp-base:latest
+    image: silintl/ssp-base:develop
     volumes_from:
       - web
     volumes:
@@ -45,6 +45,7 @@ services:
       MYSQL_DATABASE: test
       MYSQL_USER: silauth
       MYSQL_PASSWORD: silauth
+      IDP_DOMAIN_NAME: fake.example.com
     links:
       - testdb
     working_dir: /data
