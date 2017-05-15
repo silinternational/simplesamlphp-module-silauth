@@ -30,7 +30,11 @@ class IdBroker
     ) {
         $this->logger = $logger;
         $this->idpDomainName = $idpDomainName;
-        $this->client = new IdBrokerClient($baseUri, $accessToken);
+        $this->client = new IdBrokerClient($baseUri, $accessToken, [
+            'http_client_options' => [
+                'timeout' => 10,
+            ],
+        ]);
     }
     
     /**
