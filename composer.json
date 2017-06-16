@@ -12,7 +12,6 @@
   "minimum-stability": "stable",
   "require": {
     "php": ">=7.0",
-    "ext-gmp": "*",
     "ramsey/uuid": "^3.5",
     "rlanvin/php-ip": "^1.0",
     "roave/security-advisories": "dev-master",
