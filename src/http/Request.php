@@ -1,27 +1,41 @@
 <?php
 namespace Sil\SilAuth\http;
 
+use IP;
+use IPBlock;
 use Sil\SilAuth\text\Text;
 
 class Request
 {
     /**
-     * The list of (lowercased) trusted IP addresses.
+     * The list of trusted IP addresses.
      *
-     * @var string[]
+     * @var IP[]
      */
-    private $lcTrustedIpAddresses = [];
+    private $trustedIpAddresses = [];
+    
+    /**
+     * The list of trusted IP address ranges (aka. blocks).
+     *
+     * @var IPBlock[]
+     */
+    private $trustedIpAddressRanges = [];
     
     /**
      * Constructor.
      *
      * @param string[] $ipAddressesToTrust The list of IP addresses (IPv4 and/or
-     *     IPv6) to trust, and thus not to enforce any rate-limits on.
+     *     IPv6, specific IP's or CIDR ranges) to trust, and thus not to enforce
+     *     any rate-limits on.
      */
     public function __construct(array $ipAddressesToTrust = [])
     {
         foreach ($ipAddressesToTrust as $ipAddress) {
-            $this->trustIpAddress($ipAddress);
+            if ($this->isValidIpAddress($ipAddress)) {
+                $this->trustIpAddress($ipAddress);
+            } else {
+                $this->trustIpAddressRange($ipAddress);
+            }
         }
     }
     
@@ -105,15 +119,27 @@ class Request
     }
     
     /**
-     * Determine whether the given IP address (case-insensitive) is in the list
-     * of trusted IP addresses.
+     * Determine whether the given IP address is trusted (either specifically or
+     * because it is in a trusted range).
      *
      * @param string $ipAddress The IP address in question.
      * @return bool
      */
     public function isTrustedIpAddress($ipAddress)
     {
-        return in_array(strtolower($ipAddress), $this->lcTrustedIpAddresses);
+        foreach ($this->trustedIpAddresses as $trustedIp) {
+            if ($trustedIp->numeric() === IP::create($ipAddress)->numeric()) {
+                return true;
+            }
+        }
+        
+        foreach ($this->trustedIpAddressRanges as $trustedIpBlock) {
+            if ($trustedIpBlock->containsIP($ipAddress)) {
+                return true;
+            }
+        }
+        
+        return false;
     }
     
     /**
@@ -149,6 +175,12 @@ class Request
                 var_export($ipAddress, true)
             ));
         }
-        $this->lcTrustedIpAddresses[] = strtolower($ipAddress);
+        $this->trustedIpAddresses[] = IP::create($ipAddress);
+    }
+    
+    public function trustIpAddressRange($ipAddressRangeString)
+    {
+        $ipBlock = IPBlock::create($ipAddressRangeString);
+        $this->trustedIpAddressRanges[] = $ipBlock;
     }
 }

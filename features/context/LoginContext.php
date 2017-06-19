@@ -1,6 +1,7 @@
 <?php
 namespace Sil\SilAuth\features\context;
 
+use Behat\Behat\Tester\Exception\PendingException;
 use Behat\Behat\Context\Context;
 use Psr\Log\LoggerInterface;
 use Sil\PhpEnv\Env;
@@ -413,10 +414,10 @@ class LoginContext implements Context
         $desiredCount = Authenticator::REQUIRE_CAPTCHA_AFTER_NTH_FAILED_LOGIN;
         
         for ($i = 0; $i < $desiredCount; $i++) {
-            $failedLoginUsername = new FailedLoginIpAddress([
+            $failedLoginIpAddress = new FailedLoginIpAddress([
                 'ip_address' => $ipAddress,
             ]);
-            Assert::true($failedLoginUsername->save());
+            Assert::true($failedLoginIpAddress->save());
         }
         
         Assert::eq(
@@ -546,5 +547,25 @@ class LoginContext implements Context
         $authError = $this->authenticator->getAuthError();
         Assert::notEmpty($authError);
         Assert::contains((string)$authError, 'later');
+    }
+
+    /**
+     * @Given :ipAddressRange is a trusted IP address range
+     */
+    public function isATrustedIpAddressRange($ipAddressRange)
+    {
+        $this->request->trustIpAddressRange($ipAddressRange);
+    }
+
+    /**
+     * @Then the IP address :ipAddress should have a failed login attempt
+     */
+    public function theIpAddressShouldHaveAFailedLoginAttempt($ipAddress)
+    {
+        Assert::notEmpty($ipAddress);
+        Assert::count(
+            FailedLoginIpAddress::getFailedLoginsFor($ipAddress),
+            1
+        );
     }
 }

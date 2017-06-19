@@ -142,7 +142,7 @@ Feature: User login
     When that username has 0 recent failed logins
     Then I should not have to pass a captcha test for that user
 
-  Scenario: Not restricting requests from a trusted IP address
+  Scenario: Not restricting requests from a trusted IPv4 address
     Given I provide a username
       And I provide an incorrect password
       And my request comes from IP address "11.22.33.44"
@@ -151,6 +151,36 @@ Feature: User login
     Then I should see a generic invalid-login error message
       And I should not be allowed through
       But the IP address "11.22.33.44" should not have any failed login attempts
+
+  Scenario: Not restricting requests from a trusted IPv6 address
+    Given I provide a username
+      And I provide an incorrect password
+      And my request comes from IP address "2001:0db8:85a3:0000:0000:8a2e:0370:7334"
+      But "2001:0db8:85a3::8a2e:0370:7334" is a trusted IP address
+    When I try to log in
+    Then I should see a generic invalid-login error message
+      And I should not be allowed through
+      But the IP address "2001:0db8:85a3:0000:0000:8a2e:0370:7334" should not have any failed login attempts
+
+  Scenario: Not restricting requests from an IP address in a trusted range
+    Given I provide a username
+      And I provide an incorrect password
+      And my request comes from IP address "11.22.33.44"
+      But "11.22.33.0/24" is a trusted IP address range
+    When I try to log in
+    Then I should see a generic invalid-login error message
+      And I should not be allowed through
+      But the IP address "11.22.33.44" should not have any failed login attempts
+
+  Scenario: Restricting requests from an IP address NOT in a trusted range
+    Given I provide a username
+      And I provide an incorrect password
+      And my request comes from IP address "11.22.33.44"
+      And "11.22.55.0/24" is a trusted IP address range
+    When I try to log in
+    Then I should see a generic invalid-login error message
+      And I should not be allowed through
+      And the IP address "11.22.33.44" should have a failed login attempt
 
   Scenario: Invalid response from the ID Broker
     Given I provide a username
