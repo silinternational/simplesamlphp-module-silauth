@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "8b2805de321ea7b4177a5b6fb83a35de",
+    "content-hash": "24781808d70ab28ca85b8e1fe3db226b",
     "packages": [
         {
             "name": "adldap2/adldap2",
@@ -706,16 +706,16 @@
         },
         {
             "name": "monolog/monolog",
-            "version": "1.22.1",
+            "version": "1.23.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Seldaek/monolog.git",
-                "reference": "1e044bc4b34e91743943479f1be7a1d5eb93add0"
+                "reference": "fd8c787753b3a2ad11bc60c063cff1358a32a3b4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/1e044bc4b34e91743943479f1be7a1d5eb93add0",
-                "reference": "1e044bc4b34e91743943479f1be7a1d5eb93add0",
+                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/fd8c787753b3a2ad11bc60c063cff1358a32a3b4",
+                "reference": "fd8c787753b3a2ad11bc60c063cff1358a32a3b4",
                 "shasum": ""
             },
             "require": {
@@ -736,7 +736,7 @@
                 "phpunit/phpunit-mock-objects": "2.3.0",
                 "ruflin/elastica": ">=0.90 <3.0",
                 "sentry/sentry": "^0.13",
-                "swiftmailer/swiftmailer": "~5.3"
+                "swiftmailer/swiftmailer": "^5.3|^6.0"
             },
             "suggest": {
                 "aws/aws-sdk-php": "Allow sending log messages to AWS services like DynamoDB",
@@ -780,7 +780,7 @@
                 "logging",
                 "psr-3"
             ],
-            "time": "2017-03-13T07:08:03+00:00"
+            "time": "2017-06-19T01:22:40+00:00"
         },
         {
             "name": "paragonie/random_compat",
@@ -1263,16 +1263,16 @@
         },
         {
             "name": "silinternational/idp-id-broker-php-client",
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/silinternational/idp-id-broker-php-client.git",
-                "reference": "b73f20df124e7c9bd1dbdd99cde757e65a9239f3"
+                "reference": "e64469f89c82fe8a578c360373b3ecf43a5276bc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/silinternational/idp-id-broker-php-client/zipball/b73f20df124e7c9bd1dbdd99cde757e65a9239f3",
-                "reference": "b73f20df124e7c9bd1dbdd99cde757e65a9239f3",
+                "url": "https://api.github.com/repos/silinternational/idp-id-broker-php-client/zipball/e64469f89c82fe8a578c360373b3ecf43a5276bc",
+                "reference": "e64469f89c82fe8a578c360373b3ecf43a5276bc",
                 "shasum": ""
             },
             "require": {
@@ -1313,20 +1313,20 @@
                 "idp",
                 "php client"
             ],
-            "time": "2017-05-15T16:07:28+00:00"
+            "time": "2017-06-16T14:35:39+00:00"
         },
         {
             "name": "silinternational/php-env",
-            "version": "1.0.1",
+            "version": "2.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/silinternational/php-env.git",
-                "reference": "030821eebac6ff1379a1b0eb6cc4ca18bf3804e0"
+                "reference": "92ec561324d498f94cd7fe282e595c45c1c7579b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/silinternational/php-env/zipball/030821eebac6ff1379a1b0eb6cc4ca18bf3804e0",
-                "reference": "030821eebac6ff1379a1b0eb6cc4ca18bf3804e0",
+                "url": "https://api.github.com/repos/silinternational/php-env/zipball/92ec561324d498f94cd7fe282e595c45c1c7579b",
+                "reference": "92ec561324d498f94cd7fe282e595c45c1c7579b",
                 "shasum": ""
             },
             "require": {
@@ -1346,7 +1346,8 @@
             "license": [
                 "MIT"
             ],
-            "time": "2017-05-10T16:00:51+00:00"
+            "description": "Simple PHP library for getting (or requiring) environment variables, designed to handle true, false, and null more intelligently. If desired, an environment variable's value can be split into an array automatically.",
+            "time": "2017-05-30T20:24:09+00:00"
         },
         {
             "name": "simplesamlphp/saml2",
