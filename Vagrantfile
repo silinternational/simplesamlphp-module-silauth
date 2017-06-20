@@ -77,6 +77,7 @@ Vagrant.configure(2) do |config|
     cat << 'EOF' >> /home/vagrant/.bashrc
 export COMPOSER_CACHE_DIR=/tmp
 export DOCKER_UIDGID="$(id -u):$(id -g)"
+alias dc='docker-compose'
 EOF
 
   SHELL

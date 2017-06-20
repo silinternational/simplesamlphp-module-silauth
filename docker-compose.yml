@@ -3,7 +3,7 @@ version: "2"
 services:
 
   web:
-    image: silintl/ssp-base:develop
+    image: silintl/ssp-base:latest
     ports:
       - "80:80"
       - "9000:9000"
@@ -28,7 +28,7 @@ services:
     command: ["/data/run-dev.sh"]
 
   tests:
-    image: silintl/ssp-base:develop
+    image: silintl/ssp-base:latest
     volumes_from:
       - web
     volumes:

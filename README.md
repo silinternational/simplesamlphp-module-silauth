@@ -21,6 +21,10 @@ want to list any IP addresses that should NOT be rate limited (such as your
 load balancer) in the TRUSTED_IP_ADDRESSES environment variable (see 
 `local.env.dist`).
 
+## Status Check
+To check the status of the website, you can access this URL:  
+`https://(your domain name)/module.php/silauth/status.php`
+
 ## Debugging
 To debug the project in your IDE (such as NetBeans), do the following:
 
