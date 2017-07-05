@@ -71,7 +71,7 @@ class Authenticator
             return;
         }
         
-        if ($this->isCaptchaRequired($username, $ipAddresses)) {
+        if (self::isCaptchaRequired($username, $ipAddresses)) {
             $logger->warning('Captcha required for {username} (IP: {ipAddresses}).', [
                 'username' => var_export($username, true),
                 'ipAddresses' => join(', ', $ipAddresses),
@@ -259,7 +259,7 @@ class Authenticator
                FailedLoginIpAddress::isRateLimitBlockingAnyOfThese($ipAddresses);
     }
     
-    protected function isCaptchaRequired($username, array $ipAddresses)
+    public static function isCaptchaRequired($username, array $ipAddresses)
     {
         return FailedLoginUsername::isCaptchaRequiredFor($username) ||
                FailedLoginIpAddress::isCaptchaRequiredForAnyOfThese($ipAddresses);

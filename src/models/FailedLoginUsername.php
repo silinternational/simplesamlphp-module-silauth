@@ -111,6 +111,9 @@ class FailedLoginUsername extends FailedLoginUsernameBase implements LoggerAware
     
     public static function isCaptchaRequiredFor($username)
     {
+        if (empty($username)) {
+            return false;
+        }
         return Authenticator::isEnoughFailedLoginsToRequireCaptcha(
             self::countRecentFailedLoginsFor($username)
         );
