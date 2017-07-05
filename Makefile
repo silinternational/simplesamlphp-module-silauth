@@ -9,13 +9,13 @@ bashtests:
 	docker-compose run --rm tests bash
 
 behat:
-	docker-compose run --rm tests bash -c "vendor/bin/behat --config=features/behat.yml --stop-on-failure"
+	docker-compose run --rm tests bash -c "vendor/bin/behat --config=features/behat.yml --strict --stop-on-failure"
 
 behatappend:
-	docker-compose run --rm tests bash -c "vendor/bin/behat --config=features/behat.yml --append-snippets"
+	docker-compose run --rm tests bash -c "vendor/bin/behat --config=features/behat.yml --strict --append-snippets"
 
 behatv:
-	docker-compose run --rm tests bash -c "vendor/bin/behat --config=features/behat.yml --stop-on-failure -v"
+	docker-compose run --rm tests bash -c "vendor/bin/behat --config=features/behat.yml --strict --stop-on-failure -v"
 
 bounce:
 	docker-compose up -d web
