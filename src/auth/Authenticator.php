@@ -135,7 +135,7 @@ class Authenticator
             return 0;
         }
         
-        $limit = Authenticator::BLOCK_AFTER_NTH_FAILED_LOGIN;
+        $limit = self::BLOCK_AFTER_NTH_FAILED_LOGIN;
         $numFailuresPastLimit = $numRecentFailures - $limit;
         $numberToUse = max($numFailuresPastLimit, 3);
         
