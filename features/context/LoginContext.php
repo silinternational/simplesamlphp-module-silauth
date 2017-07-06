@@ -574,4 +574,69 @@ class LoginContext implements Context
             1
         );
     }
+
+    /**
+     * @Given :numSeconds seconds ago that username had :numFailuresBeyondLimit more failed logins than the limit
+     */
+    public function secondsAgoThatUsernameHadMoreFailedLoginsThanTheLimit(
+        $numSeconds,
+        $numFailuresBeyondLimit
+    ) {
+        Assert::notEmpty($this->username);
+        Assert::true(is_numeric($numSeconds));
+        Assert::true(is_numeric($numFailuresBeyondLimit));
+        
+        FailedLoginUsername::resetFailedLoginsBy($this->username);
+        
+        $numDesiredFailuresTotal = $numFailuresBeyondLimit + Authenticator::BLOCK_AFTER_NTH_FAILED_LOGIN;
+        
+        for ($i = 0; $i < $numDesiredFailuresTotal; $i++) {
+            $failedLoginUsername = new FailedLoginUsername([
+                'username' => $this->username,
+                'occurred_at_utc' => new UtcTime(sprintf(
+                    '-%s seconds',
+                    $numSeconds
+                )),
+            ]);
+            // NOTE: Don't validate, as that would overwrite the datetime field.
+            Assert::true($failedLoginUsername->save(false));
+        }
+        
+        $numTotalFailuresPost = count(FailedLoginUsername::getFailedLoginsFor($this->username));
+        
+        Assert::eq($numDesiredFailuresTotal, $numTotalFailuresPost);
+    }
+
+    /**
+     * @Given :numSeconds seconds ago the IP address :ipAddress had :numFailuresBeyondLimit more failed logins than the limit
+     */
+    public function secondsAgoTheIpAddressHadMoreFailedLoginsThanTheLimit(
+        $numSeconds,
+        $ipAddress,
+        $numFailuresBeyondLimit
+    ) {
+        Assert::notEmpty($ipAddress);
+        Assert::true(is_numeric($numSeconds));
+        Assert::true(is_numeric($numFailuresBeyondLimit));
+        
+        FailedLoginIpAddress::resetFailedLoginsBy([$ipAddress]);
+        
+        $numDesiredFailuresTotal = $numFailuresBeyondLimit + Authenticator::BLOCK_AFTER_NTH_FAILED_LOGIN;
+        
+        for ($i = 0; $i < $numDesiredFailuresTotal; $i++) {
+            $failedLoginIpAddress = new FailedLoginIpAddress([
+                'ip_address' => $ipAddress,
+                'occurred_at_utc' => new UtcTime(sprintf(
+                    '-%s seconds',
+                    $numSeconds
+                )),
+            ]);
+            // NOTE: Don't validate, as that would overwrite the datetime field.
+            Assert::true($failedLoginIpAddress->save(false));
+        }
+        
+        $numTotalFailuresPost = count(FailedLoginIpAddress::getFailedLoginsFor($ipAddress));
+        
+        Assert::eq($numDesiredFailuresTotal, $numTotalFailuresPost);
+    }
 }
