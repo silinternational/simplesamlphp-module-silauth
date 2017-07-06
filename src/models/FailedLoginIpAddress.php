@@ -118,9 +118,8 @@ class FailedLoginIpAddress extends FailedLoginIpAddressBase implements LoggerAwa
     
     public static function isRateLimitBlocking($ipAddress)
     {
-        return Authenticator::isEnoughFailedLoginsToBlock(
-            self::countRecentFailedLoginsFor($ipAddress)
-        );
+        $secondsUntilUnblocked = self::getSecondsUntilUnblocked($ipAddress);
+        return ($secondsUntilUnblocked > 0);
     }
     
     public static function isRateLimitBlockingAnyOfThese($ipAddresses)

@@ -1,9 +1,9 @@
 <?php
 
+use Sil\SilAuth\auth\Authenticator;
 use Sil\SilAuth\csrf\CsrfProtector;
 use Sil\SilAuth\http\Request;
 use Sil\SilAuth\log\Psr3SamlLogger;
-use Sil\SilAuth\models\FailedLoginUsername;
 
 /**
  * This page shows a username/password login form, and passes information from it
@@ -80,10 +80,13 @@ $t->data['errorcode'] = $errorCode;
 $t->data['errorparams'] = $errorParams;
 $t->data['forgotPasswordUrl'] = $forgotPasswordUrl;
 $t->data['csrfToken'] = $csrfProtector->getMasterToken();
-if ( ! empty($username)) {
-    if (FailedLoginUsername::isCaptchaRequiredFor($username)) {
-        $t->data['recaptcha.siteKey'] = $recaptchaSiteKey;
-    }
+
+/* For simplicity's sake, don't bother telling this Request to trust any IP
+ * addresses. This is okay because we only track the failures of untrusted
+ * IP addresses, so there will be no failed logins of IP addresses we trust. */
+$request = new Request();
+if (Authenticator::isCaptchaRequired($username, $request->getUntrustedIpAddresses())) {
+    $t->data['recaptcha.siteKey'] = $recaptchaSiteKey;
 }
 
 if (isset($state['SPMetadata'])) {

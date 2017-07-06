@@ -293,15 +293,18 @@ class LoginContext implements Context
     }
 
     /**
-     * @Given that username has :number recent failed logins
+     * @Given that username has :number more recent failed logins than the limit
      */
-    public function thatUsernameHasRecentFailedLogins($number)
+    public function thatUsernameHasMoreRecentFailedLoginsThanTheLimit($number)
     {
         Assert::true(is_numeric($number));
         
         FailedLoginUsername::resetFailedLoginsBy($this->username);
         
-        $this->addXFailedLoginUsernames($number, $this->username);
+        $this->addXFailedLoginUsernames(
+            $number + Authenticator::BLOCK_AFTER_NTH_FAILED_LOGIN,
+            $this->username
+        );
     }
 
     /**
@@ -335,6 +338,7 @@ class LoginContext implements Context
     public function thatUsernameHasNoRecentFailedLoginAttempts()
     {
         Assert::notEmpty($this->username);
+        FailedLoginUsername::resetFailedLoginsBy($this->username);
         Assert::eq(
             0,
             FailedLoginUsername::countRecentFailedLoginsFor($this->username)
@@ -474,18 +478,20 @@ class LoginContext implements Context
     }
 
     /**
-     * @Given that username has :number non-recent failed logins
+     * @Given that username has :number more non-recent failed logins than the limit
      */
-    public function thatUsernameHasNonRecentFailedLogins($number)
+    public function thatUsernameHasMoreNonRecentFailedLoginsThanTheLimit($number)
     {
         Assert::notEmpty($this->username);
         Assert::true(is_numeric($number));
+        
+        $desiredNumber = $number + Authenticator::BLOCK_AFTER_NTH_FAILED_LOGIN;
         
         $numTotalFailures = count(FailedLoginUsername::getFailedLoginsFor($this->username));
         $numRecentFailures = FailedLoginUsername::countRecentFailedLoginsFor($this->username);
         $numNonRecentFailures = $numTotalFailures - $numRecentFailures;
         
-        for ($i = $numNonRecentFailures; $i < $number; $i++) {
+        for ($i = $numNonRecentFailures; $i < $desiredNumber; $i++) {
             $failedLoginUsername = new FailedLoginUsername([
                 'username' => $this->username,
                 
@@ -500,7 +506,7 @@ class LoginContext implements Context
         $numRecentFailuresPost = FailedLoginUsername::countRecentFailedLoginsFor($this->username);
         $numNonRecentFailuresPost = $numTotalFailuresPost - $numRecentFailuresPost;
         
-        Assert::eq($number, $numNonRecentFailuresPost);
+        Assert::eq($desiredNumber, $numNonRecentFailuresPost);
     }
 
     /**
@@ -567,5 +573,70 @@ class LoginContext implements Context
             FailedLoginIpAddress::getFailedLoginsFor($ipAddress),
             1
         );
+    }
+
+    /**
+     * @Given :numSeconds seconds ago that username had :numFailuresBeyondLimit more failed logins than the limit
+     */
+    public function secondsAgoThatUsernameHadMoreFailedLoginsThanTheLimit(
+        $numSeconds,
+        $numFailuresBeyondLimit
+    ) {
+        Assert::notEmpty($this->username);
+        Assert::true(is_numeric($numSeconds));
+        Assert::true(is_numeric($numFailuresBeyondLimit));
+        
+        FailedLoginUsername::resetFailedLoginsBy($this->username);
+        
+        $numDesiredFailuresTotal = $numFailuresBeyondLimit + Authenticator::BLOCK_AFTER_NTH_FAILED_LOGIN;
+        
+        for ($i = 0; $i < $numDesiredFailuresTotal; $i++) {
+            $failedLoginUsername = new FailedLoginUsername([
+                'username' => $this->username,
+                'occurred_at_utc' => new UtcTime(sprintf(
+                    '-%s seconds',
+                    $numSeconds
+                )),
+            ]);
+            // NOTE: Don't validate, as that would overwrite the datetime field.
+            Assert::true($failedLoginUsername->save(false));
+        }
+        
+        $numTotalFailuresPost = count(FailedLoginUsername::getFailedLoginsFor($this->username));
+        
+        Assert::eq($numDesiredFailuresTotal, $numTotalFailuresPost);
+    }
+
+    /**
+     * @Given :numSeconds seconds ago the IP address :ipAddress had :numFailuresBeyondLimit more failed logins than the limit
+     */
+    public function secondsAgoTheIpAddressHadMoreFailedLoginsThanTheLimit(
+        $numSeconds,
+        $ipAddress,
+        $numFailuresBeyondLimit
+    ) {
+        Assert::notEmpty($ipAddress);
+        Assert::true(is_numeric($numSeconds));
+        Assert::true(is_numeric($numFailuresBeyondLimit));
+        
+        FailedLoginIpAddress::resetFailedLoginsBy([$ipAddress]);
+        
+        $numDesiredFailuresTotal = $numFailuresBeyondLimit + Authenticator::BLOCK_AFTER_NTH_FAILED_LOGIN;
+        
+        for ($i = 0; $i < $numDesiredFailuresTotal; $i++) {
+            $failedLoginIpAddress = new FailedLoginIpAddress([
+                'ip_address' => $ipAddress,
+                'occurred_at_utc' => new UtcTime(sprintf(
+                    '-%s seconds',
+                    $numSeconds
+                )),
+            ]);
+            // NOTE: Don't validate, as that would overwrite the datetime field.
+            Assert::true($failedLoginIpAddress->save(false));
+        }
+        
+        $numTotalFailuresPost = count(FailedLoginIpAddress::getFailedLoginsFor($ipAddress));
+        
+        Assert::eq($numDesiredFailuresTotal, $numTotalFailuresPost);
     }
 }
