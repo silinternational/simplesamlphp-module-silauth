@@ -39,16 +39,6 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
         $this->idBrokerConfig = ConfigManager::getConfigFor('idBroker', $config);
         $this->mysqlConfig = ConfigManager::getConfigFor('mysql', $config);
         $this->recaptchaConfig = ConfigManager::getConfigFor('recaptcha', $config);
-        
-        ConfigManager::initializeYii2WebApp(['components' => ['db' => [
-            'dsn' => sprintf(
-                'mysql:host=%s;dbname=%s',
-                $this->mysqlConfig['host'],
-                $this->mysqlConfig['database']
-            ),
-            'username' => $this->mysqlConfig['user'],
-            'password' => $this->mysqlConfig['password'],
-        ]]]);
     }
 
     /**
@@ -100,6 +90,16 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
     
     protected function login($username, $password)
     {
+        ConfigManager::initializeYii2WebApp(['components' => ['db' => [
+            'dsn' => sprintf(
+                'mysql:host=%s;dbname=%s',
+                $this->mysqlConfig['host'],
+                $this->mysqlConfig['database']
+            ),
+            'username' => $this->mysqlConfig['user'],
+            'password' => $this->mysqlConfig['password'],
+        ]]]);
+        
         $logger = new Psr3SamlLogger();
         $captcha = new Captcha($this->recaptchaConfig['secret'] ?? null);
         $idBroker = new IdBroker(
