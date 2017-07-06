@@ -293,15 +293,18 @@ class LoginContext implements Context
     }
 
     /**
-     * @Given that username has :number recent failed logins
+     * @Given that username has :number more recent failed logins than the limit
      */
-    public function thatUsernameHasRecentFailedLogins($number)
+    public function thatUsernameHasMoreRecentFailedLoginsThanTheLimit($number)
     {
         Assert::true(is_numeric($number));
         
         FailedLoginUsername::resetFailedLoginsBy($this->username);
         
-        $this->addXFailedLoginUsernames($number, $this->username);
+        $this->addXFailedLoginUsernames(
+            $number + Authenticator::BLOCK_AFTER_NTH_FAILED_LOGIN,
+            $this->username
+        );
     }
 
     /**
@@ -335,6 +338,7 @@ class LoginContext implements Context
     public function thatUsernameHasNoRecentFailedLoginAttempts()
     {
         Assert::notEmpty($this->username);
+        FailedLoginUsername::resetFailedLoginsBy($this->username);
         Assert::eq(
             0,
             FailedLoginUsername::countRecentFailedLoginsFor($this->username)
@@ -474,18 +478,20 @@ class LoginContext implements Context
     }
 
     /**
-     * @Given that username has :number non-recent failed logins
+     * @Given that username has :number more non-recent failed logins than the limit
      */
-    public function thatUsernameHasNonRecentFailedLogins($number)
+    public function thatUsernameHasMoreNonRecentFailedLoginsThanTheLimit($number)
     {
         Assert::notEmpty($this->username);
         Assert::true(is_numeric($number));
+        
+        $desiredNumber = $number + Authenticator::BLOCK_AFTER_NTH_FAILED_LOGIN;
         
         $numTotalFailures = count(FailedLoginUsername::getFailedLoginsFor($this->username));
         $numRecentFailures = FailedLoginUsername::countRecentFailedLoginsFor($this->username);
         $numNonRecentFailures = $numTotalFailures - $numRecentFailures;
         
-        for ($i = $numNonRecentFailures; $i < $number; $i++) {
+        for ($i = $numNonRecentFailures; $i < $desiredNumber; $i++) {
             $failedLoginUsername = new FailedLoginUsername([
                 'username' => $this->username,
                 
@@ -500,7 +506,7 @@ class LoginContext implements Context
         $numRecentFailuresPost = FailedLoginUsername::countRecentFailedLoginsFor($this->username);
         $numNonRecentFailuresPost = $numTotalFailuresPost - $numRecentFailuresPost;
         
-        Assert::eq($number, $numNonRecentFailuresPost);
+        Assert::eq($desiredNumber, $numNonRecentFailuresPost);
     }
 
     /**

@@ -122,7 +122,7 @@ Feature: User login
   Scenario: Being told about how long to wait (due to rate limiting bad logins)
     Given I provide a username
       And I provide the correct password for that username
-      But that username has 5 recent failed logins
+      But that username has 5 more recent failed logins than the limit
     When I try to log in
     Then I should see an error message with "30" and "seconds" in it
       And that username should be blocked for awhile
@@ -131,7 +131,7 @@ Feature: User login
   Scenario: Logging in after a rate limit has expired
     Given I provide a username
       And I provide the correct password for that username
-      But that username has 5 non-recent failed logins
+      But that username has 5 more non-recent failed logins than the limit
     When I try to log in
     Then I should not see an error message
       And I should be allowed through
@@ -139,7 +139,7 @@ Feature: User login
 
   Scenario: No failed logins (and thus no captcha requirement)
     Given I provide a username
-    When that username has 0 recent failed logins
+    When that username has no recent failed login attempts
     Then I should not have to pass a captcha test for that user
 
   Scenario: Not restricting requests from a trusted IPv4 address
