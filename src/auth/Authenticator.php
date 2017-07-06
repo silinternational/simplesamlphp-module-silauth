@@ -17,8 +17,8 @@ use Sil\SilAuth\http\Request;
  */
 class Authenticator
 {
-    const REQUIRE_CAPTCHA_AFTER_NTH_FAILED_LOGIN = 2;
-    const BLOCK_AFTER_NTH_FAILED_LOGIN = 3;
+    const REQUIRE_CAPTCHA_AFTER_NTH_FAILED_LOGIN = 10;
+    const BLOCK_AFTER_NTH_FAILED_LOGIN = 50;
     const MAX_SECONDS_TO_BLOCK = 3600; // 3600 seconds = 1 hour
     
     /** @var AuthError|null */
