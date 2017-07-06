@@ -122,24 +122,53 @@ Feature: User login
   Scenario: Being told about how long to wait (due to rate limiting bad logins)
     Given I provide a username
       And I provide the correct password for that username
-      But that username has 5 recent failed logins
+      But that username has 5 more recent failed logins than the limit
     When I try to log in
     Then I should see an error message with "30" and "seconds" in it
       And that username should be blocked for awhile
       And I should not be allowed through
 
-  Scenario: Logging in after a rate limit has expired
+  Scenario: Logging in right before a username rate limit has expired
     Given I provide a username
       And I provide the correct password for that username
-      But that username has 5 non-recent failed logins
+      And 24 seconds ago that username had 5 more failed logins than the limit
+      And I pass any captchas
+    When I try to log in
+    Then I should see an error message with "5" and "seconds" in it
+      And I should not be allowed through
+
+  Scenario: Logging in right after a username rate limit has expired
+    Given I provide a username
+      And I provide the correct password for that username
+      And 26 seconds ago that username had 5 more failed logins than the limit
+      And I pass any captchas
     When I try to log in
     Then I should not see an error message
       And I should be allowed through
-      And that username's failed login attempts should be at 0
+
+  Scenario: Logging in right before an IP address rate limit has expired
+    Given my request comes from IP address "11.22.33.44"
+      And I provide a username
+      And I provide the correct password for that username
+      And 24 seconds ago the IP address "11.22.33.44" had 5 more failed logins than the limit
+      And I pass any captchas
+    When I try to log in
+    Then I should see an error message with "5" and "seconds" in it
+      And I should not be allowed through
+
+  Scenario: Logging in right after an IP address rate limit has expired
+    Given my request comes from IP address "11.22.33.44"
+      And I provide a username
+      And I provide the correct password for that username
+      And 26 seconds ago the IP address "11.22.33.44" had 5 more failed logins than the limit
+      And I pass any captchas
+    When I try to log in
+    Then I should not see an error message
+      And I should be allowed through
 
   Scenario: No failed logins (and thus no captcha requirement)
     Given I provide a username
-    When that username has 0 recent failed logins
+    When that username has no recent failed login attempts
     Then I should not have to pass a captcha test for that user
 
   Scenario: Not restricting requests from a trusted IPv4 address

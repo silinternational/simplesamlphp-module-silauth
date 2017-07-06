@@ -1,6 +1,7 @@
 <?php
 namespace Sil\SilAuth\tests\unit\models;
 
+use Sil\SilAuth\auth\Authenticator;
 use Sil\SilAuth\log\Psr3ConsoleLogger;
 use Sil\SilAuth\models\FailedLoginIpAddress;
 use Sil\SilAuth\time\UtcTime;
@@ -73,17 +74,21 @@ class FailedLoginIpAddressTest extends TestCase
     public function testIsCaptchaRequiredFor()
     {
         // Arrange:
+        $captchaAfterNth = Authenticator::REQUIRE_CAPTCHA_AFTER_NTH_FAILED_LOGIN;
         $testCases = [[
-            'dbFixture' => [
-                ['ip_address' => '11.11.11.11', 'occurred_at_utc' => UtcTime::now()],
-                ['ip_address' => '11.11.11.11', 'occurred_at_utc' => UtcTime::now()],
-            ],
+            'dbFixture' => array_fill(
+                0,
+                $captchaAfterNth,
+                ['ip_address' => '11.11.11.11', 'occurred_at_utc' => UtcTime::now()]
+            ),
             'ipAddress' => '11.11.11.11',
             'expected' => true,
         ], [
-            'dbFixture' => [
-                ['ip_address' => '22.22.22.22', 'occurred_at_utc' => UtcTime::now()],
-            ],
+            'dbFixture' => array_fill(
+                0,
+                $captchaAfterNth - 1,
+                ['ip_address' => '22.22.22.22', 'occurred_at_utc' => UtcTime::now()]
+            ),
             'ipAddress' => '22.22.22.22',
             'expected' => false,
         ]];
@@ -101,19 +106,21 @@ class FailedLoginIpAddressTest extends TestCase
     public function testIsRateLimitBlocking()
     {
         // Arrange:
+        $blockAfterNth = Authenticator::BLOCK_AFTER_NTH_FAILED_LOGIN;
         $testCases = [[
-            'dbFixture' => [
-                ['ip_address' => '11.11.11.11', 'occurred_at_utc' => UtcTime::now()],
-                ['ip_address' => '11.11.11.11', 'occurred_at_utc' => UtcTime::now()],
-                ['ip_address' => '11.11.11.11', 'occurred_at_utc' => UtcTime::now()],
-            ],
+            'dbFixture' => array_fill(
+                0,
+                $blockAfterNth,
+                ['ip_address' => '11.11.11.11', 'occurred_at_utc' => UtcTime::now()]
+            ),
             'ipAddress' => '11.11.11.11',
             'expected' => true,
         ], [
-            'dbFixture' => [
-                ['ip_address' => '22.22.22.22', 'occurred_at_utc' => UtcTime::now()],
-                ['ip_address' => '22.22.22.22', 'occurred_at_utc' => UtcTime::now()],
-            ],
+            'dbFixture' => array_fill(
+                0,
+                $blockAfterNth - 1,
+                ['ip_address' => '22.22.22.22', 'occurred_at_utc' => UtcTime::now()]
+            ),
             'ipAddress' => '22.22.22.22',
             'expected' => false,
         ]];

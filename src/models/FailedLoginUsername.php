@@ -104,13 +104,15 @@ class FailedLoginUsername extends FailedLoginUsernameBase implements LoggerAware
      */
     public static function isRateLimitBlocking($username)
     {
-        return Authenticator::isEnoughFailedLoginsToBlock(
-            self::countRecentFailedLoginsFor($username)
-        );
+        $secondsUntilUnblocked = self::getSecondsUntilUnblocked($username);
+        return ($secondsUntilUnblocked > 0);
     }
     
     public static function isCaptchaRequiredFor($username)
     {
+        if (empty($username)) {
+            return false;
+        }
         return Authenticator::isEnoughFailedLoginsToRequireCaptcha(
             self::countRecentFailedLoginsFor($username)
         );

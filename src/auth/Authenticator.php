@@ -17,8 +17,8 @@ use Sil\SilAuth\http\Request;
  */
 class Authenticator
 {
-    const REQUIRE_CAPTCHA_AFTER_NTH_FAILED_LOGIN = 2;
-    const BLOCK_AFTER_NTH_FAILED_LOGIN = 3;
+    const REQUIRE_CAPTCHA_AFTER_NTH_FAILED_LOGIN = 10;
+    const BLOCK_AFTER_NTH_FAILED_LOGIN = 50;
     const MAX_SECONDS_TO_BLOCK = 3600; // 3600 seconds = 1 hour
     
     /** @var AuthError|null */
@@ -71,7 +71,7 @@ class Authenticator
             return;
         }
         
-        if ($this->isCaptchaRequired($username, $ipAddresses)) {
+        if (self::isCaptchaRequired($username, $ipAddresses)) {
             $logger->warning('Captcha required for {username} (IP: {ipAddresses}).', [
                 'username' => var_export($username, true),
                 'ipAddresses' => join(', ', $ipAddresses),
@@ -135,8 +135,12 @@ class Authenticator
             return 0;
         }
         
+        $limit = self::BLOCK_AFTER_NTH_FAILED_LOGIN;
+        $numFailuresPastLimit = $numRecentFailures - $limit;
+        $numberToUse = max($numFailuresPastLimit, 3);
+        
         return min(
-            $numRecentFailures * $numRecentFailures,
+            $numberToUse * $numberToUse,
             self::MAX_SECONDS_TO_BLOCK
         );
     }
@@ -259,7 +263,7 @@ class Authenticator
                FailedLoginIpAddress::isRateLimitBlockingAnyOfThese($ipAddresses);
     }
     
-    protected function isCaptchaRequired($username, array $ipAddresses)
+    public static function isCaptchaRequired($username, array $ipAddresses)
     {
         return FailedLoginUsername::isCaptchaRequiredFor($username) ||
                FailedLoginIpAddress::isCaptchaRequiredForAnyOfThese($ipAddresses);
