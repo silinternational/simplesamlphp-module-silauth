@@ -1,6 +1,7 @@
 <?php
 namespace Sil\SilAuth\tests\unit\models;
 
+use Sil\SilAuth\auth\Authenticator;
 use Sil\SilAuth\log\Psr3ConsoleLogger;
 use Sil\SilAuth\models\FailedLoginUsername;
 use Sil\SilAuth\time\UtcTime;
@@ -73,17 +74,21 @@ class FailedLoginUsernameTest extends TestCase
     public function testIsCaptchaRequiredFor()
     {
         // Arrange:
+        $captchaAfterNth = Authenticator::REQUIRE_CAPTCHA_AFTER_NTH_FAILED_LOGIN;
         $testCases = [[
-            'dbFixture' => [
-                ['username' => 'dummy_username', 'occurred_at_utc' => UtcTime::now()],
-                ['username' => 'dummy_username', 'occurred_at_utc' => UtcTime::now()],
-            ],
+            'dbFixture' => array_fill(
+                0,
+                $captchaAfterNth,
+                ['username' => 'dummy_username', 'occurred_at_utc' => UtcTime::now()]
+            ),
             'username' => 'dummy_username',
             'expected' => true,
         ], [
-            'dbFixture' => [
-                ['username' => 'dummy_other_username', 'occurred_at_utc' => UtcTime::now()],
-            ],
+            'dbFixture' => array_fill(
+                0,
+                $captchaAfterNth - 1,
+                ['username' => 'dummy_other_username', 'occurred_at_utc' => UtcTime::now()]
+            ),
             'username' => 'dummy_other_username',
             'expected' => false,
         ]];
@@ -101,19 +106,21 @@ class FailedLoginUsernameTest extends TestCase
     public function testIsRateLimitBlocking()
     {
         // Arrange:
+        $blockAfterNth = Authenticator::BLOCK_AFTER_NTH_FAILED_LOGIN;
         $testCases = [[
-            'dbFixture' => [
-                ['username' => 'dummy_username', 'occurred_at_utc' => UtcTime::now()],
-                ['username' => 'dummy_username', 'occurred_at_utc' => UtcTime::now()],
-                ['username' => 'dummy_username', 'occurred_at_utc' => UtcTime::now()],
-            ],
+            'dbFixture' => array_fill(
+                0,
+                $blockAfterNth,
+                ['username' => 'dummy_username', 'occurred_at_utc' => UtcTime::now()]
+            ),
             'username' => 'dummy_username',
             'expected' => true,
         ], [
-            'dbFixture' => [
-                ['username' => 'dummy_other_username', 'occurred_at_utc' => UtcTime::now()],
-                ['username' => 'dummy_other_username', 'occurred_at_utc' => UtcTime::now()],
-            ],
+            'dbFixture' => array_fill(
+                0,
+                $blockAfterNth - 1,
+                ['username' => 'dummy_other_username', 'occurred_at_utc' => UtcTime::now()]
+            ),
             'username' => 'dummy_other_username',
             'expected' => false,
         ]];
