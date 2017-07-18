@@ -1,9 +1,9 @@
 <?php
 
+use Sil\Psr3Adapters\Psr3SamlLogger;
 use Sil\SilAuth\auth\Authenticator;
 use Sil\SilAuth\csrf\CsrfProtector;
 use Sil\SilAuth\http\Request;
-use Sil\SilAuth\log\Psr3SamlLogger;
 
 /**
  * This page shows a username/password login form, and passes information from it
