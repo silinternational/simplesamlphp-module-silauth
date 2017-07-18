@@ -60,6 +60,11 @@ class IdBroker
             return null;
         }
         
+        $pwExpDate = $userInfo['password']['expires_on'] ?? null;
+        if ($pwExpDate !== null) {
+            $schacExpiryDate = gmdate('YmdHis\Z', strtotime($pwExpDate));
+        }
+        
         return SamlUser::convertToSamlFieldNames(
             $userInfo['employee_id'],
             $userInfo['first_name'],
@@ -67,7 +72,8 @@ class IdBroker
             $userInfo['username'],
             $userInfo['email'],
             $userInfo['uuid'],
-            $this->idpDomainName
+            $this->idpDomainName,
+            $schacExpiryDate ?? null
         );
     }
 }
