@@ -1,11 +1,11 @@
 <?php
 
+use Sil\Psr3Adapters\Psr3SamlLogger;
 use Sil\SilAuth\auth\Authenticator;
 use Sil\SilAuth\auth\IdBroker;
 use Sil\SilAuth\captcha\Captcha;
 use Sil\SilAuth\config\ConfigManager;
 use Sil\SilAuth\http\Request;
-use Sil\SilAuth\log\Psr3SamlLogger;
 
 /**
  * Class sspmod_silauth_Auth_Source_SilAuth.

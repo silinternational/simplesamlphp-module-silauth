@@ -17,6 +17,7 @@
     "roave/security-advisories": "dev-master",
     "silinternational/idp-id-broker-php-client": "^1.0 || ^0.4.2",
     "silinternational/php-env": "^2.0",
+    "silinternational/psr3-adapters": "^1.1",
     "simplesamlphp/simplesamlphp": "^1.14.12",
     "yiisoft/yii2": "^2.0",
     "yiisoft/yii2-gii": "^2.0",
