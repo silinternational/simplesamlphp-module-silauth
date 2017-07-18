@@ -10,7 +10,8 @@ class User
         string $username,
         string $email,
         string $uuid,
-        string $idpDomainName
+        string $idpDomainName,
+        $passwordExpirationDate
     ) {
         return [
             'eduPersonPrincipalName' => [
@@ -22,6 +23,7 @@ class User
             'mail' => (array)$email,
             'employeeNumber' => (array)$employeeId,
             'cn' => (array)$username,
+            'schacExpiryDate' => (array)$passwordExpirationDate,
         ];
     }
 }
