@@ -1,9 +1,9 @@
 <?php
 
 use Sil\PhpEnv\Env;
+use Sil\Psr3Adapters\Psr3SyslogLogger;
 use Sil\SilAuth\config\ConfigManager;
 use Sil\SilAuth\system\System;
-use Sil\SilAuth\log\Psr3SyslogLogger;
 use Throwable;
 
 try {

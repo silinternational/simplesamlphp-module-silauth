@@ -2,7 +2,7 @@
 namespace Sil\SilAuth\tests\unit\log;
 
 use PHPUnit\Framework\TestCase;
-use Sil\SilAuth\log\Psr3SamlLogger;
+use Sil\Psr3Adapters\Psr3SamlLogger;
 
 class Psr3SamlLoggerTest extends TestCase
 {
