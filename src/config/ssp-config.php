@@ -8,7 +8,6 @@ return [
     'idBroker.accessToken' => Env::get('ID_BROKER_ACCESS_TOKEN'),
     'idBroker.baseUri' => Env::get('ID_BROKER_BASE_URI'),
     'idBroker.idpDomainName' => Env::requireEnv('IDP_DOMAIN_NAME'),
-    'link.forgotPassword' => Env::get('FORGOT_PASSWORD_URL'),
     'mysql.host' => Env::get('MYSQL_HOST'),
     'mysql.database' => Env::get('MYSQL_DATABASE'),
     'mysql.user' => Env::get('MYSQL_USER'),
