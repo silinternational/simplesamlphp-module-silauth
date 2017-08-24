@@ -88,4 +88,16 @@ class IdBroker
             $schacExpiryDate ?? null
         );
     }
+    
+    /**
+     * Ping the /site/status URL. If the ID Broker's status is fine, the
+     * response string is returned. If not, an exception is thrown.
+     *
+     * @return string "OK"
+     * @throws Exception
+     */
+    public function getSiteStatus()
+    {
+        return $this->client->getSiteStatus();
+    }
 }
