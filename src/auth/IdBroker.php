@@ -25,12 +25,18 @@ class IdBroker
      *     instance. This is used for assembling the eduPersonPrincipalName for
      *     users (e.g. "username@idp.domain.name").
      *     EXAMPLE: idp.domain.name
+     * @param array $trustedIpRanges List of valid IP address ranges (CIDR) for
+     *     the ID Broker API.
+     * @param bool $assertValidIp (Optional:) Whether or not to assert that the
+     *     IP address for the ID Broker API is trusted.
      */
     public function __construct(
         string $baseUri,
         string $accessToken,
         LoggerInterface $logger,
-        string $idpDomainName
+        string $idpDomainName,
+        array $trustedIpRanges,
+        bool $assertValidIp = true
     ) {
         $this->logger = $logger;
         $this->idpDomainName = $idpDomainName;
@@ -38,6 +44,8 @@ class IdBroker
             'http_client_options' => [
                 'timeout' => 10,
             ],
+            IdBrokerClient::TRUSTED_IPS_CONFIG => $trustedIpRanges,
+            IdBrokerClient::ASSERT_VALID_BROKER_IP_CONFIG => $assertValidIp,
         ]);
     }
     
