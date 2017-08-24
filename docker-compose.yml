@@ -3,7 +3,7 @@ version: "2"
 services:
 
   web:
-    image: silintl/ssp-base:latest
+    image: silintl/ssp-base:develop
     ports:
       - "80:80"
       - "9000:9000"
