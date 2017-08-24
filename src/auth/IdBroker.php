@@ -20,7 +20,11 @@ class IdBroker
      * @param string $baseUri The base of the API's URL.
      *     Example: 'https://api.example.com/'.
      * @param string $accessToken Your authorization access (bearer) token.
-     * @param LoggerInterface $logger
+     * @param LoggerInterface $logger A PSR-3 compliant logger.
+     * @param string $idpDomainName Unique identifier for this IdP-in-a-Box
+     *     instance. This is used for assembling the eduPersonPrincipalName for
+     *     users (e.g. "username@idp.domain.name").
+     *     EXAMPLE: idp.domain.name
      */
     public function __construct(
         string $baseUri,
