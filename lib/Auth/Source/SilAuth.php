@@ -106,7 +106,9 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
             $this->idBrokerConfig['baseUri'] ?? null,
             $this->idBrokerConfig['accessToken'] ?? null,
             $logger,
-            $this->idBrokerConfig['idpDomainName']
+            $this->idBrokerConfig['idpDomainName'],
+            $this->idBrokerConfig['trustedIpRanges'] ?? [],
+            $this->idBrokerConfig['assertValidIp'] ?? true
         );
         $request = new Request($this->getTrustedIpAddresses());
         $authenticator = new Authenticator(

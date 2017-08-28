@@ -16,7 +16,14 @@ abstract class FakeIdBroker extends IdBroker
         LoggerInterface $logger,
         string $idpDomainName = 'fake.example.com'
     ) {
-        parent::__construct($baseUri, $accessToken, $logger, $idpDomainName);
+        parent::__construct(
+            $baseUri,
+            $accessToken,
+            $logger,
+            $idpDomainName,
+            [],
+            false
+        );
         
         // Now replace the client with one that will return the desired response.
         $this->client = new IdBrokerClient($baseUri, $accessToken, [
@@ -32,6 +39,7 @@ abstract class FakeIdBroker extends IdBroker
                     )
                 )),
             ],
+            IdBrokerClient::ASSERT_VALID_BROKER_IP_CONFIG => false,
         ]);
     }
     
