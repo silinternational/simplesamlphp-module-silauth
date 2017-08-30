@@ -37,6 +37,9 @@ composerupdate:
 db:
 	docker-compose up -d db
 
+dcpull:
+	docker-compose pull
+
 enabledebug:
 	docker-compose exec web bash -c "/data/enable-debug.sh"
 

@@ -3,6 +3,8 @@ namespace Sil\SilAuth\system;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Sil\SilAuth\auth\IdBroker;
+use Sil\SilAuth\config\ConfigManager;
 use Sil\SilAuth\models\FailedLoginIpAddress;
 use Throwable;
 
@@ -18,6 +20,26 @@ class System
     public function __construct($logger = null)
     {
         $this->logger = $logger ?? new NullLogger();
+    }
+    
+    protected function isIdBrokerOkay()
+    {
+        try {
+            $idBrokerConfig = ConfigManager::getSspConfigFor('idBroker');
+            $idBroker = new IdBroker(
+                $idBrokerConfig['baseUri'] ?? null,
+                $idBrokerConfig['accessToken'] ?? null,
+                $this->logger,
+                $idBrokerConfig['idpDomainName'],
+                $idBrokerConfig['trustedIpRanges'] ?? [],
+                $idBrokerConfig['assertValidIp'] ?? true
+            );
+            $idBroker->getSiteStatus();
+            return true;
+        } catch (Throwable $t) {
+            $this->logError($t->getMessage());
+            return false;
+        }
     }
     
     protected function isDatabaseOkay()
@@ -62,6 +84,10 @@ class System
         
         if ( ! $this->isDatabaseOkay()) {
             $this->reportError('Database problem', 1485284407);
+        }
+        
+        if ( ! $this->isIdBrokerOkay()) {
+            $this->reportError('ID Broker problem', 1503587665);
         }
         
         echo 'OK';

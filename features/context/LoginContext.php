@@ -75,7 +75,9 @@ class LoginContext implements Context
             'http://fake.example.com/api/',
             'FakeAccessToken',
             $this->logger,
-            'fake.example.com'
+            'fake.example.com',
+            [],
+            false
         );
         $this->request = new Request();
         

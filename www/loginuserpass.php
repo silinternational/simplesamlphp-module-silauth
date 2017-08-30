@@ -37,7 +37,6 @@ $authSourcesConfig = $globalConfig->getConfig('authsources.php');
 $silAuthConfig = $authSourcesConfig->getConfigItem('silauth');
 
 $recaptchaSiteKey = $silAuthConfig->getString('recaptcha.siteKey', null);
-$forgotPasswordUrl = $silAuthConfig->getString('link.forgotPassword', null);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
@@ -78,7 +77,6 @@ $t->data['rememberUsernameEnabled'] = false;
 $t->data['rememberMeEnabled'] = false;
 $t->data['errorcode'] = $errorCode;
 $t->data['errorparams'] = $errorParams;
-$t->data['forgotPasswordUrl'] = $forgotPasswordUrl;
 $t->data['csrfToken'] = $csrfProtector->getMasterToken();
 
 /* For simplicity's sake, don't bother telling this Request to trust any IP
