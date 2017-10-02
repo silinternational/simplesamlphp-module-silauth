@@ -5,6 +5,7 @@ use Psr\Log\LoggerInterface;
 use Sil\SilAuth\auth\AuthError;
 use Sil\SilAuth\auth\IdBroker;
 use Sil\SilAuth\captcha\Captcha;
+use Sil\SilAuth\mfa\MfaInfo;
 use Sil\SilAuth\time\UtcTime;
 use Sil\SilAuth\time\WaitTime;
 use Sil\SilAuth\models\FailedLoginIpAddress;
@@ -27,11 +28,15 @@ class Authenticator
     /** @var LoggerInterface */
     protected $logger;
     
+    /** @var MfaInfo|null; */
+    private $mfaInfo = null;
+    
     private $userAttributes = null;
     
     /**
      * Attempt to authenticate using the given username and password. Check
-     * isAuthenticated() to see whether authentication was successful.
+     * shouldPromptForMfa() and isAuthenticated() for information about whether
+     * authentication was successful.
      * 
      * @param string $username The username to check.
      * @param string $password The password to check.
@@ -87,7 +92,7 @@ class Authenticator
         }
         
         try {
-            $authenticatedUser = $idBroker->getAuthenticatedUser(
+            $authenticationResult = $idBroker->getAuthenticatedUser(
                 $username,
                 $password
             );
@@ -101,7 +106,7 @@ class Authenticator
             return;
         }
         
-        if ($authenticatedUser === null) {
+        if ($authenticationResult === null) {
             $this->recordFailedLoginBy($username, $ipAddresses);
             
             if ($this->isBlockedByRateLimit($username, $ipAddresses)) {
@@ -114,11 +119,16 @@ class Authenticator
             return;
         }
         
+        if ($authenticationResult instanceof MfaInfo) {
+            $this->setMfaInfo($authenticationResult);
+            return;
+        }
+        
         // NOTE: If we reach this point, the user successfully authenticated.
         
         $this->resetFailedLoginsBy($username, $ipAddresses);
         
-        $this->setUserAttributes($authenticatedUser);
+        $this->setUserAttributes($authenticationResult);
     }
     
     /**
@@ -342,8 +352,21 @@ class Authenticator
         $this->setError(AuthError::CODE_USERNAME_REQUIRED);
     }
     
+    protected function setMfaInfo($mfaInfo)
+    {
+        $this->mfaInfo = $mfaInfo;
+    }
+    
     protected function setUserAttributes($attributes)
     {
         $this->userAttributes = $attributes;
+    }
+    
+    public function shouldPromptForMfa()
+    {
+        if ($this->mfaInfo instanceof MfaInfo) {
+            return $this->mfaInfo->shouldPromptForMfa();
+        }
+        return false;
     }
 }
