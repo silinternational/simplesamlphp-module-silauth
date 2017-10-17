@@ -11,7 +11,8 @@ class User
         string $email,
         string $uuid,
         string $idpDomainName,
-        $passwordExpirationDate
+        $passwordExpirationDate,
+        array $mfa
     ) {
         return [
             'eduPersonPrincipalName' => [
@@ -24,6 +25,7 @@ class User
             'employeeNumber' => (array)$employeeId,
             'cn' => (array)$username,
             'schacExpiryDate' => (array)$passwordExpirationDate,
+            'mfa' => $mfa,
         ];
     }
 }

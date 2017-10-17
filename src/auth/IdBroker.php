@@ -79,10 +79,10 @@ class IdBroker
             return null;
         }
         
-        $mfaInfo = MfaInfo::createFromArray($userInfo);
-        if ($mfaInfo->shouldPromptForMfa()) {
-            return $mfaInfo;
-        }
+//        $mfaInfo = MfaInfo::createFromArray($userInfo);
+//        if ($mfaInfo->shouldPromptForMfa()) {
+//            return $mfaInfo;
+//        }
         
         $pwExpDate = $userInfo['password']['expires_on'] ?? null;
         if ($pwExpDate !== null) {
@@ -97,7 +97,8 @@ class IdBroker
             $userInfo['email'],
             $userInfo['uuid'],
             $this->idpDomainName,
-            $schacExpiryDate ?? null
+            $schacExpiryDate ?? null,
+            $userInfo['mfa'] ?? []
         );
     }
     
