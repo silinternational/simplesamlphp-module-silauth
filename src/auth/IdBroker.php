@@ -79,11 +79,6 @@ class IdBroker
             return null;
         }
         
-//        $mfaInfo = MfaInfo::createFromArray($userInfo);
-//        if ($mfaInfo->shouldPromptForMfa()) {
-//            return $mfaInfo;
-//        }
-        
         $pwExpDate = $userInfo['password']['expires_on'] ?? null;
         if ($pwExpDate !== null) {
             $schacExpiryDate = gmdate('YmdHis\Z', strtotime($pwExpDate));
@@ -100,7 +95,7 @@ class IdBroker
             $schacExpiryDate ?? null,
             $userInfo['mfa']
         );
-    }
+;    }
     
     /**
      * Ping the /site/status URL. If the ID Broker's status is fine, the

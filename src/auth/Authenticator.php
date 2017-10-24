@@ -2,10 +2,7 @@
 namespace Sil\SilAuth\auth;
 
 use Psr\Log\LoggerInterface;
-use Sil\SilAuth\auth\AuthError;
-use Sil\SilAuth\auth\IdBroker;
 use Sil\SilAuth\captcha\Captcha;
-use Sil\SilAuth\mfa\MfaInfo;
 use Sil\SilAuth\time\UtcTime;
 use Sil\SilAuth\time\WaitTime;
 use Sil\SilAuth\models\FailedLoginIpAddress;
@@ -27,9 +24,6 @@ class Authenticator
     
     /** @var LoggerInterface */
     protected $logger;
-    
-    /** @var MfaInfo|null; */
-    private $mfaInfo = null;
     
     private $userAttributes = null;
     
@@ -116,11 +110,6 @@ class Authenticator
             } else {
                 $this->setErrorInvalidLogin();
             }
-            return;
-        }
-        
-        if ($authenticationResult instanceof MfaInfo) {
-            $this->setMfaInfo($authenticationResult);
             return;
         }
         
@@ -352,21 +341,8 @@ class Authenticator
         $this->setError(AuthError::CODE_USERNAME_REQUIRED);
     }
     
-    protected function setMfaInfo($mfaInfo)
-    {
-        $this->mfaInfo = $mfaInfo;
-    }
-    
     protected function setUserAttributes($attributes)
     {
         $this->userAttributes = $attributes;
-    }
-    
-    public function shouldPromptForMfa()
-    {
-        if ($this->mfaInfo instanceof MfaInfo) {
-            return $this->mfaInfo->shouldPromptForMfa();
-        }
-        return false;
     }
 }
