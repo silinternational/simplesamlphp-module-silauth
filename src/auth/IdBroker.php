@@ -50,20 +50,18 @@ class IdBroker
     }
     
     /**
-     * Attempt to authenticate with the given username and password.
-     * - If the credentials were acceptable we return the attributes
-     *   for that user.
-     * - If the credentials were NOT acceptable, we return null, since there is
-     *   no authenticated user in that situation.
-     *
-     * If an unexpected response is received, an exception will be thrown.
+     * Attempt to authenticate with the given username and password, returning
+     * the attributes for that user if the credentials were acceptable (or null
+     * if they were not acceptable, since there is no authenticated user in that
+     * situation). If an unexpected response is received, an exception will be
+     * thrown.
      *
      * NOTE: The attributes names used (if any) in the response will be SAML
      *       field names, not ID Broker field names.
      *
      * @param string $username The username.
      * @param string $password The password.
-     * @return array|null An array of user attributes, or null.
+     * @return array|null The user's attributes (if successful), otherwise null.
      * @throws \Exception
      */
     public function getAuthenticatedUser(string $username, string $password)
