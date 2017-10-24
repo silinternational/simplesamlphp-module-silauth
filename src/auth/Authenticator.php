@@ -28,9 +28,7 @@ class Authenticator
     private $userAttributes = null;
     
     /**
-     * Attempt to authenticate using the given username and password. Check
-     * shouldPromptForMfa() and isAuthenticated() for information about whether
-     * authentication was successful.
+     * Attempt to authenticate using the given username and password.
      * 
      * @param string $username The username to check.
      * @param string $password The password to check.

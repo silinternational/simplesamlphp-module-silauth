@@ -3,7 +3,6 @@ namespace Sil\SilAuth\auth;
 
 use Psr\Log\LoggerInterface;
 use Sil\Idp\IdBroker\Client\IdBrokerClient;
-use Sil\SilAuth\mfa\MfaInfo;
 use Sil\SilAuth\saml\User as SamlUser;
 
 class IdBroker
@@ -52,11 +51,8 @@ class IdBroker
     
     /**
      * Attempt to authenticate with the given username and password.
-     * - If the credentials were acceptable and we do NOT need to prompt the
-     *   user for Multi-Factor Authentication (MFA), we return the attributes
+     * - If the credentials were acceptable we return the attributes
      *   for that user.
-     * - If acceptable and we DO need to prompt for MFA, we return info about
-     *   MFA for that user.
      * - If the credentials were NOT acceptable, we return null, since there is
      *   no authenticated user in that situation.
      *
@@ -67,8 +63,7 @@ class IdBroker
      *
      * @param string $username The username.
      * @param string $password The password.
-     * @return array|MfaInfo|null An array of user attributes, or info about
-     *     prompting for MFA, or null.
+     * @return array|null An array of user attributes, or null.
      * @throws \Exception
      */
     public function getAuthenticatedUser(string $username, string $password)
