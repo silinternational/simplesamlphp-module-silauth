@@ -88,7 +88,7 @@ class IdBroker
             $schacExpiryDate ?? null,
             $userInfo['mfa']
         );
-;    }
+    }
     
     /**
      * Ping the /site/status URL. If the ID Broker's status is fine, the
