@@ -119,6 +119,16 @@ class Request
     }
     
     /**
+     * Get the User-Agent string.
+     *
+     * @return string The UA string, or an empty string if not found.
+     */
+    public function getUserAgent()
+    {
+        return self::sanitizeInputString(INPUT_SERVER, 'HTTP_USER_AGENT');
+    }
+    
+    /**
      * Determine whether the given IP address is trusted (either specifically or
      * because it is in a trusted range).
      *

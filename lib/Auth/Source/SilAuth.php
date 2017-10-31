@@ -111,6 +111,7 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
             $this->idBrokerConfig['assertValidIp'] ?? true
         );
         $request = new Request($this->getTrustedIpAddresses());
+        $userAgent = $request->getUserAgent() ?: '(unknown)';
         $authenticator = new Authenticator(
             $username,
             $password,
@@ -122,17 +123,28 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
         
         if ( ! $authenticator->isAuthenticated()) {
             $authError = $authenticator->getAuthError();
-            $logger->warning('Failed login attempt: {username}/{errorCode} {params}', [
-                'username' => var_export($username, true),
-                'errorCode' => $authError->getCode(),
-                'params' => json_encode($authError->getMessageParams()),
-            ]);
+            $logger->warning(
+                'Failed login attempt: {username}/{errorCode} {params} Untrusted IPs: {ip} UA: {userAgent}',
+                [
+                    'username' => var_export($username, true),
+                    'errorCode' => $authError->getCode(),
+                    'params' => json_encode($authError->getMessageParams()),
+                    'ip' => $request->getUntrustedIpAddresses(),
+                    'userAgent' => $userAgent,
+                ]
+            );
             throw new SimpleSAML_Error_Error([
                 'WRONGUSERPASS',
                 $authError->getFullSspErrorTag(),
                 $authError->getMessageParams()
             ]);
         }
+        
+        $logger->notice('Correct username/password: {username} Untrusted IPs: {ip} UA: {userAgent}', [
+            'username' => var_export($username, true),
+            'ip' => $request->getUntrustedIpAddresses(),
+            'userAgent' => $userAgent,
+        ]);
         
         return $authenticator->getUserAttributes();
     }
