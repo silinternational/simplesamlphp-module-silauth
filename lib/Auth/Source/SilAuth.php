@@ -111,6 +111,7 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
             $this->idBrokerConfig['assertValidIp'] ?? true
         );
         $request = new Request($this->getTrustedIpAddresses());
+        $untrustedIpAddressesText = join(',', $request->getUntrustedIpAddresses());
         $userAgent = $request->getUserAgent() ?: '(unknown)';
         $authenticator = new Authenticator(
             $username,
@@ -124,12 +125,12 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
         if ( ! $authenticator->isAuthenticated()) {
             $authError = $authenticator->getAuthError();
             $logger->warning(
-                'Failed login attempt: {username}/{errorCode} {params} Untrusted IPs: {ip} UA: {userAgent}',
+                'Failed login attempt: {username}/{errorCode} {params} Untrusted IPs: [{untrustedIPs}] UA: {userAgent}',
                 [
                     'username' => var_export($username, true),
                     'errorCode' => $authError->getCode(),
                     'params' => json_encode($authError->getMessageParams()),
-                    'ip' => $request->getUntrustedIpAddresses(),
+                    'untrustedIPs' => $untrustedIpAddressesText,
                     'userAgent' => $userAgent,
                 ]
             );
@@ -140,9 +141,9 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
             ]);
         }
         
-        $logger->notice('Correct username/password: {username} Untrusted IPs: {ip} UA: {userAgent}', [
+        $logger->notice('Correct username/password: {username} Untrusted IPs: [{untrustedIPs}] UA: {userAgent}', [
             'username' => var_export($username, true),
-            'ip' => $request->getUntrustedIpAddresses(),
+            'untrustedIPs' => $untrustedIpAddressesText,
             'userAgent' => $userAgent,
         ]);
         
