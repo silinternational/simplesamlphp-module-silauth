@@ -72,15 +72,17 @@ class Authenticator
         }
         
         if (self::isCaptchaRequired($username, $ipAddresses)) {
-            $logger->warning('Captcha required for {username} (IP: {ipAddresses}).', [
-                'username' => var_export($username, true),
-                'ipAddresses' => join(', ', $ipAddresses),
-            ]);
+            $logger->warning(json_encode([
+                'event' => 'Required captcha',
+                'username' => $username,
+                'ipAddresses' => $ipAddresses,
+            ]));
             if ( ! $captcha->isValidIn($request)) {
-                $logger->warning('Invalid or missing captcha for {username} (IP: {ipAddresses}).', [
-                    'username' => var_export($username, true),
-                    'ipAddresses' => join(', ', $ipAddresses),
-                ]);
+                $logger->warning(json_encode([
+                    'event' => 'Invalid/missing captcha',
+                    'username' => $username,
+                    'ipAddresses' => $ipAddresses,
+                ]));
                 $this->setErrorInvalidLogin();
                 return;
             }
@@ -92,11 +94,11 @@ class Authenticator
                 $password
             );
         } catch (\Exception $e) {
-            $logger->critical(sprintf(
-                'Problem communicating with ID Broker (%s): %s',
-                $e->getCode(),
-                $e->getMessage()
-            ));
+            $logger->critical(json_encode([
+                'event' => 'Problem communicating with ID Broker',
+                'errorCode' => $e->getCode(),
+                'errorMessage' => $e->getMessage(),
+            ]));
             $this->setErrorGenericTryLater();
             return;
         }

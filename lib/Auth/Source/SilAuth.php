@@ -111,7 +111,7 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
             $this->idBrokerConfig['assertValidIp'] ?? true
         );
         $request = new Request($this->getTrustedIpAddresses());
-        $untrustedIpAddressesText = join(',', $request->getUntrustedIpAddresses());
+        $untrustedIpAddresses = $request->getUntrustedIpAddresses();
         $userAgent = Request::getUserAgent() ?: '(unknown)';
         $authenticator = new Authenticator(
             $username,
@@ -124,16 +124,14 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
         
         if ( ! $authenticator->isAuthenticated()) {
             $authError = $authenticator->getAuthError();
-            $logger->warning(
-                'Failed login attempt: {username}/{errorCode} {params} Untrusted IPs: [{untrustedIPs}] UA: {userAgent}',
-                [
-                    'username' => var_export($username, true),
-                    'errorCode' => $authError->getCode(),
-                    'params' => json_encode($authError->getMessageParams()),
-                    'untrustedIPs' => $untrustedIpAddressesText,
-                    'userAgent' => $userAgent,
-                ]
-            );
+            $logger->warning(json_encode([
+                'event' => 'Failed login attempt',
+                'username' => $username,
+                'errorCode' => $authError->getCode(),
+                'errorMessageParams' => $authError->getMessageParams(),
+                'ipAddresses' => $untrustedIpAddresses,
+                'userAgent' => $userAgent,
+            ]));
             throw new SimpleSAML_Error_Error([
                 'WRONGUSERPASS',
                 $authError->getFullSspErrorTag(),
@@ -141,11 +139,12 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
             ]);
         }
         
-        $logger->notice('Correct username/password: {username} Untrusted IPs: [{untrustedIPs}] UA: {userAgent}', [
-            'username' => var_export($username, true),
-            'untrustedIPs' => $untrustedIpAddressesText,
+        $logger->notice(json_encode([
+            'event' => 'Correct username/password',
+            'username' => $username,
+            'ipAddresses' => $untrustedIpAddresses,
             'userAgent' => $userAgent,
-        ]);
+        ]));
         
         return $authenticator->getUserAttributes();
     }
