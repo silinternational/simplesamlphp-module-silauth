@@ -65,6 +65,11 @@ class Authenticator
         $ipAddresses = $request->getUntrustedIpAddresses();
         
         if ($this->isBlockedByRateLimit($username, $ipAddresses)) {
+            $logger->warning(json_encode([
+                'event' => 'Preventing login attempt due to existing rate limit',
+                'username' => $username,
+                'ipAddresses' => join(',', $ipAddresses),
+            ]));
             $this->setErrorBlockedByRateLimit(
                 $this->getWaitTimeUntilUnblocked($username, $ipAddresses)
             );
@@ -72,15 +77,17 @@ class Authenticator
         }
         
         if (self::isCaptchaRequired($username, $ipAddresses)) {
-            $logger->warning('Captcha required for {username} (IP: {ipAddresses}).', [
-                'username' => var_export($username, true),
-                'ipAddresses' => join(', ', $ipAddresses),
-            ]);
+            $logger->warning(json_encode([
+                'event' => 'Requiring captcha',
+                'username' => $username,
+                'ipAddresses' => join(',', $ipAddresses),
+            ]));
             if ( ! $captcha->isValidIn($request)) {
-                $logger->warning('Invalid or missing captcha for {username} (IP: {ipAddresses}).', [
-                    'username' => var_export($username, true),
-                    'ipAddresses' => join(', ', $ipAddresses),
-                ]);
+                $logger->warning(json_encode([
+                    'event' => 'Invalid/missing captcha',
+                    'username' => $username,
+                    'ipAddresses' => join(',', $ipAddresses),
+                ]));
                 $this->setErrorInvalidLogin();
                 return;
             }
@@ -92,11 +99,13 @@ class Authenticator
                 $password
             );
         } catch (\Exception $e) {
-            $logger->critical(sprintf(
-                'Problem communicating with ID Broker (%s): %s',
-                $e->getCode(),
-                $e->getMessage()
-            ));
+            $logger->critical(json_encode([
+                'event' => 'Problem communicating with ID Broker',
+                'errorCode' => $e->getCode(),
+                'errorMessage' => $e->getMessage(),
+                'username' => $username,
+                'ipAddresses' => join(',', $ipAddresses),
+            ]));
             $this->setErrorGenericTryLater();
             return;
         }
@@ -105,6 +114,11 @@ class Authenticator
             $this->recordFailedLoginBy($username, $ipAddresses);
             
             if ($this->isBlockedByRateLimit($username, $ipAddresses)) {
+                $logger->warning(json_encode([
+                    'event' => 'Activating rate-limit block',
+                    'username' => $username,
+                    'ipAddresses' => join(',', $ipAddresses),
+                ]));
                 $this->setErrorBlockedByRateLimit(
                     $this->getWaitTimeUntilUnblocked($username, $ipAddresses)
                 );
