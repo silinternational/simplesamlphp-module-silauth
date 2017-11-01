@@ -37,6 +37,9 @@ composerupdate:
 db:
 	docker-compose up -d db
 
+dbadmin:
+	docker-compose up -d dbadmin
+
 dcpull:
 	docker-compose pull
 
