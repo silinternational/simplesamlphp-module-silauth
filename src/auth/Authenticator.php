@@ -78,7 +78,7 @@ class Authenticator
         
         if (self::isCaptchaRequired($username, $ipAddresses)) {
             $logger->warning(json_encode([
-                'event' => 'Required captcha',
+                'event' => 'Requiring captcha',
                 'username' => $username,
                 'ipAddresses' => join(',', $ipAddresses),
             ]));
@@ -103,6 +103,8 @@ class Authenticator
                 'event' => 'Problem communicating with ID Broker',
                 'errorCode' => $e->getCode(),
                 'errorMessage' => $e->getMessage(),
+                'username' => $username,
+                'ipAddresses' => join(',', $ipAddresses),
             ]));
             $this->setErrorGenericTryLater();
             return;
