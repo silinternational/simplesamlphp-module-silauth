@@ -65,6 +65,11 @@ class Authenticator
         $ipAddresses = $request->getUntrustedIpAddresses();
         
         if ($this->isBlockedByRateLimit($username, $ipAddresses)) {
+            $logger->warning(json_encode([
+                'event' => 'Preventing login attempt due to existing rate limit',
+                'username' => $username,
+                'ipAddresses' => join(',', $ipAddresses),
+            ]));
             $this->setErrorBlockedByRateLimit(
                 $this->getWaitTimeUntilUnblocked($username, $ipAddresses)
             );
@@ -107,6 +112,11 @@ class Authenticator
             $this->recordFailedLoginBy($username, $ipAddresses);
             
             if ($this->isBlockedByRateLimit($username, $ipAddresses)) {
+                $logger->warning(json_encode([
+                    'event' => 'Activating rate-limit block',
+                    'username' => $username,
+                    'ipAddresses' => join(',', $ipAddresses),
+                ]));
                 $this->setErrorBlockedByRateLimit(
                     $this->getWaitTimeUntilUnblocked($username, $ipAddresses)
                 );
