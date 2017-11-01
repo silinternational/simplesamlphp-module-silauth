@@ -129,7 +129,7 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
                 'username' => $username,
                 'errorCode' => $authError->getCode(),
                 'errorMessageParams' => $authError->getMessageParams(),
-                'ipAddresses' => $untrustedIpAddresses,
+                'ipAddresses' => join(',', $untrustedIpAddresses),
                 'userAgent' => $userAgent,
             ]));
             throw new SimpleSAML_Error_Error([
@@ -142,7 +142,7 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
         $logger->notice(json_encode([
             'event' => 'Correct username/password',
             'username' => $username,
-            'ipAddresses' => $untrustedIpAddresses,
+            'ipAddresses' => join(',', $untrustedIpAddresses),
             'userAgent' => $userAgent,
         ]));
         
