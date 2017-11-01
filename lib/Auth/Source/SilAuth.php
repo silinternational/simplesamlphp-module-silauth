@@ -112,7 +112,7 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
         );
         $request = new Request($this->getTrustedIpAddresses());
         $untrustedIpAddressesText = join(',', $request->getUntrustedIpAddresses());
-        $userAgent = $request->getUserAgent() ?: '(unknown)';
+        $userAgent = Request::getUserAgent() ?: '(unknown)';
         $authenticator = new Authenticator(
             $username,
             $password,

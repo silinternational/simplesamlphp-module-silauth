@@ -123,7 +123,7 @@ class Request
      *
      * @return string The UA string, or an empty string if not found.
      */
-    public function getUserAgent()
+    public static function getUserAgent()
     {
         return self::sanitizeInputString(INPUT_SERVER, 'HTTP_USER_AGENT');
     }
