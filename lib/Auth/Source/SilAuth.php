@@ -125,7 +125,7 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
         if ( ! $authenticator->isAuthenticated()) {
             $authError = $authenticator->getAuthError();
             $logger->warning(json_encode([
-                'event' => 'Failed login attempt',
+                'event' => 'User/pass authentication result: failure',
                 'username' => $username,
                 'errorCode' => $authError->getCode(),
                 'errorMessageParams' => $authError->getMessageParams(),
@@ -139,8 +139,8 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
             ]);
         }
         
-        $logger->notice(json_encode([
-            'event' => 'Correct username/password',
+        $logger->warning(json_encode([
+            'event' => 'User/pass authentication result: success',
             'username' => $username,
             'ipAddresses' => join(',', $untrustedIpAddresses),
             'userAgent' => $userAgent,
