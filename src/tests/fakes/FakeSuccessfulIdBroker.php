@@ -24,7 +24,12 @@ class FakeSuccessfulIdBroker extends FakeIdBroker
             'display_name' => 'John Smith',
             'username' => 'john_smith',
             'email' => 'john_smith@example.com',
-            'locked' => 'no'
+            'locked' => 'no',
+            'mfa' => [
+                'prompt' => 'no',
+                'nag' => 'no',
+                'options' => [],
+            ],
         ]));
     }
 }

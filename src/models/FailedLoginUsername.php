@@ -124,13 +124,12 @@ class FailedLoginUsername extends FailedLoginUsernameBase implements LoggerAware
     ) {
         $newRecord = new FailedLoginUsername(['username' => strtolower($username)]);
         if ( ! $newRecord->save()) {
-            $logger->critical(sprintf(
-                'Failed to update login attempts counter in database for %s, '
-                . 'so unable to prevent dictionary attacks by that username. '
-                . 'Errors: %s',
-                var_export($username, true),
-                json_encode($newRecord->getErrors())
-            ));
+            $logger->critical(json_encode([
+                'event' => 'Failed to update login attempts counter in '
+                . 'database, so unable to rate limit that username.',
+                'username' => $username,
+                'errors' => $newRecord->getErrors(),
+            ]));
         }
     }
     

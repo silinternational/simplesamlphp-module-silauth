@@ -140,13 +140,12 @@ class FailedLoginIpAddress extends FailedLoginIpAddressBase implements LoggerAwa
             $newRecord = new FailedLoginIpAddress(['ip_address' => strtolower($ipAddress)]);
             
             if ( ! $newRecord->save()) {
-                $logger->critical(sprintf(
-                    'Failed to update login attempts counter in database for %s, '
-                    . 'so unable to prevent dictionary attacks by that IP address. '
-                    . 'Errors: %s',
-                    var_export($ipAddress, true),
-                    json_encode($newRecord->getErrors())
-                ));
+                $logger->critical(json_encode([
+                    'event' => 'Failed to update login attempts counter in '
+                    . 'database, so unable to rate limit that IP address.',
+                    'ipAddress' => $ipAddress,
+                    'errors' => $newRecord->getErrors(),
+                ]));
             }
         }
     }

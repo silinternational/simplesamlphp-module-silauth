@@ -54,10 +54,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $password
             );
         } else {
-            $logger->error(sprintf(
-                'Failed CSRF (user %s).',
-                var_export($username, true)
-            ));
+            $logger->error(json_encode([
+                'event' => 'Failed CSRF',
+                'username' => Request::sanitizeInputString(INPUT_POST, 'username'),
+                'userAgent' => Request::getUserAgent(),
+            ]));
         }
         
     } catch (SimpleSAML_Error_Error $e) {
