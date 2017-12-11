@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($csrfProtector->isTokenCorrect($csrfFromRequest)) {
             
             $username = Request::sanitizeInputString(INPUT_POST, 'username');
-            $password = Request::sanitizeInputString(INPUT_POST, 'password');
+            $password = Request::getRawInputString(INPUT_POST, 'password');
             
             sspmod_silauth_Auth_Source_SilAuth::handleLogin(
                 $authStateId,
