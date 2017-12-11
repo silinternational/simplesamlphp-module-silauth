@@ -107,6 +107,22 @@ class Request
         return self::isValidIpAddress($userIpAddress) ? $userIpAddress : null;
     }
     
+    /**
+     * Retrieve input data (see `filter_input(...)` for details) as a string but
+     * DO NOT sanitize it. If it is a string, it will be returned as is. If it
+     * is not a string, an empty string will be returned, so that the return
+     * type will always be a string.
+     * 
+     * @param int $inputType Example: INPUT_POST
+     * @param string $variableName Example: 'username'
+     * @return string
+     */
+    public static function getRawInputString(int $inputType, string $variableName)
+    {
+        $input = filter_input($inputType, $variableName);
+        return is_string($input) ? $input : '';
+    }
+    
     public function getUntrustedIpAddresses()
     {
         $untrustedIpAddresses = [];
