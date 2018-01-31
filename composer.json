@@ -18,7 +18,7 @@
     "silinternational/idp-id-broker-php-client": "^2.0",
     "silinternational/php-env": "^2.0",
     "silinternational/psr3-adapters": "^1.1",
-    "simplesamlphp/simplesamlphp": "~1.14.17",
+    "simplesamlphp/simplesamlphp": "^1.14.17",
     "yiisoft/yii2": "~2.0.12",
     "yiisoft/yii2-gii": "^2.0",
     "adldap2/adldap2": "^6.1",
