@@ -77,7 +77,7 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
          * Redirect to the login form. We include the identifier of the saved
          * state array as a parameter to the login form.
          */
-        $url = SimpleSAML_Module::getModuleURL('silauth/loginuserpass.php');
+        $url = SimpleSAML\Module::getModuleURL('silauth/loginuserpass.php');
         $params = array('AuthState' => $id);
         \SimpleSAML\Utils\HTTP::redirectTrustedURL($url, $params);
 
@@ -91,7 +91,7 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
         $ipAddressesString = $this->authConfig['trustedIpAddresses'] ?? '';
         $stringPieces = explode(',', $ipAddressesString);
         foreach ($stringPieces as $stringPiece) {
-            if ( ! empty($stringPiece)) {
+            if (! empty($stringPiece)) {
                 $trustedIpAddresses[] = $stringPiece;
             }
         }
@@ -122,7 +122,7 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
             $logger
         );
         
-        if ( ! $authenticator->isAuthenticated()) {
+        if (! $authenticator->isAuthenticated()) {
             $authError = $authenticator->getAuthError();
             $logger->warning(json_encode([
                 'event' => 'User/pass authentication result: failure',
