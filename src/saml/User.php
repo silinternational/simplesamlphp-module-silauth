@@ -18,7 +18,8 @@ class User
             'eduPersonPrincipalName' => [
                 $username . '@' . $idpDomainName,
             ],
-            'eduPersonTargetID' => (array)$uuid,
+            'eduPersonTargetID' => (array)$uuid, // Incorrect, deprecated
+            'eduPersonTargetedID' => (array)$uuid,
             'sn' => (array)$lastName,
             'givenName' => (array)$firstName,
             'mail' => (array)$email,
