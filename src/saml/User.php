@@ -37,6 +37,7 @@ class User
             'cn' => (array)$username,
             'schacExpiryDate' => (array)$passwordExpirationDate,
             'mfa' => $mfa,
+            'uuid' => (array)$uuid,
         ];
     }
 }
