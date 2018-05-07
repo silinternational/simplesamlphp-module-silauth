@@ -26,8 +26,9 @@ class User
             'eduPersonTargetID' => (array)$uuid, // Incorrect, deprecated
             
             /**
-             * NOTE: Do NOT include eduPersonTargetedID. If you need it, use the core:TargetedID module, ideally at the
-             *       Hub, to generate an eduPersonTargetedID.
+             * NOTE: Do NOT include eduPersonTargetedID. If you need it, use the
+             * core:TargetedID module (at the Hub, if using one) to generate an
+             * eduPersonTargetedID.
              */
             
             'sn' => (array)$lastName,
