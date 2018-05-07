@@ -19,7 +19,10 @@ class User
                 $username . '@' . $idpDomainName,
             ],
             'eduPersonTargetID' => (array)$uuid, // Incorrect, deprecated
-            'eduPersonTargetedID' => (array)$uuid,
+            
+            // DO NOT INCLUDE until we can format it as a saml:NameID element.
+            //'eduPersonTargetedID' => (array)$uuid,
+            
             'sn' => (array)$lastName,
             'givenName' => (array)$firstName,
             'mail' => (array)$email,
