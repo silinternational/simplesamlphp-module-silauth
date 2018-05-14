@@ -18,10 +18,18 @@ class User
             'eduPersonPrincipalName' => [
                 $username . '@' . $idpDomainName,
             ],
+            
+            /**
+             * Misspelled version of eduPersonTargetedID.
+             * @deprecated
+             */
             'eduPersonTargetID' => (array)$uuid, // Incorrect, deprecated
             
-            // DO NOT INCLUDE until we can format it as a saml:NameID element.
-            //'eduPersonTargetedID' => (array)$uuid,
+            /**
+             * NOTE: Do NOT include eduPersonTargetedID. If you need it, use the
+             * core:TargetedID module (at the Hub, if using one) to generate an
+             * eduPersonTargetedID.
+             */
             
             'sn' => (array)$lastName,
             'givenName' => (array)$firstName,
@@ -30,6 +38,7 @@ class User
             'cn' => (array)$username,
             'schacExpiryDate' => (array)$passwordExpirationDate,
             'mfa' => $mfa,
+            'uuid' => (array)$uuid,
         ];
     }
 }
