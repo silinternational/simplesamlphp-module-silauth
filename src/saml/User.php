@@ -13,7 +13,7 @@ class User
         string $idpDomainName,
         $passwordExpirationDate,
         array $mfa,
-        string $manager_email
+        $manager_email
     ) {
         return [
             'eduPersonPrincipalName' => [
