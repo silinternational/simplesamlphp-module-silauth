@@ -86,7 +86,8 @@ class IdBroker
             $userInfo['uuid'],
             $this->idpDomainName,
             $schacExpiryDate ?? null,
-            $userInfo['mfa']
+            $userInfo['mfa'],
+            $userInfo['manager_email'] ?? null
         );
     }
     
