@@ -13,6 +13,7 @@ class User
         string $idpDomainName,
         $passwordExpirationDate,
         array $mfa,
+        array $method,
         $manager_email
     ) {
         return [
@@ -39,6 +40,7 @@ class User
             'cn' => (array)$username,
             'schacExpiryDate' => (array)$passwordExpirationDate,
             'mfa' => $mfa,
+            'method' => $method,
             'uuid' => (array)$uuid,
             'manager_email' => [$manager_email ?? ''],
         ];
