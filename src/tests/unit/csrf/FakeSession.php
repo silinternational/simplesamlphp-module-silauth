@@ -2,10 +2,10 @@
 namespace Sil\SilAuth\tests\unit\csrf;
 
 /**
- * Class to mimic the bare basics of the SimpleSAML_Session class in order to
+ * Class to mimic the bare basics of the \SimpleSAML\Session class in order to
  * allow good testing of the CsrfProtector class.
  */
-class FakeSession extends \SimpleSAML_Session
+class FakeSession extends \SimpleSAML\Session
 {
     private $inMemoryDataStore;
     

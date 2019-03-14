@@ -55,7 +55,7 @@ class System
     
     protected function isRequiredConfigPresent()
     {
-        $globalConfig = \SimpleSAML_Configuration::getInstance();
+        $globalConfig = \SimpleSAML\Configuration::getInstance();
         
         /*
          * NOTE: We require that SSP's baseurlpath configuration is set (and

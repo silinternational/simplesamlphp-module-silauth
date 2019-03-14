@@ -71,13 +71,13 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
         $state[self::AUTHID] = $this->authId;
 
         /* Save the $state-array, so that we can restore it after a redirect. */
-        $id = SimpleSAML_Auth_State::saveState($state, self::STAGEID);
+        $id = \SimpleSAML\Auth\State::saveState($state, self::STAGEID);
 
         /*
          * Redirect to the login form. We include the identifier of the saved
          * state array as a parameter to the login form.
          */
-        $url = SimpleSAML\Module::getModuleURL('silauth/loginuserpass.php');
+        $url = \SimpleSAML\Module::getModuleURL('silauth/loginuserpass.php');
         $params = array('AuthState' => $id);
         \SimpleSAML\Utils\HTTP::redirectTrustedURL($url, $params);
 
@@ -132,7 +132,7 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
                 'ipAddresses' => join(',', $untrustedIpAddresses),
                 'userAgent' => $userAgent,
             ]));
-            throw new SimpleSAML_Error_Error([
+            throw new \SimpleSAML\Error\Error([
                 'WRONGUSERPASS',
                 $authError->getFullSspErrorTag(),
                 $authError->getMessageParams()
