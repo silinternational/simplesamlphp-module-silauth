@@ -15,7 +15,7 @@
     "ramsey/uuid": "^3.5",
     "rlanvin/php-ip": "^1.0",
     "roave/security-advisories": "dev-master",
-    "silinternational/idp-id-broker-php-client": "^2.6",
+    "silinternational/idp-id-broker-php-client": "^3.0",
     "silinternational/php-env": "^2.0",
     "silinternational/psr3-adapters": "^1.1 || ^2.0",
     "simplesamlphp/simplesamlphp": "^1.14.17",
