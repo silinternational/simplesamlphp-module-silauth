@@ -14,7 +14,8 @@ class User
         $passwordExpirationDate,
         array $mfa,
         array $method,
-        $managerEmail
+        string $managerEmail,
+        string $profileReview
     ) {
         return [
             'eduPersonPrincipalName' => [
@@ -43,6 +44,7 @@ class User
             'method' => $method,
             'uuid' => (array)$uuid,
             'manager_email' => [$managerEmail ?? ''],
+            'profile_review' => [$profileReview],
         ];
     }
 }
