@@ -89,7 +89,7 @@ class IdBroker
             $userInfo['mfa'],
             $userInfo['method'],
             $userInfo['manager_email'] ?? null,
-            $userInfo['profile_review']
+            $userInfo['profile_review'] ?? 'no'
         );
     }
     
