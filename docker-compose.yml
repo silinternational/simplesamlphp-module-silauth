@@ -6,7 +6,6 @@ services:
     image: silintl/ssp-base:develop
     ports:
       - "80:80"
-      - "9000:9000"
     volumes:
       - ./:/silauth
       - ./auth.json:/root/.composer/auth.json
@@ -23,7 +22,7 @@ services:
       MYSQL_DATABASE: silauth
       MYSQL_USER: silauth
       MYSQL_PASSWORD: silauth
-    links:
+    depends_on:
       - db
     command: ["/data/run-dev.sh"]
 
@@ -37,16 +36,18 @@ services:
       - ./development/run-tests.sh:/data/run-tests.sh
       - ./features:/data/features
       - ./vendor:/data/vendor
+      - ${COMPOSER_CACHE_DIR}:/composer
     env_file:
       - ./common.env
       - ./local.env
     environment:
+      COMPOSER_CACHE_DIR: /composer
       MYSQL_HOST: testdb
       MYSQL_DATABASE: test
       MYSQL_USER: silauth
       MYSQL_PASSWORD: silauth
       IDP_DOMAIN_NAME: fake.example.com
-    links:
+    depends_on:
       - testdb
     working_dir: /data
     command: ["/data/run-tests.sh"]

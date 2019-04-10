@@ -27,7 +27,13 @@ class FakeSuccessfulIdBroker extends FakeIdBroker
             'locked' => 'no',
             'mfa' => [
                 'prompt' => 'no',
-                'nag' => 'no',
+                'add' => 'no',
+                'review' => 'no',
+                'options' => [],
+            ],
+            'method' => [
+                'add' => 'no',
+                'review' => 'no',
                 'options' => [],
             ],
         ]));
