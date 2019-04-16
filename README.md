@@ -73,3 +73,8 @@ To debug the project in your IDE (such as NetBeans), do the following:
 2. Run `make start enabledebug`.
 3. Set your IDE to use debugger port 9000 and a Session ID of netbeans-xdebug.
 4. Click the "Debug Project" button in your IDE.
+
+### Manual Testing ###
+1. Run `make`
+1. Go to <http://localhost/module.php/core/authenticate.php?as=silauth> in
+your browser.
