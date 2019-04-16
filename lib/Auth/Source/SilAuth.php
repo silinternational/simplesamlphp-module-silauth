@@ -21,7 +21,8 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
     protected $idBrokerConfig;
     protected $mysqlConfig;
     protected $recaptchaConfig;
-    
+    protected $templateData;
+
     /**
      * Constructor for this authentication source.
      *
@@ -39,7 +40,8 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
         $this->idBrokerConfig = ConfigManager::getConfigFor('idBroker', $config);
         $this->mysqlConfig = ConfigManager::getConfigFor('mysql', $config);
         $this->recaptchaConfig = ConfigManager::getConfigFor('recaptcha', $config);
-        
+        $this->templateData = ConfigManager::getConfigFor('templateData', $config);
+
         ConfigManager::initializeYii2WebApp(['components' => ['db' => [
             'dsn' => sprintf(
                 'mysql:host=%s;dbname=%s',
@@ -69,6 +71,8 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
          * the current object.
          */
         $state[self::AUTHID] = $this->authId;
+
+        $state['templateData'] = $this->templateData;
 
         /* Save the $state-array, so that we can restore it after a redirect. */
         $id = SimpleSAML_Auth_State::saveState($state, self::STAGEID);
