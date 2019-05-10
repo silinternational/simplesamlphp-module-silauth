@@ -6,6 +6,7 @@ use Psr\Log\NullLogger;
 use Sil\SilAuth\auth\IdBroker;
 use Sil\SilAuth\config\ConfigManager;
 use Sil\SilAuth\models\FailedLoginIpAddress;
+use \SimpleSAML\Configuration;
 use Throwable;
 
 class System
@@ -55,7 +56,7 @@ class System
     
     protected function isRequiredConfigPresent()
     {
-        $globalConfig = \SimpleSAML\Configuration::getInstance();
+        $globalConfig = Configuration::getInstance();
         
         /*
          * NOTE: We require that SSP's baseurlpath configuration is set (and

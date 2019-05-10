@@ -1,6 +1,8 @@
 <?php
 namespace Sil\SilAuth\csrf;
 
+use SimpleSAML\Session;
+
 /**
  * Class for implementing CSRF protection, mostly based off of advice here:
  * http://stackoverflow.com/a/31683058/3813891
@@ -14,9 +16,9 @@ class CsrfProtector
     /**
      * Constructor.
      *
-     * @param \SimpleSAML\Session $session The session object.
+     * @param Session $session The session object.
      */
-    public function __construct(\SimpleSAML\Session $session)
+    public function __construct(Session $session)
     {
         $this->session = $session;
     }
