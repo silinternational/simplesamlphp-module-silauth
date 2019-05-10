@@ -28,7 +28,8 @@ class SilAuth extends UserPassBase
     protected $idBrokerConfig;
     protected $mysqlConfig;
     protected $recaptchaConfig;
-    
+    protected $templateData;
+
     /**
      * Constructor for this authentication source.
      *
@@ -46,7 +47,8 @@ class SilAuth extends UserPassBase
         $this->idBrokerConfig = ConfigManager::getConfigFor('idBroker', $config);
         $this->mysqlConfig = ConfigManager::getConfigFor('mysql', $config);
         $this->recaptchaConfig = ConfigManager::getConfigFor('recaptcha', $config);
-        
+        $this->templateData = ConfigManager::getConfigFor('templateData', $config);
+
         ConfigManager::initializeYii2WebApp(['components' => ['db' => [
             'dsn' => sprintf(
                 'mysql:host=%s;dbname=%s',
@@ -76,6 +78,8 @@ class SilAuth extends UserPassBase
          * the current object.
          */
         $state[self::AUTHID] = $this->authId;
+
+        $state['templateData'] = $this->templateData;
 
         /* Save the $state-array, so that we can restore it after a redirect. */
         $id = State::saveState($state, self::STAGEID);

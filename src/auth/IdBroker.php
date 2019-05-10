@@ -88,7 +88,8 @@ class IdBroker
             $schacExpiryDate ?? null,
             $userInfo['mfa'],
             $userInfo['method'],
-            $userInfo['manager_email'] ?? null
+            $userInfo['manager_email'] ?? null,
+            $userInfo['profile_review'] ?? 'no'
         );
     }
     

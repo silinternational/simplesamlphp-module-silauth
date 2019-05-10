@@ -87,6 +87,8 @@ $t->data['rememberMeEnabled'] = false;
 $t->data['errorcode'] = $errorCode;
 $t->data['errorparams'] = $errorParams;
 $t->data['csrfToken'] = $csrfProtector->getMasterToken();
+$t->data['profileUrl'] = $state['templateData']['profileUrl'] ?? '';
+$t->data['helpCenterUrl'] = $state['templateData']['helpCenterUrl'] ?? '';
 
 /* For simplicity's sake, don't bother telling this Request to trust any IP
  * addresses. This is okay because we only track the failures of untrusted
