@@ -1,21 +1,28 @@
 <?php
 
+namespace SimpleSAML\Module\silauth\Auth\Source;
+
 use Sil\Psr3Adapters\Psr3SamlLogger;
 use Sil\SilAuth\auth\Authenticator;
 use Sil\SilAuth\auth\IdBroker;
 use Sil\SilAuth\captcha\Captcha;
 use Sil\SilAuth\config\ConfigManager;
 use Sil\SilAuth\http\Request;
+use SimpleSAML\Auth\State;
+use SimpleSAML\Error\Error;
+use SimpleSAML\Module;
+use SimpleSAML\Module\core\Auth\UserPassBase;
+use SimpleSAML\Utils\HTTP;
 
 /**
- * Class sspmod_silauth_Auth_Source_SilAuth.
+ * Class SimpleSAML\Module\silauth\Auth\Source\SilAuth.
  *
  * SimpleSAMLphp auth library to support custom business rules support migrating
  * accounts from LDAP to DB.
  *
  * Configuration settings defined in src/config/ssp-config.php.
  */
-class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
+class SilAuth extends UserPassBase
 {
     protected $authConfig;
     protected $idBrokerConfig;
@@ -75,15 +82,15 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
         $state['templateData'] = $this->templateData;
 
         /* Save the $state-array, so that we can restore it after a redirect. */
-        $id = SimpleSAML_Auth_State::saveState($state, self::STAGEID);
+        $id = State::saveState($state, self::STAGEID);
 
         /*
          * Redirect to the login form. We include the identifier of the saved
          * state array as a parameter to the login form.
          */
-        $url = SimpleSAML\Module::getModuleURL('silauth/loginuserpass.php');
+        $url = Module::getModuleURL('silauth/loginuserpass.php');
         $params = array('AuthState' => $id);
-        \SimpleSAML\Utils\HTTP::redirectTrustedURL($url, $params);
+        HTTP::redirectTrustedURL($url, $params);
 
         /* The previous function never returns, so this code is never executed. */
         assert('FALSE');
@@ -136,7 +143,7 @@ class sspmod_silauth_Auth_Source_SilAuth extends sspmod_core_Auth_UserPassBase
                 'ipAddresses' => join(',', $untrustedIpAddresses),
                 'userAgent' => $userAgent,
             ]));
-            throw new SimpleSAML_Error_Error([
+            throw new Error([
                 'WRONGUSERPASS',
                 $authError->getFullSspErrorTag(),
                 $authError->getMessageParams()

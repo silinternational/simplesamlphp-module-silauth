@@ -4,6 +4,14 @@ use Sil\Psr3Adapters\Psr3SamlLogger;
 use Sil\SilAuth\auth\Authenticator;
 use Sil\SilAuth\csrf\CsrfProtector;
 use Sil\SilAuth\http\Request;
+use SimpleSAML\Auth\Source;
+use SimpleSAML\Auth\State;
+use SimpleSAML\Configuration;
+use SimpleSAML\Error\BadRequest;
+use SimpleSAML\Error\Error;
+use SimpleSAML\Module\silauth\Auth\Source\SilAuth;
+use SimpleSAML\Session;
+use SimpleSAML\XHTML\Template;
 
 /**
  * This page shows a username/password login form, and passes information from it
@@ -12,16 +20,16 @@ use Sil\SilAuth\http\Request;
 
 // Retrieve the authentication state
 if ( ! array_key_exists('AuthState', $_REQUEST)) {
-    throw new SimpleSAML_Error_BadRequest('Missing AuthState parameter.');
+    throw new BadRequest('Missing AuthState parameter.');
 }
 $authStateId = $_REQUEST['AuthState'];
-$state = SimpleSAML_Auth_State::loadState($authStateId, sspmod_silauth_Auth_Source_SilAuth::STAGEID);
+$state = State::loadState($authStateId, SilAuth::STAGEID);
 
-$source = SimpleSAML_Auth_Source::getById($state[sspmod_silauth_Auth_Source_SilAuth::AUTHID]);
+$source = Source::getById($state[SilAuth::AUTHID]);
 if ($source === null) {
     throw new Exception(
         'Could not find authentication source with id '
-        . $state[sspmod_silauth_Auth_Source_SilAuth::AUTHID]
+        . $state[SilAuth::AUTHID]
     );
 }
 
@@ -30,9 +38,9 @@ $errorParams = null;
 $username = null;
 $password = null;
 
-$csrfProtector = new CsrfProtector(SimpleSAML_Session::getSession());
+$csrfProtector = new CsrfProtector(Session::getSession());
 
-$globalConfig = SimpleSAML_Configuration::getInstance();
+$globalConfig = Configuration::getInstance();
 $authSourcesConfig = $globalConfig->getConfig('authsources.php');
 $silAuthConfig = $authSourcesConfig->getConfigItem('silauth');
 
@@ -48,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $username = Request::sanitizeInputString(INPUT_POST, 'username');
             $password = Request::getRawInputString(INPUT_POST, 'password');
             
-            sspmod_silauth_Auth_Source_SilAuth::handleLogin(
+            SilAuth::handleLogin(
                 $authStateId,
                 $username,
                 $password
@@ -61,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]));
         }
         
-    } catch (SimpleSAML_Error_Error $e) {
+    } catch (Error $e) {
         /* Login failed. Extract error code and parameters, to display the error. */
         $errorCode = $e->getErrorCode();
         $errorParams = $e->getParameters();
@@ -70,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $csrfProtector->changeMasterToken();
 }
 
-$t = new SimpleSAML_XHTML_Template($globalConfig, 'core:loginuserpass.php');
+$t = new Template($globalConfig, 'core:loginuserpass.php');
 $t->data['stateparams'] = array('AuthState' => $authStateId);
 $t->data['username'] = $username;
 $t->data['forceUsername'] = false;
