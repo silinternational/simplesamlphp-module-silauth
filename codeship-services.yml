@@ -7,7 +7,7 @@ db:
         MYSQL_PASSWORD: silauth
 
 web:
-    image: silintl/ssp-base:feature_update-to-ssp-1-17
+    image: silintl/ssp-base:develop
     env_file:
       - ./common.env
     links:
