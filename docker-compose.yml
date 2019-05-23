@@ -27,7 +27,7 @@ services:
     command: ["/data/run-dev.sh"]
 
   tests:
-    image: silintl/ssp-base:latest
+    image: silintl/ssp-base:develop
     volumes_from:
       - web
     volumes:
