@@ -78,3 +78,6 @@ services:
       - "8080:80"
     environment:
       MYSQL_HOST: db
+      MYSQL_USER: silauth
+      MYSQL_PASSWORD: silauth
+
