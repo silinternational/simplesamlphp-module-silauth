@@ -4,7 +4,6 @@ use Sil\PhpEnv\Env;
 use Sil\Psr3Adapters\Psr3SyslogLogger;
 use Sil\SilAuth\config\ConfigManager;
 use Sil\SilAuth\system\System;
-use Throwable;
 
 try {
     header('Content-Type: text/plain');

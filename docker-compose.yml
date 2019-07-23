@@ -73,8 +73,11 @@ services:
       MYSQL_PASSWORD: silauth
 
   dbadmin:
-    image: silintl/phpmyadmin:latest
+    image: phpmyadmin/phpmyadmin
     ports:
       - "8080:80"
     environment:
-      MYSQL_HOST: db
+      PMA_HOST: db
+      PMA_USER: silauth
+      PMA_PASSWORD: silauth
+

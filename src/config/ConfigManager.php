@@ -91,7 +91,12 @@ class ConfigManager
          * here, since we don't want Yii to handle the HTTP request. We just
          * want the Yii classes available for use (including database
          * models).  */
-        new \yii\web\Application(self::getMergedYii2Config($customConfig));
+        $app = new \yii\web\Application(self::getMergedYii2Config($customConfig));
+
+        /*
+         * Initialize the Yii logger. It doesn't want to initialize itself for some reason.
+         */
+        $app->log->getLogger();
     }
     
     public static function removeCategory($key)
