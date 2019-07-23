@@ -8,7 +8,7 @@ use SimpleSAML\Auth\Source;
 use SimpleSAML\Auth\State;
 use SimpleSAML\Configuration;
 use SimpleSAML\Error\BadRequest;
-use SimpleSAML\Error\Error;
+use SimpleSAML\Error\Error as SimpleSAMLError;
 use SimpleSAML\Module\silauth\Auth\Source\SilAuth;
 use SimpleSAML\Session;
 use SimpleSAML\XHTML\Template;
@@ -69,12 +69,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]));
         }
         
-    } catch (Error $e) {
+    } catch (SimpleSAMLError $e) {
         /* Login failed. Extract error code and parameters, to display the error. */
         $errorCode = $e->getErrorCode();
         $errorParams = $e->getParameters();
     }
-    
+
     $csrfProtector->changeMasterToken();
 }
 
