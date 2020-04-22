@@ -15,12 +15,11 @@
     "ext-json": "*",
     "ramsey/uuid": "^3.5",
     "rlanvin/php-ip": "^1.0",
-    "roave/security-advisories": "dev-master",
     "silinternational/idp-id-broker-php-client": "^3.0",
     "silinternational/php-env": "^2.0",
     "silinternational/psr3-adapters": "^1.1 || ^2.0",
     "silinternational/yii2-json-log-targets": "1.0.0",
-    "simplesamlphp/simplesamlphp": "~1.17.7",
+    "simplesamlphp/simplesamlphp": "~1.17.7 || ~1.18.5",
     "yiisoft/yii2": "~2.0.12",
     "yiisoft/yii2-gii": "^2.0",
     "adldap2/adldap2": "^6.1",
@@ -31,7 +30,8 @@
   },
   "require-dev": {
     "behat/behat": "^3.2",
-    "phpunit/phpunit": "^5.6.1"
+    "phpunit/phpunit": "^5.6.1",
+    "roave/security-advisories": "dev-master"
   },
   "autoload": {
     "psr-4": {
