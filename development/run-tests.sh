@@ -4,7 +4,7 @@
 
 # Try to install composer dev dependencies
 cd /data/vendor/simplesamlphp/simplesamlphp/modules/silauth
-COMPOSER_ROOT_VERSION=dev-develop composer install --no-interaction --optimize-autoloader --no-scripts
+COMPOSER_ROOT_VERSION=dev-develop composer install --no-interaction --optimize-autoloader --no-scripts --no-progress
 
 # If that failed, exit.
 rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi
