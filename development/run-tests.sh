@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-./setup-logentries.sh
-
 # Try to install composer dev dependencies
 cd /data/vendor/simplesamlphp/simplesamlphp/modules/silauth
 COMPOSER_ROOT_VERSION=dev-develop composer install --no-interaction --optimize-autoloader --no-scripts --no-progress
