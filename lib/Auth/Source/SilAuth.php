@@ -122,7 +122,6 @@ class SilAuth extends UserPassBase
             $this->idBrokerConfig['assertValidIp'] ?? true
         );
         $request = new Request($this->getTrustedIpAddresses());
-        $untrustedIpAddresses = $request->getUntrustedIpAddresses();
         $userAgent = Request::getUserAgent() ?: '(unknown)';
         $authenticator = new Authenticator(
             $username,
@@ -140,7 +139,7 @@ class SilAuth extends UserPassBase
                 'username' => $username,
                 'errorCode' => $authError->getCode(),
                 'errorMessageParams' => $authError->getMessageParams(),
-                'ipAddresses' => join(',', $untrustedIpAddresses),
+                'ipAddresses' => join(',', $request->getIpAddresses()),
                 'userAgent' => $userAgent,
             ]));
             throw new Error([
@@ -153,7 +152,7 @@ class SilAuth extends UserPassBase
         $logger->warning(json_encode([
             'event' => 'User/pass authentication result: success',
             'username' => $username,
-            'ipAddresses' => join(',', $untrustedIpAddresses),
+            'ipAddresses' => join(',', $request->getIpAddresses()),
             'userAgent' => $userAgent,
         ]));
         

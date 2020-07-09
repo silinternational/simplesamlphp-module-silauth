@@ -12,7 +12,7 @@ class DummyRequest extends Request
      *
      * @return string[] A list containing the dummy IP address.
      */
-    protected function getIpAddresses()
+    public function getIpAddresses()
     {
         return [$this->dummyIpAddress];
     }
