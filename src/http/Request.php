@@ -53,7 +53,7 @@ class Request
      *
      * @return string[] A list of IP addresses.
      */
-    protected function getIpAddresses()
+    public function getIpAddresses()
     {
         $ipAddresses = [];
         
