@@ -5,3 +5,4 @@ local.env
 .vagrant/
 auth.json
 composer.phar
+composer.lock
