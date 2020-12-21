@@ -17,8 +17,7 @@ use SimpleSAML\Utils\HTTP;
 /**
  * Class SimpleSAML\Module\silauth\Auth\Source\SilAuth.
  *
- * SimpleSAMLphp auth library to support custom business rules support migrating
- * accounts from LDAP to DB.
+ * SimpleSAMLphp auth library to support custom business rules
  *
  * Configuration settings defined in src/config/ssp-config.php.
  */
