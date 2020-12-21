@@ -6,7 +6,7 @@ use Sil\SilAuth\text\Text;
 class ConfigManager
 {
     const SEPARATOR = '.';
-    
+
     /**
      * Get the SimpleSamlPHP config.
      *
@@ -16,7 +16,7 @@ class ConfigManager
     {
         return require __DIR__ . '/ssp-config.php';
     }
-    
+
     /**
      * Just get the SimpleSamlPHP config data for the specified category
      * (eg. 'ldap').
@@ -30,7 +30,7 @@ class ConfigManager
     {
         return self::getConfigFor($category, self::getSspConfig());
     }
-    
+
     /**
      * Get only the config data for the specified category (eg. 'ldap'),
      * extracting it from the given config.
@@ -53,7 +53,7 @@ class ConfigManager
         }
         return $categoryConfig;
     }
-    
+
     /**
      * Get the Yii2 config, merging in the given custom config data.
      *
@@ -68,25 +68,25 @@ class ConfigManager
             $customConfig
         );
     }
-    
+
     private static function initializeYiiClass()
     {
         if ( ! class_exists('Yii')) {
             require_once __DIR__ . '/../../vendor/yiisoft/yii2/Yii.php';
         }
     }
-    
+
     public static function getYii2ConsoleApp($customConfig)
     {
         self::initializeYiiClass();
         $mergedYii2Config = self::getMergedYii2Config($customConfig);
         return new \yii\console\Application($mergedYii2Config);
     }
-    
+
     public static function initializeYii2WebApp($customConfig = [])
     {
         self::initializeYiiClass();
-        
+
         /* Initialize the Yii web application. Note that we do NOT call run()
          * here, since we don't want Yii to handle the HTTP request. We just
          * want the Yii classes available for use (including database
@@ -98,13 +98,13 @@ class ConfigManager
          */
         $app->log->getLogger();
     }
-    
+
     public static function removeCategory($key)
     {
         if ($key === null) {
             return null;
         }
         $pieces = explode(self::SEPARATOR, $key, 2);
-        return last($pieces);
+        return end($pieces);
     }
 }
