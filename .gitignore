@@ -6,3 +6,5 @@ local.env
 auth.json
 composer.phar
 composer.lock
+codeship.aes
+codeship.env
