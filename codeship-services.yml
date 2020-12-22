@@ -15,7 +15,7 @@ web:
     volumes:
         - ./:/data/vendor/simplesamlphp/simplesamlphp/modules/silauth
         - ./development/run-tests.sh:/data/run-tests.sh
-        - ./development/known_hosts:/etc/ssh/known_hosts
+        - ./development/known_hosts:/root/.ssh/known_hosts
     environment:
         MYSQL_HOST: db
         MYSQL_DATABASE: test
