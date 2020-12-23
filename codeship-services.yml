@@ -23,3 +23,4 @@ web:
         APPLICATION_ENV: testing
         IDP_DOMAIN_NAME: fake.example.com
     working_dir: /data
+    encrypted_env_file: codeship.env.encrypted
