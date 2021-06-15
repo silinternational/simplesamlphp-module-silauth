@@ -12,8 +12,6 @@ web:
       - ./common.env
     links:
         - db
-        - ldap
-        - ldapload
     volumes:
         - ./:/data/vendor/simplesamlphp/simplesamlphp/modules/silauth
         - ./development/run-tests.sh:/data/run-tests.sh
@@ -25,19 +23,4 @@ web:
         APPLICATION_ENV: testing
         IDP_DOMAIN_NAME: fake.example.com
     working_dir: /data
-
-ldap:
-    build:
-        path: ./development/ldap
-        dockerfile: ./Dockerfile
-    environment:
-        DEBUG_LEVEL: 320
-
-ldapload:
-    build:
-        path: ./development/ldap
-        dockerfile_path: ./Dockerfile
-    links:
-        - ldap
-    working_dir: /data
-    command: bash -c "sleep 10 && /data/load_ldap.sh"
+    encrypted_env_file: codeship.env.encrypted

@@ -1,6 +1,5 @@
 # simplesamlphp-module-silauth
-SimpleSAMLphp auth module implementing custom business logic and password 
-migration from LDAP to DB.
+SimpleSAMLphp auth module implementing custom business logic
 
 [![Codeship](https://img.shields.io/codeship/ab32f060-a43b-0134-d104-463a26eaa663.svg?style=flat-square)](https://app.codeship.com/projects/190461)
 [![Scrutinizer](https://img.shields.io/scrutinizer/g/silinternational/simplesamlphp-module-silauth.svg?style=flat-square)](https://scrutinizer-ci.com/g/silinternational/simplesamlphp-module-silauth/)
@@ -15,10 +14,21 @@ CamelCase):
 
 ## Rate Limiting
 SilAuth will rate limit failed logins by username and by every untrusted IP
-address from a login attempt. For each login attempt, if it has too many failed
-logins within the last hour (aka. recent failed logins) for the given username
-OR for any single untrusted IP address associated with the current request, it
-will do one of the following:
+address from a login attempt.
+
+### tl;dr ("the short version")
+If there have been more than 10 failed logins for a given username (or IP
+address) within the past hour, a captcha will be included in the webpage. The
+user may or may not have to directly interact with the captcha, though.
+
+If there have been more than 50 failed logins for that username (or IP address)
+within the past hour, logins for that username (or IP address) will be blocked
+for up to an hour.
+
+### Details
+For each login attempt, if it has too many failed logins within the last hour
+(aka. recent failed logins) for the given username OR for any single untrusted
+IP address associated with the current request, it will do one of the following:
 
 - If there are fewer than `Authenticator::REQUIRE_CAPTCHA_AFTER_NTH_FAILED_LOGIN`
   recent failures: process the request normally.
@@ -35,7 +45,7 @@ See `features/login.feature` for descriptions of how various situations are
 handled. That file not only contains human-readable scenarios, but those are
 also actual tests that are run to ensure those descriptions are correct.
 
-### Example 1
+#### Example 1
 
 - If `BLOCK_AFTER_NTH_FAILED_LOGIN` is 50, and
 - if `REQUIRE_CAPTCHA_AFTER_NTH_FAILED_LOGIN` is 10, and
@@ -46,7 +56,7 @@ also actual tests that are run to ensure those descriptions are correct.
   goes through a proxy at `11.22.33.44`, then
 - they will have to pass a captcha, but they will not yet be blocked.
 
-### Example 2
+#### Example 2
 
 - However, if all of the above is true, but
 - there have now been 55 failed login attempts from `11.22.33.44`, then
