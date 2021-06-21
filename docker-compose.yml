@@ -90,6 +90,7 @@ services:
       MYSQL_PASSWORD: silauth
       IDP_DOMAIN_NAME: fake.example.com
     depends_on:
+      - web
       - testdb
     working_dir: /data
     command: ["/data/run-tests.sh"]
