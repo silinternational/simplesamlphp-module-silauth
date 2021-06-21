@@ -1,6 +1,6 @@
 <?php
 
-use Sil\Psr3Adapters\Psr3SamlLogger;
+use Sil\Psr3Adapters\Psr3StdOutLogger;
 use Sil\SilAuth\auth\Authenticator;
 use Sil\SilAuth\csrf\CsrfProtector;
 use Sil\SilAuth\http\Request;
@@ -49,7 +49,7 @@ $recaptchaSiteKey = $silAuthConfig->getString('recaptcha.siteKey', null);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         
-        $logger = new Psr3SamlLogger();
+        $logger = new Psr3StdOutLogger();
         $csrfFromRequest = Request::sanitizeInputString(INPUT_POST, 'csrf-token'); 
         if ($csrfProtector->isTokenCorrect($csrfFromRequest)) {
             
