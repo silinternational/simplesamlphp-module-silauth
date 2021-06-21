@@ -1,7 +1,7 @@
 <?php
 namespace Sil\SilAuth\tests\unit\models;
 
-use Sil\Psr3Adapters\Psr3ConsoleLogger;
+use Sil\Psr3Adapters\Psr3EchoLogger;
 use Sil\SilAuth\auth\Authenticator;
 use Sil\SilAuth\models\FailedLoginUsername;
 use Sil\SilAuth\time\UtcTime;
@@ -143,7 +143,7 @@ class FailedLoginUsernameTest extends TestCase
             ['username' => $username, 'occurred_at_utc' => UtcTime::format()]
         ];
         $this->setDbFixture($dbFixture);
-        $logger = new Psr3ConsoleLogger();
+        $logger = new Psr3EchoLogger();
         $expectedPre = count($dbFixture);
         $expectedPost = $expectedPre + 1;
         

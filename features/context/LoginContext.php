@@ -1,11 +1,10 @@
 <?php
 namespace Sil\SilAuth\features\context;
 
-use Behat\Behat\Tester\Exception\PendingException;
 use Behat\Behat\Context\Context;
 use Psr\Log\LoggerInterface;
 use Sil\PhpEnv\Env;
-use Sil\Psr3Adapters\Psr3ConsoleLogger;
+use Sil\Psr3Adapters\Psr3EchoLogger;
 use Sil\SilAuth\auth\Authenticator;
 use Sil\SilAuth\auth\IdBroker;
 use Sil\SilAuth\captcha\Captcha;
@@ -68,7 +67,7 @@ class LoginContext implements Context
             'password' => Env::get('MYSQL_PASSWORD'),
         ]]]);
         
-        $this->logger = new Psr3ConsoleLogger();
+        $this->logger = new Psr3EchoLogger();
         
         $this->captcha = new Captcha();
         $this->idBroker = new IdBroker(

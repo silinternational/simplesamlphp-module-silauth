@@ -1,7 +1,7 @@
 <?php
 namespace Sil\SilAuth\tests\unit\models;
 
-use Sil\Psr3Adapters\Psr3ConsoleLogger;
+use Sil\Psr3Adapters\Psr3EchoLogger;
 use Sil\SilAuth\auth\Authenticator;
 use Sil\SilAuth\models\FailedLoginIpAddress;
 use Sil\SilAuth\time\UtcTime;
@@ -143,7 +143,7 @@ class FailedLoginIpAddressTest extends TestCase
             ['ip_address' => $ipAddress, 'occurred_at_utc' => UtcTime::format()]
         ];
         $this->setDbFixture($dbFixture);
-        $logger = new Psr3ConsoleLogger();
+        $logger = new Psr3EchoLogger();
         $expectedPre = count($dbFixture);
         $expectedPost = $expectedPre + 1;
         
@@ -168,7 +168,7 @@ class FailedLoginIpAddressTest extends TestCase
         // Arrange:
         $ipAddress = '101.102.103.104';
         $otherIpAddress = '201.202.203.204';
-        $logger = new Psr3ConsoleLogger();
+        $logger = new Psr3EchoLogger();
         FailedLoginIpAddress::deleteAll();
         FailedLoginIpAddress::recordFailedLoginBy(
             [$ipAddress, $otherIpAddress],
