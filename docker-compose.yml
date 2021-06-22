@@ -9,6 +9,8 @@ services:
     volumes:
       - ./:/silauth
       - ./auth.json:/root/.composer/auth.json
+      - ./composer.json:/data/composer.json
+      - ./composer.lock:/data/composer.lock
       - ./development/enable-debug.sh:/data/enable-debug.sh
       - ./development/run-dev.sh:/data/run-dev.sh
       - ./development/symlink.sh:/data/symlink.sh
@@ -37,10 +39,11 @@ services:
     volumes:
       - ./:/silauth
       - ./auth.json:/root/.composer/auth.json
+      - ./composer.json:/data/composer.json
+      - ./composer.lock:/data/composer.lock
       - ./development/run-dev.sh:/data/run-dev.sh
       - ./development/symlink.sh:/data/symlink.sh
       - ./src:/data/src
-      - ./vendor:/data/vendor
     env_file:
       - ./common.env
     environment:
