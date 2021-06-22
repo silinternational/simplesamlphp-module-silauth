@@ -105,7 +105,6 @@ services:
       - ./composer.json:/data/composer.json
       - ./composer.lock:/data/composer.lock
       - ./development/enable-debug.sh:/data/enable-debug.sh
-      - ./development/run-dev.sh:/data/run-dev.sh
       - ./development/run-tests.sh:/data/run-tests.sh
       - ./development/symlink.sh:/data/symlink.sh
       - ./src:/data/src
