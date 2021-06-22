@@ -32,4 +32,25 @@ class StatusContext implements Context
         Assert::same($this->responseText, $responseText);
         Assert::eq($this->responseCode, $statusCode);
     }
+
+    /**
+     * @When I request the initial login page of this module
+     */
+    public function iRequestTheInitialLoginPageOfThisModule()
+    {
+        $client = new Client([
+            'cookies' => true,
+            'http_errors' => false,
+        ]);
+        $response = $client->get('http://testweb/module.php/core/authenticate.php?as=silauth');
+        $this->responseCode = $response->getStatusCode();
+    }
+
+    /**
+     * @Then I should get back an HTTP status code of :statusCode
+     */
+    public function iShouldGetBackAnHttpStatusCodeOf($statusCode)
+    {
+        Assert::eq($this->responseCode, $statusCode);
+    }
 }
