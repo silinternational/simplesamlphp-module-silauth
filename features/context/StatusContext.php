@@ -19,7 +19,7 @@ class StatusContext implements Context
     public function iCheckTheStatusOfThisModule()
     {
         $client = new Client();
-        $response = $client->get('http://web/module.php/silauth/status.php');
+        $response = $client->get('http://testweb/module.php/silauth/status.php');
         $this->responseCode = $response->getStatusCode();
         $this->responseText = $response->getBody()->getContents();
     }
