@@ -38,7 +38,7 @@ $errorParams = null;
 $username = null;
 $password = null;
 
-$csrfProtector = new CsrfProtector(Session::getSession());
+$csrfProtector = new CsrfProtector(Session::getSessionFromRequest());
 
 $globalConfig = Configuration::getInstance();
 $authSourcesConfig = $globalConfig->getConfig('authsources.php');
