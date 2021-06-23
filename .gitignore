@@ -9,3 +9,4 @@ composer.phar
 composer.lock
 codeship.aes
 codeship.env
+*.aes
