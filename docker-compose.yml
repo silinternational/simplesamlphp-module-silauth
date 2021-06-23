@@ -131,7 +131,7 @@ services:
     command: ["/data/run-tests.sh"]
 
   db:
-    image: silintl/mariadb:latest
+    image: mariadb:10
     ports:
       - "3306"
     environment:
@@ -141,7 +141,7 @@ services:
       MYSQL_PASSWORD: silauth
 
   testdb:
-    image: silintl/mariadb:latest
+    image: mariadb:10
     ports:
       - "3306"
     environment:
