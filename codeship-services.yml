@@ -10,7 +10,7 @@ web:
     image: silintl/ssp-base:latest
     env_file:
       - ./common.env
-    links:
+    depends_on:
         - db
     volumes:
         - ./:/data/vendor/simplesamlphp/simplesamlphp/modules/silauth
