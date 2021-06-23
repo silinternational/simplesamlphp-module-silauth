@@ -12,6 +12,7 @@ web:
       - ./common.env
     depends_on:
         - db
+        - testweb
     volumes:
         - ./:/data/vendor/simplesamlphp/simplesamlphp/modules/silauth
         - ./development/run-tests.sh:/data/run-tests.sh
@@ -22,5 +23,25 @@ web:
         MYSQL_PASSWORD: silauth
         APPLICATION_ENV: testing
         IDP_DOMAIN_NAME: fake.example.com
+    working_dir: /data
+    encrypted_env_file: codeship.env.encrypted
+
+testweb:
+    image: silintl/ssp-base:latest
+    env_file:
+      - ./common.env
+    depends_on:
+        - db
+    volumes:
+        - ./:/data/vendor/simplesamlphp/simplesamlphp/modules/silauth
+        - ./development/run-tests.sh:/data/run-tests.sh
+    environment:
+        MYSQL_HOST: db
+        MYSQL_DATABASE: test
+        MYSQL_USER: silauth
+        MYSQL_PASSWORD: silauth
+        APPLICATION_ENV: testing
+        IDP_DOMAIN_NAME: fake.example.com
+        IDP_NAME: dummy
     working_dir: /data
     encrypted_env_file: codeship.env.encrypted
