@@ -28,20 +28,68 @@ web:
 
 testweb:
     image: silintl/ssp-base:latest
+    volumes:
+      - ./:/silauth
+      - ./auth.json:/root/.composer/auth.json
+      - ./composer.json:/data/composer.json
+      - ./composer.lock:/data/composer.lock
+      - ./development/run-dev.sh:/data/run-dev.sh
+      - ./development/symlink.sh:/data/symlink.sh
+      - ./src:/data/src
     env_file:
       - ./common.env
-    depends_on:
-        - db
-    volumes:
-        - ./:/data/vendor/simplesamlphp/simplesamlphp/modules/silauth
-        - ./development/run-tests.sh:/data/run-tests.sh
     environment:
-        MYSQL_HOST: db
-        MYSQL_DATABASE: test
-        MYSQL_USER: silauth
-        MYSQL_PASSWORD: silauth
-        APPLICATION_ENV: testing
-        IDP_DOMAIN_NAME: fake.example.com
-        IDP_NAME: dummy
-    working_dir: /data
+      BASE_URL_PATH: "http://testweb/"
+      ID_BROKER_BASE_URI: "http://broker"
+      ID_BROKER_ACCESS_TOKEN: "test-cli-abc123"
+      ID_BROKER_ASSERT_VALID_IP: "false"
+      IDP_DOMAIN_NAME: testweb
+      IDP_NAME: dummy
+      MYSQL_HOST: db
+      MYSQL_DATABASE: test
+      MYSQL_USER: silauth
+      MYSQL_PASSWORD: silauth
+    depends_on:
+      - db
+      - broker
+    command: "/data/run-dev.sh"
     encrypted_env_file: codeship.env.encrypted
+
+broker:
+    image: silintl/idp-id-broker:latest
+    ports:
+      - "80"
+    depends_on:
+      - brokerDb
+    env_file:
+      - ./local.broker.env
+    environment:
+      IDP_NAME: "idp"
+      MYSQL_HOST: "brokerDb"
+      MYSQL_DATABASE: "broker"
+      MYSQL_USER: "user"
+      MYSQL_PASSWORD: "pass"
+      EMAIL_SERVICE_accessToken: "dummy"
+      EMAIL_SERVICE_assertValidIp: "false"
+      EMAIL_SERVICE_baseUrl: "dummy"
+      EMAILER_CLASS: Sil\SilIdBroker\Behat\Context\fakes\FakeEmailer
+      HELP_CENTER_URL: "https://example.org/help"
+      PASSWORD_FORGOT_URL: "https://example.org/forgot"
+      PASSWORD_PROFILE_URL: "https://example.org/profile"
+      SUPPORT_EMAIL: "support@example.org"
+      EMAIL_SIGNATURE: "one red pill, please"
+      API_ACCESS_KEYS: "test-cli-abc123"
+      APP_ENV: "dev"
+      MIGRATE_PW_FROM_LDAP: "false"
+    command: "bash -c 'whenavail brokerDb 3306 60 ./yii migrate --interactive=0 && ./run.sh'"
+
+brokerDb:
+    image: mariadb:10
+    ports:
+      - "3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "r00tp@ss!"
+      MYSQL_DATABASE: "broker"
+      MYSQL_USER: "user"
+      MYSQL_PASSWORD: "pass"
+
