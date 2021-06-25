@@ -101,7 +101,7 @@ class SilAuth extends UserPassBase
         $ipAddressesString = $this->authConfig['trustedIpAddresses'] ?? '';
         $stringPieces = explode(',', $ipAddressesString);
         foreach ($stringPieces as $stringPiece) {
-            if (! empty($stringPiece)) {
+            if ( ! empty($stringPiece)) {
                 $trustedIpAddresses[] = $stringPiece;
             }
         }
@@ -131,7 +131,7 @@ class SilAuth extends UserPassBase
             $logger
         );
         
-        if (! $authenticator->isAuthenticated()) {
+        if ( ! $authenticator->isAuthenticated()) {
             $authError = $authenticator->getAuthError();
             $logger->warning(json_encode([
                 'event' => 'User/pass authentication result: failure',
