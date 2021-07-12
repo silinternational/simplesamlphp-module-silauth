@@ -9,7 +9,6 @@ services:
     volumes:
       - ./:/silauth
       # - ./development/run-debug.sh:/data/run.sh
-      - ./auth.json:/root/.composer/auth.json
       - ./composer.json:/data/composer.json
       - ./composer.lock:/data/composer.lock
       - ./development/enable-debug.sh:/data/enable-debug.sh
@@ -39,7 +38,6 @@ services:
       - "8080:80"
     volumes:
       - ./:/silauth
-      - ./auth.json:/root/.composer/auth.json
       - ./composer.json:/data/composer.json
       - ./composer.lock:/data/composer.lock
       - ./development/run-dev.sh:/data/run-dev.sh
@@ -47,6 +45,7 @@ services:
       - ./src:/data/src
     env_file:
       - ./common.env
+      - ./local.env
     environment:
       BASE_URL_PATH: "http://testweb/"
       ID_BROKER_BASE_URI: "http://broker"
@@ -105,7 +104,6 @@ services:
     image: silintl/ssp-base:develop
     volumes:
       - ./:/silauth
-      - ./auth.json:/root/.composer/auth.json
       - ./composer.json:/data/composer.json
       - ./composer.lock:/data/composer.lock
       - ./development/enable-debug.sh:/data/enable-debug.sh

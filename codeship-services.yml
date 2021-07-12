@@ -30,7 +30,6 @@ testweb:
     image: silintl/ssp-base:latest
     volumes:
       - ./:/silauth
-      - ./auth.json:/root/.composer/auth.json
       - ./composer.json:/data/composer.json
       - ./development/run-dev.sh:/data/run-dev.sh
       - ./development/symlink.sh:/data/symlink.sh
