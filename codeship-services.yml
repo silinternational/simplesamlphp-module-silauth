@@ -79,6 +79,7 @@ broker:
       APP_ENV: "dev"
       MIGRATE_PW_FROM_LDAP: "false"
     command: "bash -c 'whenavail brokerDb 3306 60 ./yii migrate --interactive=0 && ./run.sh'"
+    encrypted_env_file: codeship.env.encrypted
 
 brokerDb:
     image: mariadb:10
