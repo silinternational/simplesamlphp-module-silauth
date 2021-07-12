@@ -50,7 +50,7 @@ testweb:
     depends_on:
       - db
       - broker
-    command: "/data/run-dev.sh"
+    command: 'bash -c "rm -f /data/composer.lock && /data/run-dev.sh"'
     encrypted_env_file: codeship.env.encrypted
 
 broker:
