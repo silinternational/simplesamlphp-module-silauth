@@ -8,6 +8,7 @@ services:
       - "80:80"
     volumes:
       - ./:/silauth
+      # - ./development/run-debug.sh:/data/run.sh
       - ./auth.json:/root/.composer/auth.json
       - ./composer.json:/data/composer.json
       - ./composer.lock:/data/composer.lock
@@ -158,4 +159,3 @@ services:
       PMA_HOST: db
       PMA_USER: silauth
       PMA_PASSWORD: silauth
-
