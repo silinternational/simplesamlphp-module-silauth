@@ -32,7 +32,6 @@ testweb:
       - ./:/silauth
       - ./auth.json:/root/.composer/auth.json
       - ./composer.json:/data/composer.json
-      - ./composer.lock:/data/composer.lock
       - ./development/run-dev.sh:/data/run-dev.sh
       - ./development/symlink.sh:/data/symlink.sh
       - ./src:/data/src
