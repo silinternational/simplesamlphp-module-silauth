@@ -61,8 +61,6 @@ broker:
       - "80"
     depends_on:
       - brokerDb
-    env_file:
-      - ./local.broker.env
     environment:
       IDP_NAME: "idp"
       MYSQL_HOST: "brokerDb"
