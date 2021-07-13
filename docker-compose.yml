@@ -87,7 +87,6 @@ services:
       EMAIL_SIGNATURE: "one red pill, please"
       API_ACCESS_KEYS: "test-cli-abc123"
       APP_ENV: "dev"
-      MIGRATE_PW_FROM_LDAP: "false"
     command: ["bash", "-c", "whenavail brokerDb 3306 60 ./yii migrate --interactive=0 && ./run.sh"]
 
   brokerDb:
