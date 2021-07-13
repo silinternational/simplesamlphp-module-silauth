@@ -1,6 +1,6 @@
 <?php
 
-use Sil\JsonLog\target\JsonSyslogTarget;
+use Sil\JsonLog\target\JsonStreamTarget;
 use yii\helpers\Json;
 
 return [
@@ -22,17 +22,33 @@ return [
         'log' => [
             'targets' => [
                 [
-                    'class' => JsonSyslogTarget::class,
-                    'levels' => ['error', 'warning'],
-                    'logVars' => [], // no need for default stuff: http://www.yiiframework.com/doc-2.0/yii-log-target.html#$logVars-detail
+                    'class' => JsonStreamTarget::class,
+                    'url' => 'php://stdout',
+                    'levels' => ['info'],
+                    'logVars' => [],
+                    'categories' => ['application'],
                     'prefix' => function ($message) {
                         $prefixData = [
                             'message' => $message,
                             'env' => YII_ENV,
                         ];
-
                         return Json::encode($prefixData);
                     },
+                    'exportInterval' => 1,
+                ],
+                [
+                    'class' => JsonStreamTarget::class,
+                    'url' => 'php://stderr',
+                    'levels' => ['error', 'warning'],
+                    'logVars' => [],
+                    'prefix' => function ($message) {
+                        $prefixData = [
+                            'message' => $message,
+                            'env' => YII_ENV,
+                        ];
+                        return Json::encode($prefixData);
+                    },
+                    'exportInterval' => 1,
                 ],
             ],
         ],
