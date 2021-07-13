@@ -1,6 +1,7 @@
 .idea/
 vendor/
 local.env
+local.*.env
 /nbproject/
 .vagrant/
 auth.json

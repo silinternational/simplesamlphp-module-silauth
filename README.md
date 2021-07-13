@@ -85,8 +85,9 @@ To debug the project in your IDE (such as NetBeans), do the following:
 4. Click the "Debug Project" button in your IDE.
 
 ### Manual Testing ###
-1. Run `make`
-1. Go to <http://localhost/module.php/core/authenticate.php?as=silauth> in
+1. Add an entry to your `/etc/hosts` file for `127.0.0.1 silauth.local`
+2. Run `make`
+3. Go to <http://silauth.local/module.php/core/authenticate.php?as=silauth> in
 your browser.
 
 

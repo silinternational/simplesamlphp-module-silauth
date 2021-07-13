@@ -17,6 +17,9 @@ behatappend:
 behatv:
 	docker-compose run --rm tests bash -c "vendor/bin/behat --config=features/behat.yml --strict --stop-on-failure -v"
 
+behatwip:
+	docker-compose run --rm tests bash -c "vendor/bin/behat --config=features/behat.yml --strict --stop-on-failure --tags '@wip'"
+
 bounce:
 	docker-compose up -d web
 
