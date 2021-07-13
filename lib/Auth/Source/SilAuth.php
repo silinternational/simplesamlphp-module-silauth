@@ -2,7 +2,7 @@
 
 namespace SimpleSAML\Module\silauth\Auth\Source;
 
-use Sil\Psr3Adapters\Psr3SamlLogger;
+use Sil\Psr3Adapters\Psr3StdOutLogger;
 use Sil\SilAuth\auth\Authenticator;
 use Sil\SilAuth\auth\IdBroker;
 use Sil\SilAuth\captcha\Captcha;
@@ -110,7 +110,7 @@ class SilAuth extends UserPassBase
     
     protected function login($username, $password)
     {
-        $logger = new Psr3SamlLogger();
+        $logger = new Psr3StdOutLogger();
         $captcha = new Captcha($this->recaptchaConfig['secret'] ?? null);
         $idBroker = new IdBroker(
             $this->idBrokerConfig['baseUri'] ?? null,

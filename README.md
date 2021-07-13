@@ -85,6 +85,33 @@ To debug the project in your IDE (such as NetBeans), do the following:
 4. Click the "Debug Project" button in your IDE.
 
 ### Manual Testing ###
-1. Run `make`
-1. Go to <http://localhost/module.php/core/authenticate.php?as=silauth> in
+1. Add an entry to your `/etc/hosts` file for `127.0.0.1 silauth.local`
+2. Run `make`
+3. Go to <http://silauth.local/module.php/core/authenticate.php?as=silauth> in
 your browser.
+
+
+### Debugging
+
+Xdebug can be enabled by doing the following:
+
+1. Define `REMOTE_DEBUG_IP` in `local.env`. This should be the IP address of your development machine, i.e. the one that
+   is running your IDE. If you're using Linux as your Docker host, you can use 172.17.0.1 here.
+2. Map run-debug.sh into the container you wish to debug. For example:
+```yaml
+    volumes:
+      - ./development/run-debug.sh:/data/run.sh
+```
+3. Enable debugging in your IDE. See the next section for PhpStorm setup.
+
+## Configuring PhpStorm for remote debugging
+
+In PhpStorm go to: Preferences > PHP > Debug > DBGp Proxy and set the following settings:
+- Host: (your IP address or hostname)
+- Port: 9000
+
+Set path mappings in: Preferences > PHP > Servers
+- Add a server and map the project folder to '/data/vendor/simplesamlphp/simplesamlphp/modules/silauth'
+- Map other directories as needed. PhpStorm should prompt when an unrecognized path is encountered.
+
+Then start listening by clicking the "listen" button on the PhpStorm toolbar.

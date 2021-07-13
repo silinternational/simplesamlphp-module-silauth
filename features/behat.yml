@@ -1,7 +1,8 @@
 default:
     suites:
-        test:
-            paths:
-                - features
-            contexts:
-                - Sil\SilAuth\features\context\LoginContext
+        login:
+            paths: ["features/login.feature"]
+            contexts: [Sil\SilAuth\features\context\LoginContext]
+        status:
+            paths: ["features/status.feature"]
+            contexts: [Sil\SilAuth\features\context\StatusContext]

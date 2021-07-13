@@ -8,32 +8,107 @@ services:
       - "80:80"
     volumes:
       - ./:/silauth
-      - ./auth.json:/root/.composer/auth.json
+      # - ./development/run-debug.sh:/data/run.sh
+      - ./composer.json:/data/composer.json
+      - ./composer.lock:/data/composer.lock
       - ./development/enable-debug.sh:/data/enable-debug.sh
       - ./development/run-dev.sh:/data/run-dev.sh
-      - ./development/run-tests.sh:/data/run-tests.sh
       - ./development/symlink.sh:/data/symlink.sh
       - ./src:/data/src
     env_file:
       - ./common.env
       - ./local.env
     environment:
+      BASE_URL_PATH: "http://silauth.local/"
+      ID_BROKER_BASE_URI: "http://broker"
+      ID_BROKER_ACCESS_TOKEN: "test-cli-abc123"
+      ID_BROKER_ASSERT_VALID_IP: "false"
       MYSQL_HOST: db
       MYSQL_DATABASE: silauth
       MYSQL_USER: silauth
       MYSQL_PASSWORD: silauth
     depends_on:
       - db
+      - broker
     command: ["/data/run-dev.sh"]
+
+  testweb:
+    image: silintl/ssp-base:develop
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/silauth
+      - ./composer.json:/data/composer.json
+      - ./composer.lock:/data/composer.lock
+      - ./development/run-dev.sh:/data/run-dev.sh
+      - ./development/symlink.sh:/data/symlink.sh
+      - ./src:/data/src
+    env_file:
+      - ./common.env
+      - ./local.env
+    environment:
+      BASE_URL_PATH: "http://testweb/"
+      ID_BROKER_BASE_URI: "http://broker"
+      ID_BROKER_ACCESS_TOKEN: "test-cli-abc123"
+      ID_BROKER_ASSERT_VALID_IP: "false"
+      IDP_DOMAIN_NAME: testweb
+      IDP_NAME: dummy
+      MYSQL_HOST: testdb
+      MYSQL_DATABASE: test
+      MYSQL_USER: silauth
+      MYSQL_PASSWORD: silauth
+    depends_on:
+      - testdb
+      - broker
+    command: ["/data/run-dev.sh"]
+
+  broker:
+    image: silintl/idp-id-broker:develop
+    ports:
+      - "80"
+    depends_on:
+      - brokerDb
+    env_file:
+      - ./local.broker.env
+    environment:
+      IDP_NAME: "idp"
+      MYSQL_HOST: "brokerDb"
+      MYSQL_DATABASE: "broker"
+      MYSQL_USER: "user"
+      MYSQL_PASSWORD: "pass"
+      EMAIL_SERVICE_accessToken: "dummy"
+      EMAIL_SERVICE_assertValidIp: "false"
+      EMAIL_SERVICE_baseUrl: "dummy"
+      EMAILER_CLASS: Sil\SilIdBroker\Behat\Context\fakes\FakeEmailer
+      HELP_CENTER_URL: "https://example.org/help"
+      PASSWORD_FORGOT_URL: "https://example.org/forgot"
+      PASSWORD_PROFILE_URL: "https://example.org/profile"
+      SUPPORT_EMAIL: "support@example.org"
+      EMAIL_SIGNATURE: "one red pill, please"
+      API_ACCESS_KEYS: "test-cli-abc123"
+      APP_ENV: "dev"
+    command: ["bash", "-c", "whenavail brokerDb 3306 60 ./yii migrate --interactive=0 && ./run.sh"]
+
+  brokerDb:
+    image: mariadb:10
+    ports:
+      - "3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "r00tp@ss!"
+      MYSQL_DATABASE: "broker"
+      MYSQL_USER: "user"
+      MYSQL_PASSWORD: "pass"
 
   tests:
     image: silintl/ssp-base:develop
-    volumes_from:
-      - web
     volumes:
+      - ./:/silauth
       - ./composer.json:/data/composer.json
       - ./composer.lock:/data/composer.lock
+      - ./development/enable-debug.sh:/data/enable-debug.sh
       - ./development/run-tests.sh:/data/run-tests.sh
+      - ./development/symlink.sh:/data/symlink.sh
+      - ./src:/data/src
       - ./features:/data/features
       - ./vendor:/data/vendor
       - ${COMPOSER_CACHE_DIR}:/composer
@@ -48,12 +123,13 @@ services:
       MYSQL_PASSWORD: silauth
       IDP_DOMAIN_NAME: fake.example.com
     depends_on:
+      - testweb
       - testdb
     working_dir: /data
     command: ["/data/run-tests.sh"]
 
   db:
-    image: silintl/mariadb:latest
+    image: mariadb:10
     ports:
       - "3306"
     environment:
@@ -63,7 +139,7 @@ services:
       MYSQL_PASSWORD: silauth
 
   testdb:
-    image: silintl/mariadb:latest
+    image: mariadb:10
     ports:
       - "3306"
     environment:
@@ -80,4 +156,3 @@ services:
       PMA_HOST: db
       PMA_USER: silauth
       PMA_PASSWORD: silauth
-

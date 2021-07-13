@@ -1,6 +1,7 @@
 .idea/
 vendor/
 local.env
+local.*.env
 /nbproject/
 .vagrant/
 auth.json
@@ -8,3 +9,4 @@ composer.phar
 composer.lock
 codeship.aes
 codeship.env
+*.aes

@@ -1,5 +1,5 @@
 <?php
-namespace Sil\SilAuth\tests\unit\log;
+namespace Sil\SilAuth\tests\unit\http;
 
 use PHPUnit\Framework\TestCase;
 use Sil\SilAuth\http\Request;

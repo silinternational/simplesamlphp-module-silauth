@@ -1,6 +1,6 @@
 <?php
 
-use Sil\Psr3Adapters\Psr3SamlLogger;
+use Sil\Psr3Adapters\Psr3StdOutLogger;
 use Sil\SilAuth\auth\Authenticator;
 use Sil\SilAuth\csrf\CsrfProtector;
 use Sil\SilAuth\http\Request;
@@ -38,7 +38,7 @@ $errorParams = null;
 $username = null;
 $password = null;
 
-$csrfProtector = new CsrfProtector(Session::getSession());
+$csrfProtector = new CsrfProtector(Session::getSessionFromRequest());
 
 $globalConfig = Configuration::getInstance();
 $authSourcesConfig = $globalConfig->getConfig('authsources.php');
@@ -48,14 +48,14 @@ $recaptchaSiteKey = $silAuthConfig->getString('recaptcha.siteKey', null);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
-        
-        $logger = new Psr3SamlLogger();
+
+        $logger = new Psr3StdOutLogger();
         $csrfFromRequest = Request::sanitizeInputString(INPUT_POST, 'csrf-token'); 
         if ($csrfProtector->isTokenCorrect($csrfFromRequest)) {
-            
+
             $username = Request::sanitizeInputString(INPUT_POST, 'username');
             $password = Request::getRawInputString(INPUT_POST, 'password');
-            
+
             SilAuth::handleLogin(
                 $authStateId,
                 $username,
@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'userAgent' => Request::getUserAgent(),
             ]));
         }
-        
+
     } catch (SimpleSAMLError $e) {
         /* Login failed. Extract error code and parameters, to display the error. */
         $errorCode = $e->getErrorCode();
