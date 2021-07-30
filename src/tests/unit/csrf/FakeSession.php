@@ -25,7 +25,7 @@ class FakeSession extends \SimpleSAML\Session
         return $this->inMemoryDataStore[$type][$id] ?? null;
     }
     
-    public static function getSession($sessionId = null)
+    public static function getSessionFromRequest($sessionId = null)
     {
         return new self();
     }
