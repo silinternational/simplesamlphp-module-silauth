@@ -2,7 +2,6 @@
 namespace Sil\SilAuth\tests\unit\csrf;
 
 use Sil\SilAuth\csrf\CsrfProtector;
-use Sil\SilAuth\tests\unit\csrf\FakeSession;
 use PHPUnit\Framework\TestCase;
 
 class CsrfProtectorTest extends TestCase
@@ -10,7 +9,7 @@ class CsrfProtectorTest extends TestCase
     public function testChangeMasterToken()
     {
         // Arrange:
-        $csrfProtector = new CsrfProtector(FakeSession::getSession());
+        $csrfProtector = new CsrfProtector(FakeSession::getSessionFromRequest());
         $firstToken = $csrfProtector->getMasterToken();
         $firstTokenAgain = $csrfProtector->getMasterToken();
         
