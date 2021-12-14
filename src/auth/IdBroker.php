@@ -66,7 +66,8 @@ class IdBroker
      */
     public function getAuthenticatedUser(string $username, string $password)
     {
-        $userInfo = $this->client->authenticate($username, $password);
+        $rpOrigin = 'https://' . $this->idpDomainName;
+        $userInfo = $this->client->authenticate($username, $password, $rpOrigin);
         
         if ($userInfo === null) {
             return null;
