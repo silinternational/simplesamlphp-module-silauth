@@ -22,19 +22,16 @@ class User
             'eduPersonPrincipalName' => [
                 $username . '@' . $idpDomainName,
             ],
-            
+
             /**
-             * Misspelled version of eduPersonTargetedID.
+             * Misspelled version of eduPersonTargetedID. (Accidentally used in the past)
              * @deprecated
              */
             'eduPersonTargetID' => (array)$uuid, // Incorrect, deprecated
-            
-            /**
-             * NOTE: Do NOT include eduPersonTargetedID. If you need it, use the
-             * core:TargetedID module (at the Hub, if using one) to generate an
-             * eduPersonTargetedID.
-             */
-            
+
+            // Proper spelling of eduPersonTargetedID.
+            'eduPersonTargetedID' => (array)$uuid,
+
             'sn' => (array)$lastName,
             'givenName' => (array)$firstName,
             'mail' => (array)$email,
