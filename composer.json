@@ -45,5 +45,11 @@
       "Sil\\SilAuth\\": "src/",
       "Sil\\SilAuth\\features\\": "features/"
     }
+  },
+  "config": {
+    "allow-plugins": {
+      "simplesamlphp/composer-module-installer": true,
+      "yiisoft/yii2-composer": true
+    }
   }
 }
