@@ -19,7 +19,7 @@ class User
         array $member
     ) {
 
-        // eduPersonUniqueId:
+        // eduPersonUniqueId (only alphanumeric allowed)
         $epuid = str_replace('-', '', $uuid);
         $epuid .= '@' .$idpDomainName;
 
