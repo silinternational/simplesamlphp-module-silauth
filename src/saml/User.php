@@ -18,19 +18,31 @@ class User
         $profileReview,
         array $member
     ) {
+
+        // eduPersonUniqueId:
+        $epuid = str_replace('-', '', $uuid);
+        $epuid .= '@' .$idpDomainName;
+
         return [
             'eduPersonPrincipalName' => [
                 $username . '@' . $idpDomainName,
             ],
 
             /**
-             * Misspelled version of eduPersonTargetedID. (Accidentally used in the past)
+             * Don't use this misspelled version of eduPersonTargetedID. (Accidentally used in the past)
              * @deprecated
+             *
+             * NOTE: Do NOT include eduPersonTargetedID. If you need it, use the
+             * core:TargetedID module (at the Hub, if using one) to generate an
+             * eduPersonTargetedID based on the eduPersonUniqueId attribute (below).
+             *
              */
             'eduPersonTargetID' => (array)$uuid, // Incorrect, deprecated
 
-            // Proper spelling of eduPersonTargetedID.
-            'eduPersonTargetedID' => (array)$uuid,
+            /**
+             * Use this for a globally unique, non-human friendly, non-reassignable attribute
+             **/
+            'eduPersonUniqueId' => (array)$epuid,
 
             'sn' => (array)$lastName,
             'givenName' => (array)$firstName,
