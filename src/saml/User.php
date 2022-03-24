@@ -20,8 +20,8 @@ class User
     ) {
 
         // eduPersonUniqueId (only alphanumeric allowed)
-        $epuid = str_replace('-', '', $uuid);
-        $epuid .= '@' .$idpDomainName;
+        $alphaNumericUuid = str_replace('-', '', $uuid);
+        $eduPersonUniqueId = $alphaNumericUuid . '@' . $idpDomainName;
 
         return [
             'eduPersonPrincipalName' => [
@@ -42,7 +42,7 @@ class User
             /**
              * Use this for a globally unique, non-human friendly, non-reassignable attribute
              **/
-            'eduPersonUniqueId' => (array)$epuid,
+            'eduPersonUniqueId' => (array)$eduPersonUniqueId,
 
             'sn' => (array)$lastName,
             'givenName' => (array)$firstName,
