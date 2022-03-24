@@ -26,7 +26,7 @@
     "silinternational/php-env": "^2.0",
     "silinternational/psr3-adapters": "^2.3",
     "silinternational/yii2-json-log-targets": "^2.0",
-    "simplesamlphp/simplesamlphp": "~1.18.6",
+    "simplesamlphp/simplesamlphp": "1.18.8",
     "yiisoft/yii2": "~2.0.12",
     "yiisoft/yii2-gii": "^2.0",
     "fillup/fake-bower-assets": "^2.0",
@@ -44,6 +44,12 @@
     "psr-4": {
       "Sil\\SilAuth\\": "src/",
       "Sil\\SilAuth\\features\\": "features/"
+    }
+  },
+  "config": {
+    "allow-plugins": {
+      "simplesamlphp/composer-module-installer": true,
+      "yiisoft/yii2-composer": true
     }
   }
 }
