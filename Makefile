@@ -25,7 +25,7 @@ bounce:
 
 clean:
 	docker-compose kill
-	docker system prune -f
+	docker-compose rm -f
 
 composer:
 	docker-compose run --rm tests bash -c "composer install --no-scripts"
