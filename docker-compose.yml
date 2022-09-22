@@ -3,7 +3,7 @@ version: "2"
 services:
 
   web:
-    image: silintl/ssp-base:featurephp8
+    image: silintl/ssp-base:develop
     ports:
       - "80:80"
     volumes:
@@ -33,7 +33,7 @@ services:
     command: ["/data/run-dev.sh"]
 
   testweb:
-    image: silintl/ssp-base:featurephp8
+    image: silintl/ssp-base:develop
     ports:
       - "8080:80"
     volumes:
@@ -100,7 +100,7 @@ services:
       MYSQL_PASSWORD: "pass"
 
   tests:
-    image: silintl/ssp-base:featurephp8
+    image: silintl/ssp-base:develop
     volumes:
       - ./:/silauth
       - ./composer.json:/data/composer.json

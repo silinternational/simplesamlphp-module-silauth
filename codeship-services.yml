@@ -7,7 +7,7 @@ db:
         MYSQL_PASSWORD: silauth
 
 web:
-    image: silintl/ssp-base:featurephp8
+    image: silintl/ssp-base:develop
     env_file:
       - ./common.env
     depends_on:
@@ -27,7 +27,7 @@ web:
     encrypted_env_file: codeship.env.encrypted
 
 testweb:
-    image: silintl/ssp-base:featurephp8
+    image: silintl/ssp-base:develop
     volumes:
       - ./:/silauth
       - ./composer.json:/data/composer.json
