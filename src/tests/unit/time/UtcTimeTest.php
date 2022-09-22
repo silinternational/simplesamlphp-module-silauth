@@ -93,12 +93,16 @@ class UtcTimeTest extends TestCase
             $actual = UtcTime::getSecondsSinceDateTime($testCase['value']);
             
             // Assert:
-            $this->assertEqualsWithDelta($testCase['expected'], $actual, 1,
+            $this->assertEqualsWithDelta(
+                $testCase['expected'],
+                $actual,
+                1,
                 sprintf('Expected %s to result in %s, not %s.',
-                var_export($testCase['value'], true),
-                var_export($testCase['expected'], true),
-                var_export($actual, true)
-            ));
+                    var_export($testCase['value'], true),
+                    var_export($testCase['expected'], true),
+                    var_export($actual, true)
+                )
+            );
         }
     }
     
