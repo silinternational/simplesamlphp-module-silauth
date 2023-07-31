@@ -76,6 +76,12 @@ broker:
       EMAIL_SIGNATURE: "one red pill, please"
       API_ACCESS_KEYS: "test-cli-abc123"
       APP_ENV: "prod"
+      MFA_TOTP_apiBaseUrl: not_needed_here
+      MFA_TOTP_apiKey: not_needed_here
+      MFA_TOTP_apiSecret: not_needed_here
+      MFA_WEBAUTHN_apiBaseUrl: not_needed_here
+      MFA_WEBAUTHN_apiKey: not_needed_here
+      MFA_WEBAUTHN_apiSecret: not_needed_here
     command: "bash -c 'whenavail brokerDb 3306 60 ./yii migrate --interactive=0 && ./run.sh'"
     encrypted_env_file: codeship.env.encrypted
 

@@ -12,7 +12,7 @@ use Throwable;
 class System
 {
     protected $logger;
-    
+
     /**
      * Constructor.
      *
@@ -22,27 +22,7 @@ class System
     {
         $this->logger = $logger ?? new NullLogger();
     }
-    
-    protected function isIdBrokerOkay()
-    {
-        try {
-            $idBrokerConfig = ConfigManager::getSspConfigFor('idBroker');
-            $idBroker = new IdBroker(
-                $idBrokerConfig['baseUri'] ?? null,
-                $idBrokerConfig['accessToken'] ?? null,
-                $this->logger,
-                $idBrokerConfig['idpDomainName'],
-                $idBrokerConfig['trustedIpRanges'] ?? [],
-                $idBrokerConfig['assertValidIp'] ?? true
-            );
-            $idBroker->getSiteStatus();
-            return true;
-        } catch (Throwable $t) {
-            $this->logError($t->getMessage());
-            return false;
-        }
-    }
-    
+
     protected function isDatabaseOkay()
     {
         try {
@@ -53,11 +33,11 @@ class System
             return false;
         }
     }
-    
+
     protected function isRequiredConfigPresent()
     {
         $globalConfig = Configuration::getInstance();
-        
+
         /*
          * NOTE: We require that SSP's baseurlpath configuration is set (and
          *       matches the corresponding RegExp) in order to prevent a
@@ -69,12 +49,12 @@ class System
         $avoidsSecurityHole = (preg_match('#^https?://.*/$#D', $baseURL) === 1);
         return $avoidsSecurityHole;
     }
-    
+
     /**
      * Check the status of the system, and throw an exception (that is safe to
      * show to the public) if any serious error conditions are found. Log any
      * problems, even if recoverable.
-     * 
+     *
      * @throws \Exception
      */
     public function reportStatus()
@@ -82,18 +62,14 @@ class System
         if ( ! $this->isRequiredConfigPresent()) {
             $this->reportError('Config problem', 1485984755);
         }
-        
+
         if ( ! $this->isDatabaseOkay()) {
             $this->reportError('Database problem', 1485284407);
         }
-        
-        if ( ! $this->isIdBrokerOkay()) {
-            $this->reportError('ID Broker problem', 1503587665);
-        }
-        
+
         echo 'OK';
     }
-    
+
     /**
      * Add an entry to our log about this error.
      *
@@ -103,7 +79,7 @@ class System
     {
         $this->logger->error($message);
     }
-    
+
     /**
      * Log this error and throw an exception (with an error message) for the
      * calling code to handle.
