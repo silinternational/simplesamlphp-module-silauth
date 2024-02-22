@@ -1,0 +1,14 @@
+name: Test
+
+on:
+  push:
+
+jobs:
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Unit tests
+        run: docker-compose -f actions-services.yml run --rm web whenavail db 3306 100 whenavail testweb 80 300 /data/run-tests.sh

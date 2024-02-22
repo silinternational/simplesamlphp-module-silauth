@@ -1,32 +1,33 @@
-db:
+version: "3"
+services:
+  db:
     image: mariadb:10
     environment:
-        MYSQL_ROOT_PASSWORD: r00tp@ss!
-        MYSQL_DATABASE: test
-        MYSQL_USER: silauth
-        MYSQL_PASSWORD: silauth
+      MYSQL_ROOT_PASSWORD: r00tp@ss!
+      MYSQL_DATABASE: test
+      MYSQL_USER: silauth
+      MYSQL_PASSWORD: silauth
 
-web:
+  web:
     image: silintl/ssp-base:develop
     env_file:
       - ./common.env
     depends_on:
-        - db
-        - testweb
+      - db
+      - testweb
     volumes:
-        - ./:/data/vendor/simplesamlphp/simplesamlphp/modules/silauth
-        - ./development/run-tests.sh:/data/run-tests.sh
+      - ./:/data/vendor/simplesamlphp/simplesamlphp/modules/silauth
+      - ./development/run-tests.sh:/data/run-tests.sh
     environment:
-        MYSQL_HOST: db
-        MYSQL_DATABASE: test
-        MYSQL_USER: silauth
-        MYSQL_PASSWORD: silauth
-        APPLICATION_ENV: testing
-        IDP_DOMAIN_NAME: fake.example.com
+      MYSQL_HOST: db
+      MYSQL_DATABASE: test
+      MYSQL_USER: silauth
+      MYSQL_PASSWORD: silauth
+      APPLICATION_ENV: testing
+      IDP_DOMAIN_NAME: fake.example.com
     working_dir: /data
-    encrypted_env_file: codeship.env.encrypted
 
-testweb:
+  testweb:
     image: silintl/ssp-base:develop
     volumes:
       - ./:/silauth
@@ -51,9 +52,8 @@ testweb:
       - db
       - broker
     command: 'bash -c "rm -f /data/composer.lock && /data/run-dev.sh"'
-    encrypted_env_file: codeship.env.encrypted
 
-broker:
+  broker:
     image: silintl/idp-id-broker:latest
     ports:
       - "80"
@@ -83,9 +83,8 @@ broker:
       MFA_WEBAUTHN_apiKey: not_needed_here
       MFA_WEBAUTHN_apiSecret: not_needed_here
     command: "bash -c 'whenavail brokerDb 3306 60 ./yii migrate --interactive=0 && ./run.sh'"
-    encrypted_env_file: codeship.env.encrypted
 
-brokerDb:
+  brokerDb:
     image: mariadb:10
     ports:
       - "3306"
