@@ -1,5 +1,0 @@
-# This test requires an up-to-date GitHub token in codeship.env.encrypted
-# If testweb fails to start, web will try to connect until its timeout. In this situation, it is possible that the GitHub token has expired.
-- name: test
-  service: web
-  command: whenavail db 3306 100 whenavail testweb 80 300 /data/run-tests.sh
